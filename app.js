@@ -34,13 +34,13 @@ class ClashFireApp {
         this.db = null;
         this.firestoreActive = false;
 
-        // Base 5 Daily Shortener Tasks
+        // Base 5 Daily Shortener Tasks (Default target verification URLs)
         this.dailyLinks = [
-            { id: 0, title: "GPLink Clash Supply #1", url: "https://gplinks.co/example1" },
-            { id: 1, title: "ShrinkEarn Elite Crate #2", url: "https://shrinkearn.com/example2" },
-            { id: 2, title: "GPLink Diamond Vault #3", url: "https://gplinks.co/example3" },
-            { id: 3, title: "Shortur Armor Drop #4", url: "https://shortur.com/example4" },
-            { id: 4, title: "GPLink Heroic Loot #5", url: "https://gplinks.co/example5" }
+            { id: 0, title: "Daily Mission Supply #1", url: "https://clash-fire.vercel.app/verify.html?task=0" },
+            { id: 1, title: "Daily Mission Elite #2", url: "https://clash-fire.vercel.app/verify.html?task=1" },
+            { id: 2, title: "Daily Mission Vault #3", url: "https://clash-fire.vercel.app/verify.html?task=2" },
+            { id: 3, title: "Daily Mission Armor #4", url: "https://clash-fire.vercel.app/verify.html?task=3" },
+            { id: 4, title: "Daily Mission Heroic #5", url: "https://clash-fire.vercel.app/verify.html?task=4" }
         ];
 
         this.init();
@@ -90,6 +90,16 @@ class ClashFireApp {
                 const doc = await this.db.collection("settings").doc("global").get();
                 if (doc.exists) {
                     this.globalSettings = doc.data();
+                }
+
+                const linksDoc = await this.db.collection("settings").doc("links").get();
+                if (linksDoc.exists) {
+                    const linksData = linksDoc.data();
+                    if (linksData.urls && Array.isArray(linksData.urls)) {
+                        linksData.urls.forEach((u, i) => {
+                            if (u && this.dailyLinks[i]) this.dailyLinks[i].url = u;
+                        });
+                    }
                 }
             } catch(e) { console.error(e); }
         }

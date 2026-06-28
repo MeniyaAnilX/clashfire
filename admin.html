@@ -26,7 +26,6 @@
         .brand i { color: var(--primary-fire); }
         .badge-live { background: rgba(0, 230, 118, 0.15); color: #00e676; border: 1px solid #00e676; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; }
 
-        /* Navigation Bar */
         .admin-nav { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; }
         .nav-tab { background: var(--bg-card); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); padding: 12px 20px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; white-space: nowrap; }
         .nav-tab.active { background: linear-gradient(135deg, var(--accent-cyan), #00a8ff); color: #000; border-color: var(--accent-cyan); box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3); }
@@ -39,12 +38,13 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        .control-card { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); max-width: 600px; }
+        .control-card { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); max-width: 750px; }
         .card-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 15px; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px; }
 
         .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
         .form-group label { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); }
         .form-group input { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 0.95rem; outline: none; }
+        .form-group input:focus { border-color: var(--accent-cyan); }
         
         .btn-action { background: linear-gradient(135deg, var(--accent-cyan), #00a8ff); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 10px; }
 
@@ -102,7 +102,7 @@
     <nav class="admin-nav">
         <button class="nav-tab active" onclick="switchTab('tab-redemptions', this)"><i class="fa-solid fa-gem"></i> REDEMPTIONS QUEUE</button>
         <button class="nav-tab" onclick="switchTab('tab-users', this)"><i class="fa-solid fa-users"></i> PLAYERS DATABASE</button>
-        <button class="nav-tab" onclick="switchTab('tab-settings', this)"><i class="fa-solid fa-sliders"></i> REWARD SETTINGS</button>
+        <button class="nav-tab" onclick="switchTab('tab-settings', this)"><i class="fa-solid fa-sliders"></i> REWARD & LINKS SETTINGS</button>
     </nav>
 
     <!-- Tab 1: Redemptions Queue (DEFAULT VIEW) -->
@@ -147,22 +147,51 @@
         </table>
     </div>
 
-    <!-- Tab 3: Reward Settings -->
+    <!-- Tab 3: Reward & Links Settings -->
     <div id="tab-settings" class="tab-content control-card">
-        <div class="card-title"><i class="fa-solid fa-sliders"></i> DYNAMIC REWARD SETTINGS</div>
+        <div class="card-title"><i class="fa-solid fa-sliders"></i> DYNAMIC REWARD AMOUNTS</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
+            <div class="form-group">
+                <label>Diamonds Per Link</label>
+                <input type="number" id="setting-link-reward" value="5">
+            </div>
+            <div class="form-group">
+                <label>Diamonds Per Watch Ad</label>
+                <input type="number" id="setting-ad-reward" value="2">
+            </div>
+            <div class="form-group">
+                <label>Referral Bonus Diamonds</label>
+                <input type="number" id="setting-ref-reward" value="10">
+            </div>
+        </div>
+        <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE REWARD AMOUNTS</button>
+
+        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+
+        <div class="card-title"><i class="fa-solid fa-link"></i> 5 DAILY MISSION SHORTENER LINKS</div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Paste your shortened GPLinks / Shortener URLs here. (Set GPLinks destination target to https://clash-fire.vercel.app/verify.html?task=0 to 4)</p>
+        
         <div class="form-group">
-            <label>Diamonds Per Link Mission</label>
-            <input type="number" id="setting-link-reward" value="5">
+            <label>Mission Link 1 URL (Target task=0)</label>
+            <input type="text" id="link-url-0" value="https://clash-fire.vercel.app/verify.html?task=0">
         </div>
         <div class="form-group">
-            <label>Diamonds Per Watch Ad</label>
-            <input type="number" id="setting-ad-reward" value="2">
+            <label>Mission Link 2 URL (Target task=1)</label>
+            <input type="text" id="link-url-1" value="https://clash-fire.vercel.app/verify.html?task=1">
         </div>
         <div class="form-group">
-            <label>Referral Bonus Diamonds</label>
-            <input type="number" id="setting-ref-reward" value="10">
+            <label>Mission Link 3 URL (Target task=2)</label>
+            <input type="text" id="link-url-2" value="https://clash-fire.vercel.app/verify.html?task=2">
         </div>
-        <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE APP REWARD SETTINGS</button>
+        <div class="form-group">
+            <label>Mission Link 4 URL (Target task=3)</label>
+            <input type="text" id="link-url-3" value="https://clash-fire.vercel.app/verify.html?task=3">
+        </div>
+        <div class="form-group">
+            <label>Mission Link 5 URL (Target task=4)</label>
+            <input type="text" id="link-url-4" value="https://clash-fire.vercel.app/verify.html?task=4">
+        </div>
+        <button class="btn-action" style="background: var(--accent-gold);" onclick="saveMissionLinks()"><i class="fa-solid fa-save"></i> SAVE MISSION SHORTENER LINKS</button>
     </div>
 
     <script>
@@ -195,6 +224,17 @@
                     document.getElementById('setting-ad-reward').value = data.adReward || 2;
                     document.getElementById('setting-ref-reward').value = data.referralReward || 10;
                 }
+
+                const linksDoc = await db.collection("settings").doc("links").get();
+                if (linksDoc.exists) {
+                    const lData = linksDoc.data();
+                    if (lData.urls && Array.isArray(lData.urls)) {
+                        lData.urls.forEach((u, i) => {
+                            let inputElem = document.getElementById(`link-url-${i}`);
+                            if (inputElem && u) inputElem.value = u;
+                        });
+                    }
+                }
             } catch(e) { console.error(e); }
         }
 
@@ -212,6 +252,24 @@
                 });
                 alert("App Reward Settings saved live!");
             } catch(e) { alert("Error: " + e.message); }
+        }
+
+        async function saveMissionLinks() {
+            const urls = [
+                document.getElementById('link-url-0').value.trim(),
+                document.getElementById('link-url-1').value.trim(),
+                document.getElementById('link-url-2').value.trim(),
+                document.getElementById('link-url-3').value.trim(),
+                document.getElementById('link-url-4').value.trim()
+            ];
+
+            try {
+                await db.collection("settings").doc("links").set({
+                    urls: urls,
+                    updatedAt: new Date().toISOString()
+                });
+                alert("All 5 Mission Shortener Links saved live! Users will now be directed to these links.");
+            } catch(e) { alert("Error saving links: " + e.message); }
         }
 
         function loadLiveUsers() {
