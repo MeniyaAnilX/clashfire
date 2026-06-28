@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager, Universal Universal Ad Script Engine
+ * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager, Direct DOM Script Execution Engine
  */
 
 const firebaseConfig = {
@@ -326,7 +326,7 @@ class ClashFireApp {
             gzStation.style.display = isGzOn ? 'block' : 'none';
         }
 
-        // Render Native Banner Ad Slots with Universal Script Execution Engine & Dynamic Scaling
+        // Render Native Banner Ad Slots with Direct DOM Execution and Auto Scaling
         const topSlot = document.getElementById('banner-ad-top');
         const botSlot = document.getElementById('banner-ad-bottom');
         const isBannerOn = (this.integrations.bannerEnabled === true || this.integrations.bannerEnabled === 'true');
@@ -334,11 +334,11 @@ class ClashFireApp {
         if (isBannerOn && this.integrations.bannerHtmlCode) {
             if (topSlot) {
                 topSlot.classList.remove('hidden');
-                this.injectUniversalAdScript(topSlot, this.integrations.bannerHtmlCode);
+                this.executeDirectDomAdScript(topSlot, this.integrations.bannerHtmlCode);
             }
             if (botSlot) {
                 botSlot.classList.remove('hidden');
-                this.injectUniversalAdScript(botSlot, this.integrations.bannerHtmlCode);
+                this.executeDirectDomAdScript(botSlot, this.integrations.bannerHtmlCode);
             }
         } else {
             if (topSlot) { topSlot.classList.add('hidden'); topSlot.innerHTML = ''; }
@@ -388,48 +388,43 @@ class ClashFireApp {
         this.renderRedeemHistory();
     }
 
-    injectUniversalAdScript(containerElement, rawHtmlCode) {
+    executeDirectDomAdScript(containerElement, rawHtmlCode) {
         if (!containerElement) return;
         containerElement.innerHTML = '';
 
-        // Extract width and height parameters if present (e.g. 728x90, 300x250, 320x50)
-        let frameHeight = '90px';
-        if (rawHtmlCode.includes("'height' : 250") || rawHtmlCode.includes('"height" : 250') || rawHtmlCode.includes("height:250")) {
-            frameHeight = '260px';
-        } else if (rawHtmlCode.includes("'height' : 50") || rawHtmlCode.includes('"height" : 50') || rawHtmlCode.includes("height:50")) {
-            frameHeight = '60px';
-        }
+        const wrapper = document.createElement('div');
+        wrapper.className = 'ad-scale-wrapper';
+        wrapper.innerHTML = rawHtmlCode;
+        containerElement.appendChild(wrapper);
 
-        containerElement.style.minHeight = frameHeight;
+        // Dynamically execute inline and external scripts inside the container
+        const scripts = wrapper.getElementsByTagName('script');
+        Array.from(scripts).forEach(oldScript => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+            if (oldScript.src) {
+                newScript.src = oldScript.src;
+            } else {
+                newScript.textContent = oldScript.textContent;
+            }
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
 
-        // Universal Script Execution via sandbox iframe with auto-scaling styling
-        const iframe = document.createElement('iframe');
-        iframe.style.width = '100%';
-        iframe.style.height = frameHeight;
-        iframe.style.border = 'none';
-        iframe.style.overflow = 'hidden';
-        iframe.scrolling = 'no';
-
-        containerElement.appendChild(iframe);
-
-        const doc = iframe.contentWindow.document;
-        doc.open();
-        doc.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <base target="_blank">
-                <style>
-                    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; overflow: hidden; height: 100%; width: 100%; }
-                    iframe, img, div { max-width: 100% !important; height: auto !important; }
-                </style>
-            </head>
-            <body>
-                ${rawHtmlCode}
-            </body>
-            </html>
-        `);
-        doc.close();
+        // Auto Scale Calculation for 728px banners on mobile
+        setTimeout(() => {
+            const containerWidth = containerElement.clientWidth - 12;
+            const innerElements = wrapper.querySelectorAll('iframe, img, div');
+            innerElements.forEach(el => {
+                if (el.clientWidth > containerWidth && containerWidth > 0) {
+                    const scaleFactor = containerWidth / el.clientWidth;
+                    if (scaleFactor < 1) {
+                        wrapper.style.transform = `scale(${scaleFactor})`;
+                        wrapper.style.transformOrigin = 'center top';
+                        wrapper.style.marginBottom = `-${(el.clientHeight * (1 - scaleFactor))}px`;
+                    }
+                }
+            });
+        }, 800);
     }
 
     renderRedeemHistory() {

@@ -52,10 +52,16 @@ body {
     position: relative;
 }
 
-.native-banner-slot iframe, .native-banner-slot img {
-    max-width: 100% !important;
-    height: auto !important;
-    object-fit: contain;
+.ad-scale-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease;
+}
+
+.ad-scale-wrapper iframe, .ad-scale-wrapper img, .ad-scale-wrapper div {
+    max-width: 100%;
 }
 
 /* 3-Second Premium Transparent Cardview Page Loading Overlay */
