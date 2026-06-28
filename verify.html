@@ -112,6 +112,38 @@
                 return;
             }
 
+            // 🛡️ STRICT SECURITY CHECK: Validate One-Time Active Token
+            const tokenRaw = localStorage.getItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
+            if (!tokenRaw) {
+                document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ff1744;"></i>';
+                document.getElementById('status-title').innerText = 'SECURITY VIOLATION!';
+                document.getElementById('status-desc').innerText = 'Direct URL opening or link sharing detected! Task was not launched from Clash Fire app.';
+                document.getElementById('reward-amt').innerText = '0 Diamonds';
+                document.getElementById('return-btn').style.display = 'block';
+                return;
+            }
+
+            try {
+                const tokenData = JSON.parse(tokenRaw);
+                const elapsedMins = (Date.now() - tokenData.time) / (1000 * 60);
+                if (elapsedMins > 15) { // Expire token after 15 mins
+                    localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
+                    document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-clock" style="color:#ff1744;"></i>';
+                    document.getElementById('status-title').innerText = 'SESSION TIMEOUT!';
+                    document.getElementById('status-desc').innerText = 'Mission verification session expired (15 mins limit). Please relaunch from app.';
+                    document.getElementById('reward-amt').innerText = '0 Diamonds';
+                    document.getElementById('return-btn').style.display = 'block';
+                    return;
+                }
+            } catch(e) {
+                localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
+                document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-shield-cat" style="color:#ff1744;"></i>';
+                document.getElementById('status-title').innerText = 'INVALID TOKEN!';
+                document.getElementById('status-desc').innerText = 'Security token tampered or corrupted.';
+                document.getElementById('return-btn').style.display = 'block';
+                return;
+            }
+
             let rewardAmt = 5;
             if (db) {
                 try {
@@ -147,6 +179,8 @@
                 }
 
                 if (userData.completedLinks[taskId]) {
+                    // Burn token
+                    localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
                     document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color:#ffd700;"></i>';
                     document.getElementById('status-title').innerText = 'ALREADY CLAIMED!';
                     document.getElementById('status-desc').innerText = 'You have already claimed reward for this mission today.';
@@ -154,6 +188,8 @@
                     return;
                 }
 
+                // Credit Reward & Burn One-Time Token!
+                localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
                 userData.completedLinks[taskId] = true;
                 userData.coins = (userData.coins || 0) + rewardAmt;
                 userData.dailyLinkCompletedCount = (userData.dailyLinkCompletedCount || 0) + 1;

@@ -43,11 +43,11 @@ class ClashFireApp {
 
         // Dynamic Mission Tasks Array (1-indexed task IDs)
         this.dailyLinks = [
-            { id: 0, taskId: 1, title: "Daily Mission Supply #1", url: "https://clash-fire.vercel.app/verify.html?task=1" },
-            { id: 1, taskId: 2, title: "Daily Mission Elite #2", url: "https://clash-fire.vercel.app/verify.html?task=2" },
-            { id: 2, taskId: 3, title: "Daily Mission Vault #3", url: "https://clash-fire.vercel.app/verify.html?task=3" },
-            { id: 3, taskId: 4, title: "Daily Mission Armor #4", url: "https://clash-fire.vercel.app/verify.html?task=4" },
-            { id: 4, taskId: 5, title: "Daily Mission Heroic #5", url: "https://clash-fire.vercel.app/verify.html?task=5" }
+            { id: 0, taskId: 1, title: "Daily Mission Supply #1", url: "https://clashfire.vercel.app/verify.html?task=1" },
+            { id: 1, taskId: 2, title: "Daily Mission Elite #2", url: "https://clashfire.vercel.app/verify.html?task=2" },
+            { id: 2, taskId: 3, title: "Daily Mission Vault #3", url: "https://clashfire.vercel.app/verify.html?task=3" },
+            { id: 3, taskId: 4, title: "Daily Mission Armor #4", url: "https://clashfire.vercel.app/verify.html?task=4" },
+            { id: 4, taskId: 5, title: "Daily Mission Heroic #5", url: "https://clashfire.vercel.app/verify.html?task=5" }
         ];
 
         this.init();
@@ -454,6 +454,13 @@ class ClashFireApp {
         const taskId = task.taskId || (index + 1);
 
         if (this.user.completedLinks && this.user.completedLinks[taskId]) return;
+
+        // Generate One-Time Security Session Token locked to this device
+        const tokenObj = {
+            token: "CF_SEC_" + Math.random().toString(36).substring(2, 10) + "_" + Date.now(),
+            time: Date.now()
+        };
+        localStorage.setItem("CF_ACTIVE_TOKEN_TASK_" + taskId, JSON.stringify(tokenObj));
 
         window.open(task.url, '_blank');
         this.showToast('MISSION LAUNCHED', 'Complete shortener navigation on target tab to claim reward!', 'info');
