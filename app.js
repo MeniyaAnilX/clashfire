@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, PIN Protection
+ * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Auto Hardware Re-Sync
  */
 
 const firebaseConfig = {
@@ -20,7 +20,6 @@ class ClashFireApp {
         this.user = {
             coins: 0, // Direct Diamonds balance
             freeFireUid: '',
-            securityPin: '',
             dailyWatchCount: 0,
             dailyLinkCompletedCount: 0,
             completedLinks: [false, false, false, false, false],
@@ -260,68 +259,6 @@ class ClashFireApp {
         }
     }
 
-    async saveSecurityProfile() {
-        const uidInput = document.getElementById('ff-uid').value.trim();
-        const pinInput = document.getElementById('security-pin').value.trim();
-
-        if (!uidInput || uidInput.length < 8) {
-            this.showToast('VALIDATION ERROR', 'Please enter a valid Free Fire Player UID!', 'error');
-            return;
-        }
-
-        if (!pinInput || pinInput.length !== 4 || isNaN(pinInput)) {
-            this.showToast('VALIDATION ERROR', 'Security PIN must be exactly 4 digits!', 'error');
-            return;
-        }
-
-        this.showLoader("VERIFYING SECURITY PIN & SYNCING ACCOUNT...");
-
-        if (this.firestoreActive) {
-            try {
-                // Check if account with this FF UID exists
-                const snapshot = await this.db.collection("users").where("freeFireUid", "==", uidInput).get();
-                
-                if (!snapshot.empty) {
-                    let existingDoc = snapshot.docs[0];
-                    let existingData = existingDoc.data();
-                    
-                    // If PIN exists and matches, restore user data onto this device!
-                    if (existingData.securityPin && existingData.securityPin === pinInput) {
-                        this.user = existingData;
-                        this.saveUserProfile();
-                        this.hideLoader();
-                        this.renderDashboard();
-                        this.showToast('ACCOUNT RESTORED!', `Welcome back! Restored ${this.user.coins} Diamonds balance.`, 'success');
-                        return;
-                    } else if (existingData.securityPin && existingData.securityPin !== pinInput) {
-                        this.hideLoader();
-                        this.showToast('SECURITY ERROR', 'Incorrect 4-Digit PIN for this Player UID!', 'error');
-                        return;
-                    }
-                }
-
-                // Bind current profile with FF UID and PIN
-                this.user.freeFireUid = uidInput;
-                this.user.securityPin = pinInput;
-                await this.saveUserProfile();
-                this.hideLoader();
-                this.renderDashboard();
-                this.showToast('SECURITY LOCKED!', 'Account locked with 4-Digit Security PIN!', 'success');
-                return;
-            } catch(e) {
-                this.hideLoader();
-                console.error(e);
-            }
-        }
-
-        this.user.freeFireUid = uidInput;
-        this.user.securityPin = pinInput;
-        this.saveUserProfile();
-        this.hideLoader();
-        this.renderDashboard();
-        this.showToast('SECURITY LOCKED!', 'Account locked locally!', 'success');
-    }
-
     async checkReferralBonus() {
         const urlParams = new URLSearchParams(window.location.search);
         const refCode = urlParams.get('ref');
@@ -383,10 +320,6 @@ class ClashFireApp {
 
         if (this.user.freeFireUid) {
             document.getElementById('ff-uid').value = this.user.freeFireUid;
-        }
-
-        if (this.user.securityPin) {
-            document.getElementById('security-pin').value = this.user.securityPin;
         }
 
         const refInput = document.getElementById('referral-link-input');
