@@ -93,6 +93,9 @@ body {
 .app-tab-pane.active { display: block; animation: fadeInPane 0.3s ease; }
 @keyframes fadeInPane { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
+/* Security Wrap */
+.security-inputs-wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+
 /* Buttons */
 .btn-primary {
     background: linear-gradient(135deg, var(--accent-cyan), #00a8ff);
@@ -146,7 +149,7 @@ body {
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    flex-wrap: wrap; /* Prevents button overlap on small screens */
+    flex-wrap: wrap;
 }
 .ad-card { border: 1.5px dashed var(--primary-fire); }
 
@@ -174,7 +177,7 @@ body {
     font-weight: 800;
     color: #fff;
     line-height: 1.3;
-    white-space: normal; /* Full text visible naturally */
+    white-space: normal;
     word-break: break-word;
 }
 .integration-info p, .ad-details p { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }

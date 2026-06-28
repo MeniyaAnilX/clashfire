@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations
+ * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, PIN Protection
  */
 
 const firebaseConfig = {
@@ -20,6 +20,7 @@ class ClashFireApp {
         this.user = {
             coins: 0, // Direct Diamonds balance
             freeFireUid: '',
+            securityPin: '',
             dailyWatchCount: 0,
             dailyLinkCompletedCount: 0,
             completedLinks: [false, false, false, false, false],
@@ -32,7 +33,7 @@ class ClashFireApp {
             referralReward: 10
         };
         this.integrations = {
-            toroxUrl: "https://torox.io",
+            toroxUrl: localStorage.getItem('CF_CACHE_TOROX_URL') || "https://torox.io",
             toroxEnabled: true,
             gamezopUrl: "https://www.gamezop.com",
             gamezopReward: 5,
@@ -57,7 +58,7 @@ class ClashFireApp {
         this.start3SecPageLoader();
         this.initFirebase();
         
-        this.deviceId = await this.generateCrossBrowserHardwareID();
+        this.deviceId = await this.getOrCreateMultiLayerDeviceID();
         this.displayUserId = "CF-" + this.deviceId.substring(9, 15);
         
         const devElem = document.getElementById('display-device-id');
@@ -124,28 +125,64 @@ class ClashFireApp {
     async loadGlobalSettings() {
         if (this.firestoreActive) {
             try {
-                const doc = await db.collection("settings").doc("global").get();
-                if (doc.exists) this.globalSettings = doc.data();
-
-                const linksDoc = await db.collection("settings").doc("links").get();
-                if (linksDoc.exists) {
-                    const linksData = linksDoc.data();
-                    if (linksData.urls && Array.isArray(linksData.urls)) {
-                        linksData.urls.forEach((u, i) => {
-                            if (u && this.dailyLinks[i]) this.dailyLinks[i].url = u;
-                        });
+                // Realtime Listeners for instant settings synchronization
+                this.db.collection("settings").doc("global").onSnapshot(doc => {
+                    if (doc.exists) {
+                        this.globalSettings = doc.data();
+                        this.renderDashboard();
                     }
-                }
+                });
 
-                const integDoc = await db.collection("settings").doc("integrations").get();
-                if (integDoc.exists) {
-                    this.integrations = integDoc.data();
-                }
+                this.db.collection("settings").doc("links").onSnapshot(doc => {
+                    if (doc.exists) {
+                        const linksData = doc.data();
+                        if (linksData.urls && Array.isArray(linksData.urls)) {
+                            linksData.urls.forEach((u, i) => {
+                                if (u && this.dailyLinks[i]) this.dailyLinks[i].url = u;
+                            });
+                            this.renderDashboard();
+                        }
+                    }
+                });
+
+                this.db.collection("settings").doc("integrations").onSnapshot(doc => {
+                    if (doc.exists) {
+                        this.integrations = doc.data();
+                        if (this.integrations.toroxUrl) {
+                            localStorage.setItem('CF_CACHE_TOROX_URL', this.integrations.toroxUrl);
+                        }
+                        this.renderDashboard();
+                    }
+                });
             } catch(e) { console.error(e); }
         }
     }
 
-    async generateCrossBrowserHardwareID() {
+    setCookie(name, value, days = 3650) {
+        const d = new Date();
+        d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+        document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/;SameSite=Lax`;
+    }
+
+    getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i=0;i < ca.length;i++) {
+            let c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+    }
+
+    async getOrCreateMultiLayerDeviceID() {
+        let savedId = this.getCookie('CLASH_PERMANENT_HW_ID') || localStorage.getItem('CLASH_FIRE_HW_ID');
+        if (savedId) {
+            this.setCookie('CLASH_PERMANENT_HW_ID', savedId);
+            localStorage.setItem('CLASH_FIRE_HW_ID', savedId);
+            return savedId;
+        }
+
         let hardwareTokens = [];
         const screenSpecs = `${window.screen.width}x${window.screen.height}x${window.screen.colorDepth}x${window.devicePixelRatio || 1}`;
         hardwareTokens.push(screenSpecs);
@@ -176,6 +213,7 @@ class ClashFireApp {
         }
 
         const finalId = `CLASH_HW_${Math.abs(hash)}`;
+        this.setCookie('CLASH_PERMANENT_HW_ID', finalId);
         localStorage.setItem('CLASH_FIRE_HW_ID', finalId);
         return finalId;
     }
@@ -220,6 +258,68 @@ class ClashFireApp {
         } else {
             this.saveUserProfile();
         }
+    }
+
+    async saveSecurityProfile() {
+        const uidInput = document.getElementById('ff-uid').value.trim();
+        const pinInput = document.getElementById('security-pin').value.trim();
+
+        if (!uidInput || uidInput.length < 8) {
+            this.showToast('VALIDATION ERROR', 'Please enter a valid Free Fire Player UID!', 'error');
+            return;
+        }
+
+        if (!pinInput || pinInput.length !== 4 || isNaN(pinInput)) {
+            this.showToast('VALIDATION ERROR', 'Security PIN must be exactly 4 digits!', 'error');
+            return;
+        }
+
+        this.showLoader("VERIFYING SECURITY PIN & SYNCING ACCOUNT...");
+
+        if (this.firestoreActive) {
+            try {
+                // Check if account with this FF UID exists
+                const snapshot = await this.db.collection("users").where("freeFireUid", "==", uidInput).get();
+                
+                if (!snapshot.empty) {
+                    let existingDoc = snapshot.docs[0];
+                    let existingData = existingDoc.data();
+                    
+                    // If PIN exists and matches, restore user data onto this device!
+                    if (existingData.securityPin && existingData.securityPin === pinInput) {
+                        this.user = existingData;
+                        this.saveUserProfile();
+                        this.hideLoader();
+                        this.renderDashboard();
+                        this.showToast('ACCOUNT RESTORED!', `Welcome back! Restored ${this.user.coins} Diamonds balance.`, 'success');
+                        return;
+                    } else if (existingData.securityPin && existingData.securityPin !== pinInput) {
+                        this.hideLoader();
+                        this.showToast('SECURITY ERROR', 'Incorrect 4-Digit PIN for this Player UID!', 'error');
+                        return;
+                    }
+                }
+
+                // Bind current profile with FF UID and PIN
+                this.user.freeFireUid = uidInput;
+                this.user.securityPin = pinInput;
+                await this.saveUserProfile();
+                this.hideLoader();
+                this.renderDashboard();
+                this.showToast('SECURITY LOCKED!', 'Account locked with 4-Digit Security PIN!', 'success');
+                return;
+            } catch(e) {
+                this.hideLoader();
+                console.error(e);
+            }
+        }
+
+        this.user.freeFireUid = uidInput;
+        this.user.securityPin = pinInput;
+        this.saveUserProfile();
+        this.hideLoader();
+        this.renderDashboard();
+        this.showToast('SECURITY LOCKED!', 'Account locked locally!', 'success');
     }
 
     async checkReferralBonus() {
@@ -277,6 +377,10 @@ class ClashFireApp {
 
         if (this.user.freeFireUid) {
             document.getElementById('ff-uid').value = this.user.freeFireUid;
+        }
+
+        if (this.user.securityPin) {
+            document.getElementById('security-pin').value = this.user.securityPin;
         }
 
         const refInput = document.getElementById('referral-link-input');
@@ -348,7 +452,7 @@ class ClashFireApp {
     }
 
     openToroxOfferwall() {
-        let url = this.integrations.toroxUrl || "https://torox.io";
+        let url = (this.integrations && this.integrations.toroxUrl) ? this.integrations.toroxUrl : (localStorage.getItem('CF_CACHE_TOROX_URL') || "https://torox.io");
         
         // Dynamic Replacement for both USER_ID=[USER_ID] and subid tracking
         if (url.includes('[USER_ID]')) {

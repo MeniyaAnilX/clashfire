@@ -174,17 +174,34 @@
 
             <!-- TAB 3: REDEEM VAULT -->
             <div id="tab-redeem" class="app-tab-pane">
+                <!-- Security Profile Card -->
+                <section class="dashboard-section" style="border: 1px solid var(--accent-gold);">
+                    <div class="section-title">
+                        <h2><i class="fa-solid fa-shield-halved"></i> ACCOUNT SECURITY & SYNC</h2>
+                    </div>
+                    <p class="section-desc">Set a 4-Digit Security PIN to protect your balance and restore account anywhere!</p>
+                    
+                    <div class="security-inputs-wrap">
+                        <div class="ff-uid-input-group">
+                            <label for="ff-uid"><i class="fa-solid fa-id-card"></i> FREE FIRE PLAYER UID</label>
+                            <input type="text" id="ff-uid" placeholder="Enter Player UID (e.g. 123456789)" maxlength="12">
+                        </div>
+                        <div class="ff-uid-input-group">
+                            <label for="security-pin"><i class="fa-solid fa-lock"></i> 4-DIGIT SECURITY PIN</label>
+                            <input type="password" id="security-pin" placeholder="Enter 4-Digit PIN (e.g. 1234)" maxlength="4" style="letter-spacing: 4px;">
+                        </div>
+                    </div>
+                    <button class="btn-primary" style="width: 100%; background: linear-gradient(135deg, var(--accent-gold), #ff8c00); color: #000; margin-top: 10px;" onclick="app.saveSecurityProfile()">
+                        <i class="fa-solid fa-key"></i> LOCK & RESTORE ACCOUNT
+                    </button>
+                </section>
+
                 <!-- Diamond Vault -->
                 <section class="dashboard-section" id="redemption-vault">
                     <div class="section-title">
                         <h2><img src="diamond.png" alt="Diamond" class="section-title-img"> REDEEM DIAMONDS</h2>
                     </div>
                     <p class="section-desc">Instantly claim Free Fire In-Game Diamonds to your Player UID.</p>
-
-                    <div class="ff-uid-input-group">
-                        <label for="ff-uid"><i class="fa-solid fa-id-card"></i> FREE FIRE PLAYER UID</label>
-                        <input type="text" id="ff-uid" placeholder="Enter Player UID (e.g. 123456789)" maxlength="12">
-                    </div>
 
                     <div class="packages-grid">
                         <div class="package-card" onclick="app.selectPackage(this, 100, 100)">
