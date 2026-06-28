@@ -176,13 +176,12 @@ class ClashFireApp {
         const urlParams = new URLSearchParams(window.location.search);
         const refCode = urlParams.get('ref');
         
-        if (refCode && refCode !== this.displayUserId && !localStorage.getItem('REFERRAL_CLAIMED')) {
-            localStorage.setItem('REFERRAL_CLAIMED', 'true');
+        // Award referral bonus ONLY to the referrer (not the new user)
+        if (refCode && refCode !== this.displayUserId && !localStorage.getItem('REFERRAL_PROCESSED')) {
+            localStorage.setItem('REFERRAL_PROCESSED', 'true');
             const bonus = this.globalSettings.referralReward || 10;
-            this.user.coins += bonus;
-            await this.saveUserProfile();
             
-            // Credit referrer in Firestore if active
+            // Credit referrer in Firestore directly
             if (this.firestoreActive) {
                 try {
                     const snapshot = await this.db.collection("users").get();
@@ -197,7 +196,7 @@ class ClashFireApp {
                     });
                 } catch(e) { console.error(e); }
             }
-            this.showToast('REFERRAL BONUS!', `+${bonus} Diamonds claimed via referral link!`, 'success');
+            this.showToast('WELCOME TO CLASH FIRE', `Joined via referral link from ${refCode}!`, 'info');
         }
     }
 
@@ -222,7 +221,6 @@ class ClashFireApp {
             document.getElementById('ff-uid').value = this.user.freeFireUid;
         }
 
-        // Render Referral Link
         const refInput = document.getElementById('referral-link-input');
         if (refInput) {
             refInput.value = `${window.location.origin}${window.location.pathname}?ref=${this.displayUserId}`;
