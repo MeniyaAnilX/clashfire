@@ -35,6 +35,21 @@ body {
 
 .hidden { display: none !important; }
 
+/* Dynamic Native Banner Slots */
+.native-banner-slot {
+    background: rgba(14, 16, 28, 0.85);
+    border: 1px dashed rgba(0, 242, 254, 0.3);
+    border-radius: 14px;
+    padding: 10px;
+    margin-bottom: 12px;
+    text-align: center;
+    min-height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
 /* 3-Second Premium Transparent Cardview Page Loading Overlay */
 #page-loader-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -81,7 +96,7 @@ body {
     background: transparent; color: var(--text-muted); border: none;
     padding: 10px 6px; border-radius: 12px; font-weight: 800; font-size: 0.82rem;
     cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;
-    transition: all 0.25s ease; white-space: nowrap;
+    transition: all 0.2s ease; white-space: nowrap;
 }
 .tab-btn i { font-size: 0.9rem; }
 .tab-btn.active {
@@ -151,7 +166,6 @@ body {
     gap: 12px;
     flex-wrap: wrap;
 }
-.ad-card { border: 1.5px dashed var(--primary-fire); }
 
 .integration-info, .ad-card-info, .link-info {
     display: flex;
@@ -168,11 +182,10 @@ body {
     font-size: 1.2rem;
 }
 .integration-icon { background: rgba(255, 255, 255, 0.05); }
-.ad-icon { background: rgba(255, 69, 0, 0.15); color: var(--primary-fire); }
 .link-icon-box { background: rgba(0, 242, 254, 0.12); color: var(--accent-cyan); }
 .completed .link-icon-box { background: rgba(0, 230, 118, 0.15); color: #00e676; }
 
-.integration-info h4, .ad-details h4, .link-details h4 {
+.integration-info h4, .link-details h4 {
     font-size: 0.92rem;
     font-weight: 800;
     color: #fff;
@@ -180,7 +193,7 @@ body {
     white-space: normal;
     word-break: break-word;
 }
-.integration-info p, .ad-details p { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+.integration-info p { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
 .link-details p { font-size: 0.75rem; color: var(--accent-gold); font-weight: 700; margin-top: 2px; }
 
 /* Dashboard Layout */

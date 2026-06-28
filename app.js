@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager
+ * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager, Native Banner Engine
  */
 
 const firebaseConfig = {
@@ -20,7 +20,6 @@ class ClashFireApp {
         this.user = {
             coins: 0, // Direct Diamonds balance
             freeFireUid: '',
-            dailyWatchCount: 0,
             dailyLinkCompletedCount: 0,
             completedLinks: {},
             redemptionHistory: [],
@@ -28,7 +27,6 @@ class ClashFireApp {
         };
         this.globalSettings = {
             linkReward: 5,
-            adReward: 2,
             referralReward: 10
         };
         this.integrations = {
@@ -36,7 +34,9 @@ class ClashFireApp {
             toroxEnabled: true,
             gamezopUrl: "https://www.gamezop.com",
             gamezopReward: 5,
-            gamezopEnabled: true
+            gamezopEnabled: true,
+            bannerHtmlCode: '',
+            bannerEnabled: false
         };
         this.db = null;
         this.firestoreActive = false;
@@ -239,7 +239,6 @@ class ClashFireApp {
                     if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
                     if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
                     if (this.user.lastResetDate !== today) {
-                        this.user.dailyWatchCount = 0;
                         this.user.dailyLinkCompletedCount = 0;
                         this.user.completedLinks = {};
                         this.user.lastResetDate = today;
@@ -261,7 +260,6 @@ class ClashFireApp {
             if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
             if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
             if (this.user.lastResetDate !== today) {
-                this.user.dailyWatchCount = 0;
                 this.user.dailyLinkCompletedCount = 0;
                 this.user.completedLinks = {};
                 this.user.lastResetDate = today;
@@ -311,10 +309,6 @@ class ClashFireApp {
         document.getElementById('user-coins').innerText = this.user.coins;
         const totalLinks = this.dailyLinks ? this.dailyLinks.length : 0;
         document.getElementById('completed-links-badge').innerText = `${this.user.dailyLinkCompletedCount}/${totalLinks} DONE`;
-        document.getElementById('ad-watch-badge').innerText = `${this.user.dailyWatchCount}/5 WATCHED`;
-        
-        const adLabel = document.getElementById('ad-reward-label');
-        if (adLabel) adLabel.innerText = `Reward: +${this.globalSettings.adReward || 2} Diamonds`;
 
         const gzLabel = document.getElementById('gamezop-reward-label');
         if (gzLabel) gzLabel.innerText = `Play 3 Mins = +${this.integrations.gamezopReward || 5} Diamonds`;
@@ -330,6 +324,25 @@ class ClashFireApp {
         if (gzStation) {
             const isGzOn = (this.integrations.gamezopEnabled === true || this.integrations.gamezopEnabled === 'true');
             gzStation.style.display = isGzOn ? 'block' : 'none';
+        }
+
+        // Render Native Banner Ad Slots
+        const topSlot = document.getElementById('banner-ad-top');
+        const botSlot = document.getElementById('banner-ad-bottom');
+        const isBannerOn = (this.integrations.bannerEnabled === true || this.integrations.bannerEnabled === 'true');
+
+        if (isBannerOn && this.integrations.bannerHtmlCode) {
+            if (topSlot) {
+                topSlot.classList.remove('hidden');
+                topSlot.innerHTML = this.integrations.bannerHtmlCode;
+            }
+            if (botSlot) {
+                botSlot.classList.remove('hidden');
+                botSlot.innerHTML = this.integrations.bannerHtmlCode;
+            }
+        } else {
+            if (topSlot) topSlot.classList.add('hidden');
+            if (botSlot) botSlot.classList.add('hidden');
         }
 
         if (this.user.freeFireUid) {
@@ -370,15 +383,6 @@ class ClashFireApp {
             });
         } else {
             linksContainer.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 15px;">No active missions right now. Check back soon!</div>`;
-        }
-
-        const adBtn = document.getElementById('watch-ad-btn');
-        if (this.user.dailyWatchCount >= 5) {
-            adBtn.disabled = true;
-            adBtn.innerHTML = '<i class="fa-solid fa-lock"></i> MAX LIMIT (5/5)';
-        } else {
-            adBtn.disabled = false;
-            adBtn.innerHTML = '<i class="fa-solid fa-play"></i> WATCH AD';
         }
 
         this.renderRedeemHistory();
@@ -464,30 +468,6 @@ class ClashFireApp {
 
         window.open(task.url, '_blank');
         this.showToast('MISSION LAUNCHED', 'Complete shortener navigation on target tab to claim reward!', 'info');
-    }
-
-    watchRewardAd() {
-        if (this.user.dailyWatchCount >= 5) {
-            this.showToast('DAILY LIMIT REACHED', 'Watched all 5 sponsored ads today!', 'error');
-            return;
-        }
-
-        this.showLoader("LOADING SPONSORED VIDEO AD...");
-
-        setTimeout(() => {
-            document.getElementById('loader-message').innerText = "WATCHING REWARD VIDEO... (5s)";
-        }, 1500);
-
-        setTimeout(() => {
-            this.hideLoader();
-            this.user.dailyWatchCount++;
-            const rewardAmt = this.globalSettings.adReward || 2;
-            this.user.coins += rewardAmt;
-            this.saveUserProfile();
-            this.renderDashboard();
-
-            this.showToast('AD REWARD CLAIMED!', `+${rewardAmt} Diamonds added for watching ad!`, 'success');
-        }, 6500);
     }
 
     async selectPackage(cardElem, diamondAmount, costPoints) {

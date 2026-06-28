@@ -43,8 +43,8 @@
 
         .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
         .form-group label { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); }
-        .form-group input, .form-group select { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 0.95rem; outline: none; }
-        .form-group input:focus { border-color: var(--accent-cyan); }
+        .form-group input, .form-group select, .form-group textarea { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 0.95rem; outline: none; font-family: inherit; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--accent-cyan); }
         
         .btn-action { background: linear-gradient(135deg, var(--accent-cyan), #00a8ff); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 10px; }
 
@@ -162,10 +162,6 @@
                     <input type="number" id="setting-link-reward" value="5">
                 </div>
                 <div class="form-group">
-                    <label>Diamonds Per Watch Ad</label>
-                    <input type="number" id="setting-ad-reward" value="2">
-                </div>
-                <div class="form-group">
                     <label>Referral Bonus Diamonds</label>
                     <input type="number" id="setting-ref-reward" value="10">
                 </div>
@@ -173,7 +169,23 @@
             <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE REWARD AMOUNTS</button>
         </div>
 
-        <!-- Card B: Torox & Gamezop Integrations -->
+        <!-- Card B: Dynamic Native Banner Ads Manager -->
+        <div class="control-card">
+            <div class="card-title"><i class="fa-solid fa-rectangle-ad"></i> NATIVE BANNER ADS MANAGER</div>
+            <div class="form-group">
+                <label>Ad Network Banner Script / HTML Code (Monetag / Adsterra)</label>
+                <textarea id="integ-banner-code" rows="4" placeholder="Paste your <script> or HTML ad code here..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Banner Ads Status</label>
+                <select id="integ-banner-status">
+                    <option value="false">DISABLE (HIDDEN)</option>
+                    <option value="true">ENABLE (ACTIVE LIVE)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Card C: Torox & Gamezop Integrations -->
         <div class="control-card">
             <div class="card-title"><i class="fa-solid fa-gamepad"></i> TOROX & GAMEZOP INTEGRATIONS</div>
             <div class="form-group">
@@ -203,10 +215,10 @@
                     <option value="false">DISABLE (HIDDEN)</option>
                 </select>
             </div>
-            <button class="btn-action" style="background: #00e676;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE INTEGRATIONS CONFIG</button>
+            <button class="btn-action" style="background: #00e676;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE INTEGRATIONS & BANNER CONFIG</button>
         </div>
 
-        <!-- Card C: Unlimited Dynamic Shortener Links Manager -->
+        <!-- Card D: Unlimited Dynamic Shortener Links Manager -->
         <div class="control-card">
             <div class="card-title"><i class="fa-solid fa-link"></i> DYNAMIC UNLIMITED MISSION LINKS MANAGER</div>
             <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Add as many shortener links as you want. Customize both Mission Name and Shortener URL!</p>
@@ -250,7 +262,6 @@
                 if (doc.exists) {
                     const data = doc.data();
                     document.getElementById('setting-link-reward').value = data.linkReward || 5;
-                    document.getElementById('setting-ad-reward').value = data.adReward || 2;
                     document.getElementById('setting-ref-reward').value = data.referralReward || 10;
                 }
 
@@ -284,6 +295,8 @@
                     document.getElementById('integ-gz-url').value = iData.gamezopUrl || '';
                     document.getElementById('integ-gz-reward').value = iData.gamezopReward || 5;
                     document.getElementById('integ-gz-status').value = (iData.gamezopEnabled === true || iData.gamezopEnabled === 'true') ? 'true' : 'false';
+                    document.getElementById('integ-banner-code').value = iData.bannerHtmlCode || '';
+                    document.getElementById('integ-banner-status').value = (iData.bannerEnabled === true || iData.bannerEnabled === 'true') ? 'true' : 'false';
                 }
             } catch(e) { console.error(e); }
         }
@@ -330,13 +343,11 @@
 
         async function saveGlobalSettings() {
             const linkR = parseInt(document.getElementById('setting-link-reward').value || '5');
-            const adR = parseInt(document.getElementById('setting-ad-reward').value || '2');
             const refR = parseInt(document.getElementById('setting-ref-reward').value || '10');
 
             try {
                 await db.collection("settings").doc("global").set({
                     linkReward: linkR,
-                    adReward: adR,
                     referralReward: refR,
                     updatedAt: new Date().toISOString()
                 });
@@ -350,6 +361,8 @@
             const gzUrl = document.getElementById('integ-gz-url').value.trim();
             const gzReward = parseInt(document.getElementById('integ-gz-reward').value || '5');
             const gzEnabled = document.getElementById('integ-gz-status').value === 'true';
+            const bannerCode = document.getElementById('integ-banner-code').value.trim();
+            const bannerEnabled = document.getElementById('integ-banner-status').value === 'true';
 
             try {
                 await db.collection("settings").doc("integrations").set({
@@ -358,9 +371,11 @@
                     gamezopUrl: gzUrl,
                     gamezopReward: gzReward,
                     gamezopEnabled: gzEnabled,
+                    bannerHtmlCode: bannerCode,
+                    bannerEnabled: bannerEnabled,
                     updatedAt: new Date().toISOString()
                 });
-                alert("Torox & Gamezop Integrations Config saved live! User app updated.");
+                alert("Integrations & Native Banner Config saved live! User app updated.");
             } catch(e) { alert("Error: " + e.message); }
         }
 

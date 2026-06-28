@@ -52,6 +52,9 @@
             </div>
         </header>
 
+        <!-- Dynamic Top Native Banner Ad Container -->
+        <div id="banner-ad-top" class="native-banner-slot hidden"></div>
+
         <!-- Top Navigation Bar -->
         <nav class="main-nav-tabs">
             <button class="tab-btn active" onclick="app.switchAppTab('tab-home', this)"><i class="fa-solid fa-house"></i> HOME</button>
@@ -104,28 +107,6 @@
 
             <!-- TAB 2: MISSIONS -->
             <div id="tab-tasks" class="app-tab-pane">
-                <!-- Watch & Earn Ads -->
-                <section class="dashboard-section">
-                    <div class="section-title">
-                        <h2><i class="fa-solid fa-tv"></i> WATCH & EARN</h2>
-                        <span class="sub-badge" id="ad-watch-badge">0/5 WATCHED</span>
-                    </div>
-                    <p class="section-desc">Watch video broadcasts to boost your daily diamond balance!</p>
-
-                    <div class="ad-card">
-                        <div class="ad-card-info">
-                            <div class="ad-icon"><i class="fa-solid fa-play-circle"></i></div>
-                            <div class="ad-details">
-                                <h4>SPONSORED VIDEO AD</h4>
-                                <p id="ad-reward-label">Reward: +2 Diamonds</p>
-                            </div>
-                        </div>
-                        <button class="btn-primary" id="watch-ad-btn" onclick="app.watchRewardAd()">
-                            <i class="fa-solid fa-play"></i> WATCH AD
-                        </button>
-                    </div>
-                </section>
-
                 <!-- Torox Offerwall Station -->
                 <section class="dashboard-section" id="torox-station">
                     <div class="section-title">
@@ -233,6 +214,9 @@
             </div>
 
         </main>
+
+        <!-- Dynamic Bottom Native Banner Ad Container -->
+        <div id="banner-ad-bottom" class="native-banner-slot hidden"></div>
 
         <!-- Minimal Clean Footer -->
         <footer class="app-footer">
