@@ -58,10 +58,10 @@ body {
 .btn-primary:active { transform: scale(0.96); }
 .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(1); }
 
-.btn-whatsapp {
-    background: #25d366;
+.btn-share {
+    background: linear-gradient(135deg, #10121e 0%, #ff4500 100%);
     color: #fff;
-    border: none;
+    border: 1.5px solid #ff4500;
     padding: 12px;
     border-radius: 10px;
     font-weight: 800;
@@ -73,8 +73,10 @@ body {
     gap: 8px;
     width: 100%;
     margin-top: 10px;
-    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 69, 0, 0.35);
+    transition: transform 0.2s ease;
 }
+.btn-share:active { transform: scale(0.97); }
 
 /* Splash Screen */
 #splash-screen {
