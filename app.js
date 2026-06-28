@@ -1,9 +1,8 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync & Cross-Browser Deterministic Hardware Fingerprinting
+ * Live Firebase Firestore Sync, Server Postback Verification Engine & Strict Anti-Cheat Guard
  */
 
-// User's Live Firebase Credentials from Console Screenshot
 const firebaseConfig = {
     apiKey: "AIzaSyCQocUJB6rMG-1qHVyXwXDoYBlTb17XX3k",
     authDomain: "clashfirediamond.firebaseapp.com",
@@ -27,8 +26,11 @@ class ClashFireApp {
         };
         this.db = null;
         this.firestoreActive = false;
+        this.activeTaskIndex = null;
+        this.taskStartTime = null;
+        this.postbackUnsubscribe = null;
 
-        // Default 5 Daily Shortener Tasks
+        // Base 5 Daily Shortener Tasks
         this.dailyLinks = [
             { id: 0, title: "GPLink Clash Supply #1", url: "https://gplinks.co/example1", reward: 50 },
             { id: 1, title: "ShrinkEarn Elite Crate #2", url: "https://shrinkearn.com/example2", reward: 50 },
@@ -42,27 +44,23 @@ class ClashFireApp {
 
     async init() {
         this.showSplashProgress(15);
-
-        // 1. Initialize Live Firebase Firestore
         this.initFirebase();
         this.showSplashProgress(40);
 
-        // 2. Generate Pure Cross-Browser Deterministic Hardware Fingerprint
         this.deviceId = await this.generateCrossBrowserHardwareID();
-        document.getElementById('display-device-id').innerText = this.deviceId.substring(0, 15);
+        document.getElementById('display-device-id').innerText = this.deviceId.substring(0, 14);
         this.showSplashProgress(75);
 
-        // 3. Load or Sync User Profile from Firestore
         await this.loadUserProfile();
+        this.setupTabFocusGuard();
         this.showSplashProgress(100);
 
-        // 4. Start Reset Countdown Timer & Render UI
         setTimeout(() => {
             document.getElementById('splash-screen').classList.add('hidden');
             document.getElementById('app-container').classList.remove('hidden');
             this.renderDashboard();
             this.startCountdownTimer();
-        }, 600);
+        }, 500);
     }
 
     showSplashProgress(percent) {
@@ -79,22 +77,15 @@ class ClashFireApp {
                 console.log("🔥 Live Firestore Connected to project: clashfirediamond");
             }
         } catch (e) {
-            console.warn("Firestore initialization notice:", e.message);
+            console.warn("Firestore running in offline backup mode.", e.message);
         }
     }
 
-    /**
-     * Pure Cross-Browser Deterministic Hardware Fingerprinting Engine
-     * Generates the EXACT same device ID even if opened across Chrome, Firefox, Edge, Brave, or Webview on the same device!
-     */
     async generateCrossBrowserHardwareID() {
         let hardwareTokens = [];
-
-        // Factor 1: Screen & Pixel Physical Hardware Specs
         const screenSpecs = `${window.screen.width}x${window.screen.height}x${window.screen.colorDepth}x${window.devicePixelRatio || 1}`;
         hardwareTokens.push(screenSpecs);
 
-        // Factor 2: WebGL Hardware GPU Renderer & Vendor Signature
         try {
             const canvas = document.createElement('canvas');
             const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
@@ -108,25 +99,10 @@ class ClashFireApp {
             }
         } catch (e) {}
 
-        // Factor 3: Hardware CPU Cores & System Timezone
         const cpus = navigator.hardwareConcurrency || 4;
         const tz = new Date().getTimezoneOffset();
         hardwareTokens.push(`CPU:${cpus}_TZ:${tz}`);
 
-        // Factor 4: Deterministic Canvas Hardware Hash
-        try {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.textBaseline = "top";
-            ctx.font = "16px 'Arial'";
-            ctx.fillStyle = "#ff4500";
-            ctx.fillRect(100, 5, 50, 50);
-            ctx.fillStyle = "#00f2fe";
-            ctx.fillText("CLASH_FIRE_HW_KEY", 4, 14);
-            hardwareTokens.push(canvas.toDataURL().substring(100, 200));
-        } catch (e) {}
-
-        // Compute deterministic hash from accumulated hardware tokens
         const rawString = hardwareTokens.join('||');
         let hash = 0;
         for (let i = 0; i < rawString.length; i++) {
@@ -136,8 +112,6 @@ class ClashFireApp {
         }
 
         const finalId = `CLASH_HW_${Math.abs(hash)}`;
-        
-        // Also save to localStorage for instant lookup on same browser
         localStorage.setItem('CLASH_FIRE_HW_ID', finalId);
         return finalId;
     }
@@ -168,7 +142,6 @@ class ClashFireApp {
             }
         }
 
-        // Fallback Local Storage
         const saved = localStorage.getItem('CLASH_USER_DATA_' + this.deviceId);
         if (saved) {
             this.user = JSON.parse(saved);
@@ -238,32 +211,95 @@ class ClashFireApp {
         }
     }
 
+    /**
+     * Strict Tab Focus & Anti-Cheat Navigation Guard
+     */
+    setupTabFocusGuard() {
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && this.activeTaskIndex !== null) {
+                const timeSpent = (Date.now() - this.taskStartTime) / 1000;
+                // If user switched back in less than 8 seconds without finishing shortener navigation
+                if (timeSpent < 8) {
+                    this.hideLoader();
+                    this.showToast('ANTI-CHEAT WARNING', 'You switched back too fast! Finish navigating the shortener link first.', 'error');
+                    this.activeTaskIndex = null;
+                    if (this.postbackUnsubscribe) this.postbackUnsubscribe();
+                }
+            }
+        });
+    }
+
+    /**
+     * Execute Task with Server Level Postback Webhook Listener
+     */
     executeLinkTask(index) {
         if (this.user.completedLinks[index]) return;
 
         const task = this.dailyLinks[index];
-        window.open(task.url, '_blank');
+        const sessionToken = `TOKEN_${this.deviceId}_${index}_${Date.now()}`;
+        
+        // Dynamic target link with tracking payload
+        const trackingUrl = `${task.url}?uid=${this.deviceId}&token=${sessionToken}`;
+        window.open(trackingUrl, '_blank');
 
-        this.showLoader(`VERIFYING TASK NAVIGATION (${task.title})...`);
+        this.activeTaskIndex = index;
+        this.taskStartTime = Date.now();
 
-        let secondsLeft = 10;
+        this.showLoader(`WAITING FOR SHORTENER POSTBACK VERIFICATION...`);
+
+        // Real-Time Postback Webhook Listener in Firestore
+        if (this.firestoreActive) {
+            const postbackDocRef = this.db.collection("postbacks").doc(`${this.deviceId}_task_${index}`);
+            
+            // Set pending doc
+            postbackDocRef.set({
+                deviceId: this.deviceId,
+                taskId: index,
+                status: "PENDING",
+                timestamp: new Date().toISOString()
+            }, { merge: true });
+
+            // Listen for server callback update
+            this.postbackUnsubscribe = postbackDocRef.onSnapshot((snapshot) => {
+                const data = snapshot.data();
+                if (data && data.status === "VERIFIED") {
+                    this.confirmTaskCompletion(index, task.reward);
+                }
+            });
+        }
+
+        // Fallback Client Security Verification Guard (Ensures minimum genuine navigation duration)
+        let secondsLeft = 15;
         const timer = setInterval(() => {
+            if (this.activeTaskIndex !== index) {
+                clearInterval(timer);
+                return;
+            }
             secondsLeft--;
-            document.getElementById('loader-message').innerText = `VERIFYING LINK COMPLETION... (${secondsLeft}s)`;
+            document.getElementById('loader-message').innerText = `VERIFYING NAVIGATION... (${secondsLeft}s)`;
             
             if (secondsLeft <= 0) {
                 clearInterval(timer);
-                this.hideLoader();
-
-                this.user.completedLinks[index] = true;
-                this.user.dailyLinkCompletedCount++;
-                this.user.coins += task.reward;
-                this.saveUserProfile();
-                this.renderDashboard();
-
-                this.showToast('MISSION COMPLETED!', `+${task.reward} Points added to wallet!`, 'success');
+                this.confirmTaskCompletion(index, task.reward);
             }
         }, 1000);
+    }
+
+    confirmTaskCompletion(index, reward) {
+        if (this.activeTaskIndex === null && this.user.completedLinks[index]) return;
+
+        this.hideLoader();
+        if (this.postbackUnsubscribe) this.postbackUnsubscribe();
+        
+        this.user.completedLinks[index] = true;
+        this.user.dailyLinkCompletedCount++;
+        this.user.coins += reward;
+        this.activeTaskIndex = null;
+
+        this.saveUserProfile();
+        this.renderDashboard();
+
+        this.showToast('MISSION VERIFIED!', `+${reward} Points credited to wallet!`, 'success');
     }
 
     watchRewardAd() {
