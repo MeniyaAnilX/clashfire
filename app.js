@@ -368,12 +368,18 @@ class ClashFireApp {
         const gzLabel = document.getElementById('gamezop-reward-label');
         if (gzLabel) gzLabel.innerText = `Play 3 Mins = +${this.integrations.gamezopReward || 5} Diamonds`;
 
-        // Render Stations Visibility
+        // Flexible Visibility Evaluation (handles boolean & string 'true'/'false')
         const toroxStation = document.getElementById('torox-station');
-        if (toroxStation) toroxStation.style.display = this.integrations.toroxEnabled !== false ? 'block' : 'none';
+        if (toroxStation) {
+            const isToroxOn = (this.integrations.toroxEnabled === true || this.integrations.toroxEnabled === 'true');
+            toroxStation.style.display = isToroxOn ? 'block' : 'none';
+        }
 
         const gzStation = document.getElementById('gamezop-station');
-        if (gzStation) gzStation.style.display = this.integrations.gamezopEnabled !== false ? 'block' : 'none';
+        if (gzStation) {
+            const isGzOn = (this.integrations.gamezopEnabled === true || this.integrations.gamezopEnabled === 'true');
+            gzStation.style.display = isGzOn ? 'block' : 'none';
+        }
 
         if (this.user.freeFireUid) {
             document.getElementById('ff-uid').value = this.user.freeFireUid;
