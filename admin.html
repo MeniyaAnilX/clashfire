@@ -266,11 +266,11 @@
 
                 if (!currentMissionLinks || currentMissionLinks.length === 0) {
                     currentMissionLinks = [
-                        { title: "Daily Mission Supply #1", url: "https://clash-fire.vercel.app/verify.html?task=0" },
-                        { title: "Daily Mission Elite #2", url: "https://clash-fire.vercel.app/verify.html?task=1" },
-                        { title: "Daily Mission Vault #3", url: "https://clash-fire.vercel.app/verify.html?task=2" },
-                        { title: "Daily Mission Armor #4", url: "https://clash-fire.vercel.app/verify.html?task=3" },
-                        { title: "Daily Mission Heroic #5", url: "https://clash-fire.vercel.app/verify.html?task=4" }
+                        { title: "Daily Mission Supply #1", url: "https://clash-fire.vercel.app/verify.html?task=1" },
+                        { title: "Daily Mission Elite #2", url: "https://clash-fire.vercel.app/verify.html?task=2" },
+                        { title: "Daily Mission Vault #3", url: "https://clash-fire.vercel.app/verify.html?task=3" },
+                        { title: "Daily Mission Armor #4", url: "https://clash-fire.vercel.app/verify.html?task=4" },
+                        { title: "Daily Mission Heroic #5", url: "https://clash-fire.vercel.app/verify.html?task=5" }
                     ];
                 }
 
@@ -293,29 +293,30 @@
             container.innerHTML = '';
 
             currentMissionLinks.forEach((item, index) => {
+                const missionNum = index + 1; // 1-based indexing for task
                 const row = document.createElement('div');
                 row.className = 'mission-row-item';
                 row.innerHTML = `
                     <button class="btn-del-link" onclick="deleteMissionRow(${index})"><i class="fa-solid fa-trash"></i> DELETE</button>
                     <div class="form-group" style="margin-bottom: 8px;">
-                        <label>Mission #${index+1} Custom Title</label>
-                        <input type="text" id="m-title-${index}" value="${item.title || ('Daily Mission #' + (index+1))}" placeholder="e.g. GPLink Elite Loot #${index+1}">
+                        <label>Mission #${missionNum} Custom Title</label>
+                        <input type="text" id="m-title-${index}" value="${item.title || ('Daily Mission #' + missionNum)}" placeholder="e.g. GPLink Elite Loot #${missionNum}">
                     </div>
                     <div class="form-group" style="margin-bottom: 4px;">
-                        <label>Mission #${index+1} Shortener URL</label>
+                        <label>Mission #${missionNum} Shortener URL</label>
                         <input type="text" id="m-url-${index}" value="${item.url || ''}" placeholder="https://gplinks.co/...">
                     </div>
-                    <div class="target-hint"><i class="fa-solid fa-bullseye"></i> Target Verification URL: https://clash-fire.vercel.app/verify.html?task=${index}</div>
+                    <div class="target-hint"><i class="fa-solid fa-bullseye"></i> Target Verification URL: https://clash-fire.vercel.app/verify.html?task=${missionNum}</div>
                 `;
                 container.appendChild(row);
             });
         }
 
         function addNewMissionRow() {
-            const nextIdx = currentMissionLinks.length;
+            const nextMissionNum = currentMissionLinks.length + 1;
             currentMissionLinks.push({
-                title: `Daily Mission Supply #${nextIdx + 1}`,
-                url: `https://clash-fire.vercel.app/verify.html?task=${nextIdx}`
+                title: `Daily Mission Supply #${nextMissionNum}`,
+                url: `https://clash-fire.vercel.app/verify.html?task=${nextMissionNum}`
             });
             renderAdminMissionRows();
         }
@@ -366,12 +367,14 @@
         async function saveMissionLinks() {
             const items = [];
             for (let i = 0; i < currentMissionLinks.length; i++) {
+                const missionNum = i + 1;
                 const t = document.getElementById(`m-title-${i}`).value.trim();
                 const u = document.getElementById(`m-url-${i}`).value.trim();
                 items.push({
                     id: i,
-                    title: t || `Daily Mission #${i+1}`,
-                    url: u || `https://clash-fire.vercel.app/verify.html?task=${i}`
+                    taskId: missionNum,
+                    title: t || `Daily Mission #${missionNum}`,
+                    url: u || `https://clash-fire.vercel.app/verify.html?task=${missionNum}`
                 });
             }
 

@@ -22,7 +22,7 @@ class ClashFireApp {
             freeFireUid: '',
             dailyWatchCount: 0,
             dailyLinkCompletedCount: 0,
-            completedLinks: [],
+            completedLinks: {},
             redemptionHistory: [],
             lastResetDate: new Date().toISOString().split('T')[0]
         };
@@ -41,13 +41,13 @@ class ClashFireApp {
         this.db = null;
         this.firestoreActive = false;
 
-        // Dynamic Mission Tasks Array
+        // Dynamic Mission Tasks Array (1-indexed task IDs)
         this.dailyLinks = [
-            { id: 0, title: "Daily Mission Supply #1", url: "https://clash-fire.vercel.app/verify.html?task=0" },
-            { id: 1, title: "Daily Mission Elite #2", url: "https://clash-fire.vercel.app/verify.html?task=1" },
-            { id: 2, title: "Daily Mission Vault #3", url: "https://clash-fire.vercel.app/verify.html?task=2" },
-            { id: 3, title: "Daily Mission Armor #4", url: "https://clash-fire.vercel.app/verify.html?task=3" },
-            { id: 4, title: "Daily Mission Heroic #5", url: "https://clash-fire.vercel.app/verify.html?task=4" }
+            { id: 0, taskId: 1, title: "Daily Mission Supply #1", url: "https://clash-fire.vercel.app/verify.html?task=1" },
+            { id: 1, taskId: 2, title: "Daily Mission Elite #2", url: "https://clash-fire.vercel.app/verify.html?task=2" },
+            { id: 2, taskId: 3, title: "Daily Mission Vault #3", url: "https://clash-fire.vercel.app/verify.html?task=3" },
+            { id: 3, taskId: 4, title: "Daily Mission Armor #4", url: "https://clash-fire.vercel.app/verify.html?task=4" },
+            { id: 4, taskId: 5, title: "Daily Mission Heroic #5", url: "https://clash-fire.vercel.app/verify.html?task=5" }
         ];
 
         this.init();
@@ -136,10 +136,16 @@ class ClashFireApp {
                     if (doc.exists) {
                         const linksData = doc.data();
                         if (linksData.items && Array.isArray(linksData.items)) {
-                            this.dailyLinks = linksData.items;
+                            this.dailyLinks = linksData.items.map((item, i) => ({
+                                id: i,
+                                taskId: item.taskId || (i + 1),
+                                title: item.title || (`Daily Mission #${i+1}`),
+                                url: item.url
+                            }));
                         } else if (linksData.urls && Array.isArray(linksData.urls)) {
                             this.dailyLinks = linksData.urls.map((u, i) => ({
                                 id: i,
+                                taskId: i + 1,
                                 title: `Daily Mission Supply #${i+1}`,
                                 url: u
                             }));
@@ -231,18 +237,18 @@ class ClashFireApp {
                 if (doc.exists) {
                     this.user = doc.data();
                     if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
-                    if (!this.user.completedLinks) this.user.completedLinks = [];
+                    if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
                     if (this.user.lastResetDate !== today) {
                         this.user.dailyWatchCount = 0;
                         this.user.dailyLinkCompletedCount = 0;
-                        this.user.completedLinks = [];
+                        this.user.completedLinks = {};
                         this.user.lastResetDate = today;
                         await docRef.update(this.user);
                     }
                 } else {
                     this.user.lastResetDate = today;
                     this.user.redemptionHistory = [];
-                    this.user.completedLinks = [];
+                    this.user.completedLinks = {};
                     await docRef.set(this.user);
                 }
                 return;
@@ -253,11 +259,11 @@ class ClashFireApp {
         if (saved) {
             this.user = JSON.parse(saved);
             if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
-            if (!this.user.completedLinks) this.user.completedLinks = [];
+            if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
             if (this.user.lastResetDate !== today) {
                 this.user.dailyWatchCount = 0;
                 this.user.dailyLinkCompletedCount = 0;
-                this.user.completedLinks = [];
+                this.user.completedLinks = {};
                 this.user.lastResetDate = today;
                 this.saveUserProfile();
             }
@@ -342,7 +348,8 @@ class ClashFireApp {
 
         if (this.dailyLinks && this.dailyLinks.length > 0) {
             this.dailyLinks.forEach((link, idx) => {
-                const isDone = this.user.completedLinks && this.user.completedLinks[idx];
+                const taskId = link.taskId || (idx + 1);
+                const isDone = this.user.completedLinks && this.user.completedLinks[taskId];
                 const card = document.createElement('div');
                 card.className = `link-card ${isDone ? 'completed' : ''}`;
                 card.innerHTML = `
@@ -351,7 +358,7 @@ class ClashFireApp {
                             ${isDone ? '<i class="fa-solid fa-check"></i>' : '<img src="diamond.png" style="width: 22px; height: 22px;">'}
                         </div>
                         <div class="link-details">
-                            <h4>${link.title || ('Daily Mission #' + (idx+1))}</h4>
+                            <h4>${link.title || ('Daily Mission #' + taskId)}</h4>
                             <p>Reward: +${linkRewardAmt} Diamonds</p>
                         </div>
                     </div>
@@ -442,12 +449,11 @@ class ClashFireApp {
     }
 
     async executeLinkTask(index) {
-        if (this.user.completedLinks && this.user.completedLinks[index]) return;
         const task = this.dailyLinks[index];
         if (!task) return;
-        
-        const oneTimeToken = "TOK_" + Math.random().toString(36).substring(2, 10) + "_" + Date.now();
-        localStorage.setItem("ACTIVE_TOKEN_" + index, oneTimeToken);
+        const taskId = task.taskId || (index + 1);
+
+        if (this.user.completedLinks && this.user.completedLinks[taskId]) return;
 
         window.open(task.url, '_blank');
         this.showToast('MISSION LAUNCHED', 'Complete shortener navigation on target tab to claim reward!', 'info');

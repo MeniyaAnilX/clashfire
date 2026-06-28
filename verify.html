@@ -101,7 +101,7 @@
 
         async function verifyAndReward() {
             const urlParams = new URLSearchParams(window.location.search);
-            const taskIndex = parseInt(urlParams.get('task') || '0');
+            const taskId = parseInt(urlParams.get('task') || '1'); // 1-based task ID
 
             const deviceId = getCookie('CLASH_PERMANENT_HW_ID') || localStorage.getItem('CLASH_FIRE_HW_ID');
             if (!deviceId) {
@@ -139,12 +139,14 @@
                 }
 
                 if (!userData) {
-                    userData = { coins: 0, completedLinks: [], dailyLinkCompletedCount: 0 };
+                    userData = { coins: 0, completedLinks: {}, dailyLinkCompletedCount: 0 };
                 }
 
-                if (!userData.completedLinks) userData.completedLinks = [];
+                if (!userData.completedLinks || Array.isArray(userData.completedLinks)) {
+                    userData.completedLinks = {};
+                }
 
-                if (userData.completedLinks[taskIndex]) {
+                if (userData.completedLinks[taskId]) {
                     document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color:#ffd700;"></i>';
                     document.getElementById('status-title').innerText = 'ALREADY CLAIMED!';
                     document.getElementById('status-desc').innerText = 'You have already claimed reward for this mission today.';
@@ -152,7 +154,7 @@
                     return;
                 }
 
-                userData.completedLinks[taskIndex] = true;
+                userData.completedLinks[taskId] = true;
                 userData.coins = (userData.coins || 0) + rewardAmt;
                 userData.dailyLinkCompletedCount = (userData.dailyLinkCompletedCount || 0) + 1;
 
