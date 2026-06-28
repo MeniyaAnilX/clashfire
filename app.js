@@ -34,7 +34,7 @@ class ClashFireApp {
         this.db = null;
         this.firestoreActive = false;
 
-        // Base 5 Daily Shortener Tasks (Default target verification URLs)
+        // Base 5 Daily Shortener Tasks
         this.dailyLinks = [
             { id: 0, title: "Daily Mission Supply #1", url: "https://clash-fire.vercel.app/verify.html?task=0" },
             { id: 1, title: "Daily Mission Elite #2", url: "https://clash-fire.vercel.app/verify.html?task=1" },
@@ -47,31 +47,19 @@ class ClashFireApp {
     }
 
     async init() {
-        this.showSplashProgress(20);
         this.initFirebase();
-        this.showSplashProgress(50);
-
         this.deviceId = await this.generateCrossBrowserHardwareID();
         this.displayUserId = "CF-" + this.deviceId.substring(9, 15);
-        document.getElementById('display-device-id').innerText = "User ID: " + this.displayUserId;
-        this.showSplashProgress(75);
+        
+        const devElem = document.getElementById('display-device-id');
+        if (devElem) devElem.innerText = "User ID: " + this.displayUserId;
 
         await this.loadGlobalSettings();
         await this.loadUserProfile();
         this.checkReferralBonus();
-        this.showSplashProgress(100);
 
-        setTimeout(() => {
-            document.getElementById('splash-screen').classList.add('hidden');
-            document.getElementById('app-container').classList.remove('hidden');
-            this.renderDashboard();
-            this.startCountdownTimer();
-        }, 400);
-    }
-
-    showSplashProgress(percent) {
-        const bar = document.getElementById('splash-loading-bar');
-        if (bar) bar.style.width = percent + '%';
+        this.renderDashboard();
+        this.startCountdownTimer();
     }
 
     initFirebase() {
