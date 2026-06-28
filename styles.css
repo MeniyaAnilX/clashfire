@@ -52,6 +52,10 @@ body {
     position: relative;
 }
 
+.native-banner-slot:empty {
+    display: none !important;
+}
+
 .ad-scale-wrapper {
     width: 100%;
     display: flex;

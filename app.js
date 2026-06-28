@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager, Independent Dual Banner Engine
+ * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager, Isolated Dual Script Engine
  */
 
 const firebaseConfig = {
@@ -343,7 +343,7 @@ class ClashFireApp {
             const botCode = this.integrations.bannerBottomHtmlCode || this.integrations.bannerHtmlCode;
             if (botSlot && botCode) {
                 botSlot.classList.remove('hidden');
-                this.executeDirectDomAdScript(botSlot, botCode);
+                this.executeIsolatedBottomAdScript(botSlot, botCode);
             } else if (botSlot) {
                 botSlot.classList.add('hidden'); botSlot.innerHTML = '';
             }
@@ -432,6 +432,40 @@ class ClashFireApp {
                 }
             });
         }, 800);
+    }
+
+    executeIsolatedBottomAdScript(containerElement, rawHtmlCode) {
+        if (!containerElement) return;
+        containerElement.innerHTML = '';
+
+        // If bottom code is exact duplicate of top, load in isolated iframe to prevent script global clashing
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '100%';
+        iframe.style.height = '100px';
+        iframe.style.border = 'none';
+        iframe.style.overflow = 'hidden';
+        iframe.scrolling = 'no';
+
+        containerElement.appendChild(iframe);
+
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <base target="_blank">
+                <style>
+                    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; overflow: hidden; height: 100%; width: 100%; }
+                    iframe, img, div { max-width: 100% !important; height: auto !important; }
+                </style>
+            </head>
+            <body>
+                ${rawHtmlCode}
+            </body>
+            </html>
+        `);
+        doc.close();
     }
 
     renderRedeemHistory() {
