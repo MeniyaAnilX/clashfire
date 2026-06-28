@@ -124,10 +124,10 @@ class ClashFireApp {
     async loadGlobalSettings() {
         if (this.firestoreActive) {
             try {
-                const doc = await this.db.collection("settings").doc("global").get();
+                const doc = await db.collection("settings").doc("global").get();
                 if (doc.exists) this.globalSettings = doc.data();
 
-                const linksDoc = await this.db.collection("settings").doc("links").get();
+                const linksDoc = await db.collection("settings").doc("links").get();
                 if (linksDoc.exists) {
                     const linksData = linksDoc.data();
                     if (linksData.urls && Array.isArray(linksData.urls)) {
@@ -137,7 +137,7 @@ class ClashFireApp {
                     }
                 }
 
-                const integDoc = await this.db.collection("settings").doc("integrations").get();
+                const integDoc = await db.collection("settings").doc("integrations").get();
                 if (integDoc.exists) {
                     this.integrations = integDoc.data();
                 }
@@ -349,11 +349,18 @@ class ClashFireApp {
 
     openToroxOfferwall() {
         let url = this.integrations.toroxUrl || "https://offerwalls.com";
-        if (url.includes('?')) {
-            url += `&subid=${this.displayUserId}`;
+        
+        // Dynamic Replacement for both USER_ID=[USER_ID] and subid tracking
+        if (url.includes('[USER_ID]')) {
+            url = url.replace('[USER_ID]', this.displayUserId);
+        } else if (url.includes('USER_ID=')) {
+            url = url.replace(/USER_ID=[^&]*/, `USER_ID=${this.displayUserId}`);
+        } else if (url.includes('subid=')) {
+            url = url.replace(/subid=[^&]*/, `subid=${this.displayUserId}`);
         } else {
-            url += `?subid=${this.displayUserId}`;
+            url += (url.includes('?') ? '&' : '?') + `USER_ID=${this.displayUserId}&subid=${this.displayUserId}`;
         }
+
         window.open(url, '_blank');
         this.showToast('TOROX OFFERWALL', 'Complete tasks on Torox tab to earn rewards!', 'info');
     }
