@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLASH FIRE - Admin Management Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #07070c;
+            --bg-card: #0e101c;
+            --primary-fire: #ff4500;
+            --accent-gold: #ffd700;
+            --accent-cyan: #00f2fe;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); padding: 20px; min-height: 100vh; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid rgba(0, 242, 254, 0.2); margin-bottom: 25px; }
+        .brand { font-size: 1.6rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+        .brand i { color: var(--primary-fire); }
+        .badge-live { background: rgba(0, 230, 118, 0.15); color: #00e676; border: 1px solid #00e676; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: var(--bg-card); padding: 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); }
+        .stat-val { font-size: 1.8rem; font-weight: 800; color: var(--accent-gold); margin-top: 5px; }
+        .stat-label { font-size: 0.85rem; color: var(--text-muted); }
+
+        .section-box { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); overflow-x: auto; }
+        .section-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; color: var(--accent-cyan); }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 650px; }
+        th, td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.95rem; }
+        th { color: var(--text-muted); font-weight: 700; background: rgba(0,0,0,0.4); }
+        tr:hover { background: rgba(255,255,255,0.02); }
+
+        .status-badge { padding: 4px 10px; border-radius: 10px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+        .status-badge.pending { background: rgba(255, 215, 0, 0.15); color: var(--accent-gold); border: 1px solid rgba(255, 215, 0, 0.3); }
+        .status-badge.completed { background: rgba(0, 230, 118, 0.15); color: #00e676; border: 1px solid rgba(0, 230, 118, 0.3); }
+
+        .btn-complete { background: #00e676; color: #000; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 0.85rem; cursor: pointer; transition: 0.2s ease; }
+        .btn-complete:hover { background: #00c853; transform: scale(1.03); }
+        .btn-complete:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <i class="fa-solid fa-fire-flame-curved"></i> CLASH FIRE ADMIN PANEL
+        </div>
+        <div class="badge-live">
+            <i class="fa-solid fa-circle"></i> FIRESTORE LIVE CONNECTED
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Redemptions</div>
+            <div class="stat-val" id="stat-total">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Pending Fulfillments</div>
+            <div class="stat-val" id="stat-pending" style="color: #ff4500;">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Completed Transfers</div>
+            <div class="stat-val" id="stat-completed" style="color: #00e676;">0</div>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-title">
+            <i class="fa-solid fa-gem"></i> DIAMOND REDEMPTIONS QUEUE
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Player FF UID</th>
+                    <th>Diamonds</th>
+                    <th>Device ID</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="redemptions-table-body">
+                <tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Loading live requests...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCQocUJB6rMG-1qHVyXwXDoYBlTb17XX3k",
+            authDomain: "clashfirediamond.firebaseapp.com",
+            projectId: "clashfirediamond",
+            storageBucket: "clashfirediamond.firebasestorage.app",
+            messagingSenderId: "901946161853",
+            appId: "1:901946161853:web:03f9a4be00070134c0d5d4",
+            measurementId: "G-N31S9SDP2L"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function loadLiveRedemptions() {
+            db.collection("redemptions").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+                const tbody = document.getElementById('redemptions-table-body');
+                tbody.innerHTML = '';
+
+                let total = 0, pending = 0, completed = 0;
+
+                if (snapshot.empty) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No diamond requests found yet!</td></tr>`;
+                }
+
+                snapshot.forEach(doc => {
+                    total++;
+                    const data = doc.data();
+                    const reqId = doc.id;
+                    const isPending = data.status === 'PENDING';
+
+                    if (isPending) pending++; else completed++;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${data.date || 'Today'}</td>
+                        <td style="font-weight: 800; color: var(--accent-gold);">${data.freeFireUid}</td>
+                        <td style="font-weight: 800; color: var(--accent-cyan);"><i class="fa-solid fa-gem"></i> ${data.diamondAmount}</td>
+                        <td style="font-family: monospace; font-size: 0.8rem; color: var(--text-muted);">${data.deviceId ? data.deviceId.substring(0, 14) : 'N/A'}</td>
+                        <td><span class="status-badge ${isPending ? 'pending' : 'completed'}">${data.status}</span></td>
+                        <td>
+                            <button class="btn-complete" ${!isPending ? 'disabled' : ''} onclick="markAsCompleted('${reqId}', '${data.deviceId}', '${data.freeFireUid}')">
+                                ${isPending ? '<i class="fa-solid fa-check"></i> MARK COMPLETED' : 'DONE'}
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                document.getElementById('stat-total').innerText = total;
+                document.getElementById('stat-pending').innerText = pending;
+                document.getElementById('stat-completed').innerText = completed;
+            });
+        }
+
+        async function markAsCompleted(reqId, deviceId, ffUid) {
+            if (!confirm(`Confirm diamond transfer completed for FF UID: ${ffUid}?`)) return;
+
+            try {
+                // 1. Update Redemptions Collection
+                await db.collection("redemptions").doc(reqId).update({
+                    status: "COMPLETED"
+                });
+
+                // 2. Update User Profile History Collection
+                if (deviceId) {
+                    const userRef = db.collection("users").doc(deviceId);
+                    const userDoc = await userRef.get();
+                    if (userDoc.exists) {
+                        let userData = userDoc.data();
+                        if (userData.redemptionHistory) {
+                            userData.redemptionHistory.forEach(item => {
+                                if (item.id === reqId || item.ffUid === ffUid) {
+                                    item.status = "COMPLETED";
+                                }
+                            });
+                            await userRef.update({ redemptionHistory: userData.redemptionHistory });
+                        }
+                    }
+                }
+                alert("Status updated to COMPLETED! Player history updated.");
+            } catch(e) {
+                alert("Error updating status: " + e.message);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', loadLiveRedemptions);
+    </script>
+</body>
+</html>

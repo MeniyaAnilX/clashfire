@@ -239,7 +239,6 @@ class ClashFireApp {
         if (this.user.completedLinks[index]) return;
         const task = this.dailyLinks[index];
         
-        // Zero-Quota Security: Store encrypted token in browser storage (Saves 100% Firestore write limits)
         const oneTimeToken = "TOK_" + Math.random().toString(36).substring(2, 10) + "_" + Date.now();
         localStorage.setItem("ACTIVE_TOKEN_" + index, oneTimeToken);
 
@@ -289,9 +288,10 @@ class ClashFireApp {
 
         setTimeout(async () => {
             this.user.coins -= costPoints;
+            const reqId = "REQ_" + Date.now();
             
             const redemptionItem = {
-                id: "REQ_" + Date.now(),
+                id: reqId,
                 diamonds: diamondAmount,
                 points: costPoints,
                 ffUid: uidInput,
@@ -308,18 +308,19 @@ class ClashFireApp {
 
             if (this.firestoreActive) {
                 try {
-                    await this.db.collection("redemptions").add({
+                    await this.db.collection("redemptions").doc(reqId).set({
+                        reqId: reqId,
                         deviceId: this.deviceId,
                         freeFireUid: uidInput,
                         diamondAmount: diamondAmount,
                         pointsDeducted: costPoints,
                         timestamp: new Date().toISOString(),
-                        status: "PENDING_ADMIN_FULFILLMENT"
+                        date: new Date().toLocaleDateString(),
+                        status: "PENDING"
                     });
                 } catch (e) { console.error(e); }
             }
 
-            // Open Redeem Success Modal
             document.getElementById('modal-amount').innerText = `${diamondAmount} Diamonds`;
             document.getElementById('modal-uid').innerText = uidInput;
             document.getElementById('redeem-modal').classList.remove('hidden');
