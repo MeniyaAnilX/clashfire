@@ -71,6 +71,28 @@ body {
 .loader-bar-bg { width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 10px; margin-top: 18px; overflow: hidden; }
 .loader-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary-fire), var(--accent-gold), var(--accent-cyan)); border-radius: 10px; transition: width 0.1s linear; }
 
+/* Main Navigation Bar Tabs */
+.main-nav-tabs {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    background: var(--bg-card); border: 1px solid var(--border-glow);
+    padding: 6px; border-radius: 16px; margin-bottom: 15px;
+}
+.tab-btn {
+    background: transparent; color: var(--text-muted); border: none;
+    padding: 10px; border-radius: 12px; font-weight: 800; font-size: 0.85rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all 0.25 ease; white-space: nowrap;
+}
+.tab-btn i { font-size: 0.95rem; }
+.tab-btn.active {
+    background: linear-gradient(135deg, var(--accent-cyan), #00a8ff);
+    color: #000; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+}
+
+.app-tab-pane { display: none; }
+.app-tab-pane.active { display: block; animation: fadeInPane 0.3s ease; }
+@keyframes fadeInPane { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
 /* Buttons */
 .btn-primary {
     background: linear-gradient(135deg, var(--accent-cyan), #00a8ff);

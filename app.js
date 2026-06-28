@@ -71,6 +71,25 @@ class ClashFireApp {
         this.startCountdownTimer();
     }
 
+    switchAppTab(tabId, btnElem) {
+        document.querySelectorAll('.app-tab-pane').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.main-nav-tabs .tab-btn').forEach(el => el.classList.remove('active'));
+        
+        const targetPane = document.getElementById(tabId);
+        if (targetPane) targetPane.classList.add('active');
+
+        if (btnElem) {
+            btnElem.classList.add('active');
+        } else {
+            const btns = document.querySelectorAll('.main-nav-tabs .tab-btn');
+            if (tabId === 'tab-home' && btns[0]) btns[0].classList.add('active');
+            if (tabId === 'tab-tasks' && btns[1]) btns[1].classList.add('active');
+            if (tabId === 'tab-redeem' && btns[2]) btns[2].classList.add('active');
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     start3SecPageLoader() {
         const overlay = document.getElementById('page-loader-overlay');
         const fill = document.getElementById('loader-bar-fill');
@@ -492,7 +511,7 @@ class ClashFireApp {
     }
 
     scrollToRedeem() {
-        document.getElementById('redemption-vault').scrollIntoView({ behavior: 'smooth' });
+        this.switchAppTab('tab-redeem');
     }
 
     showToast(title, message, type = 'info') {

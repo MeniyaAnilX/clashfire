@@ -48,175 +48,191 @@
                 <div class="wallet-badge">
                     <img src="diamond.png" alt="Diamond" class="wallet-gem-img">
                     <span id="user-coins">0</span>
-                    <button class="add-coin-btn" onclick="app.scrollToRedeem()"><i class="fa-solid fa-plus"></i></button>
+                    <button class="add-coin-btn" onclick="app.switchAppTab('tab-redeem')"><i class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
         </header>
 
-        <!-- Daily Reset Banner -->
-        <section class="banner-card">
-            <div class="banner-left">
-                <span class="banner-label"><i class="fa-solid fa-clock"></i> RESET IN</span>
-                <span class="countdown-timer" id="reset-timer">23h 59m 59s</span>
-            </div>
-            <div class="banner-badge">DAILY 5X</div>
-        </section>
+        <!-- Top Navigation Bar -->
+        <nav class="main-nav-tabs">
+            <button class="tab-btn active" onclick="app.switchAppTab('tab-home', this)"><i class="fa-solid fa-house"></i> HOME</button>
+            <button class="tab-btn" onclick="app.switchAppTab('tab-tasks', this)"><i class="fa-solid fa-list-check"></i> EXTRA MISSIONS</button>
+            <button class="tab-btn" onclick="app.switchAppTab('tab-redeem', this)"><i class="fa-solid fa-gem"></i> REDEEM</button>
+        </nav>
 
-        <!-- Main Content Grid -->
+        <!-- Main Content Area -->
         <main class="dashboard-container">
 
-            <!-- Section 1: Daily Links -->
-            <section class="dashboard-section">
-                <div class="section-title">
-                    <h2><i class="fa-solid fa-link"></i> DAILY MISSIONS</h2>
-                    <span class="sub-badge" id="completed-links-badge">0/5 DONE</span>
-                </div>
-                <p class="section-desc">Complete daily shortener links to claim free diamonds!</p>
+            <!-- TAB 1: HOME -->
+            <div id="tab-home" class="app-tab-pane active">
+                <!-- Daily Reset Banner -->
+                <section class="banner-card">
+                    <div class="banner-left">
+                        <span class="banner-label"><i class="fa-solid fa-clock"></i> RESET IN</span>
+                        <span class="countdown-timer" id="reset-timer">23h 59m 59s</span>
+                    </div>
+                    <div class="banner-badge">DAILY 5X</div>
+                </section>
 
-                <div class="links-list" id="links-container">
-                    <!-- Dynamic Link Cards rendered via JS -->
-                </div>
-            </section>
+                <!-- Section: Daily Links -->
+                <section class="dashboard-section">
+                    <div class="section-title">
+                        <h2><i class="fa-solid fa-link"></i> DAILY MISSIONS</h2>
+                        <span class="sub-badge" id="completed-links-badge">0/5 DONE</span>
+                    </div>
+                    <p class="section-desc">Complete daily shortener links to claim free diamonds!</p>
 
-            <!-- Section 2: Watch & Earn Ads -->
-            <section class="dashboard-section">
-                <div class="section-title">
-                    <h2><i class="fa-solid fa-tv"></i> WATCH & EARN</h2>
-                    <span class="sub-badge" id="ad-watch-badge">0/5 WATCHED</span>
-                </div>
-                <p class="section-desc">Watch video broadcasts to boost your daily diamond balance!</p>
+                    <div class="links-list" id="links-container">
+                        <!-- Dynamic Link Cards rendered via JS -->
+                    </div>
+                </section>
 
-                <div class="ad-card">
-                    <div class="ad-card-info">
-                        <div class="ad-icon"><i class="fa-solid fa-play-circle"></i></div>
-                        <div class="ad-details">
-                            <h4>SPONSORED VIDEO AD</h4>
-                            <p id="ad-reward-label">Reward: +2 Diamonds</p>
+                <!-- Section: Refer & Earn -->
+                <section class="dashboard-section">
+                    <div class="section-title">
+                        <h2><i class="fa-solid fa-users"></i> REFER & EARN</h2>
+                    </div>
+                    <p class="section-desc">Share your link with friends and get bonus diamonds for each join!</p>
+
+                    <div class="referral-box">
+                        <div class="referral-input-wrap">
+                            <input type="text" id="referral-link-input" readonly value="Syncing link...">
+                            <button class="btn-primary" onclick="app.copyReferralLink()"><i class="fa-solid fa-copy"></i> COPY</button>
+                        </div>
+                        <button class="btn-share" onclick="app.shareNative()"><i class="fa-solid fa-share-nodes"></i> SHARE</button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB 2: EXTRA MISSIONS / TASKS -->
+            <div id="tab-tasks" class="app-tab-pane">
+                <!-- Watch & Earn Ads -->
+                <section class="dashboard-section">
+                    <div class="section-title">
+                        <h2><i class="fa-solid fa-tv"></i> WATCH & EARN</h2>
+                        <span class="sub-badge" id="ad-watch-badge">0/5 WATCHED</span>
+                    </div>
+                    <p class="section-desc">Watch video broadcasts to boost your daily diamond balance!</p>
+
+                    <div class="ad-card">
+                        <div class="ad-card-info">
+                            <div class="ad-icon"><i class="fa-solid fa-play-circle"></i></div>
+                            <div class="ad-details">
+                                <h4>SPONSORED VIDEO AD</h4>
+                                <p id="ad-reward-label">Reward: +2 Diamonds</p>
+                            </div>
+                        </div>
+                        <button class="btn-primary" id="watch-ad-btn" onclick="app.watchRewardAd()">
+                            <i class="fa-solid fa-play"></i> WATCH AD
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Torox Offerwall Station -->
+                <section class="dashboard-section" id="torox-station">
+                    <div class="section-title">
+                        <h2><i class="fa-solid fa-trophy"></i> TOROX OFFERWALL</h2>
+                        <span class="sub-badge" style="background: rgba(255, 215, 0, 0.15); color: #ffd700;">HIGH REWARDS</span>
+                    </div>
+                    <p class="section-desc">Complete premium surveys and gaming tasks to earn massive diamonds!</p>
+
+                    <div class="integration-card">
+                        <div class="integration-info">
+                            <div class="integration-icon" style="color: #ffd700;"><i class="fa-solid fa-gamepad"></i></div>
+                            <div>
+                                <h4>TOROX GAMING OFFERS</h4>
+                                <p>Play games, complete levels & surveys</p>
+                            </div>
+                        </div>
+                        <button class="btn-primary" style="background: linear-gradient(135deg, #ffd700, #ff8c00);" onclick="app.openToroxOfferwall()">
+                            <i class="fa-solid fa-fire"></i> OPEN OFFERWALL
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Gamezop Play & Earn Station -->
+                <section class="dashboard-section" id="gamezop-station">
+                    <div class="section-title">
+                        <h2><i class="fa-solid fa-gamepad"></i> GAMEZOP MINI-GAMES</h2>
+                        <span class="sub-badge" style="background: rgba(0, 230, 118, 0.15); color: #00e676;">PLAY & EARN</span>
+                    </div>
+                    <p class="section-desc">Play instant mini-games for 3 minutes to earn free diamonds!</p>
+
+                    <div class="integration-card">
+                        <div class="integration-info">
+                            <div class="integration-icon" style="color: #00e676;"><i class="fa-solid fa-chess-knight"></i></div>
+                            <div>
+                                <h4>INSTANT MINI-GAMES</h4>
+                                <p id="gamezop-reward-label">Play 3 Mins = +5 Diamonds</p>
+                            </div>
+                        </div>
+                        <button class="btn-primary" style="background: linear-gradient(135deg, #00e676, #00b0ff);" onclick="app.launchGamezop()">
+                            <i class="fa-solid fa-play"></i> PLAY GAMES NOW
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB 3: REDEEM VAULT -->
+            <div id="tab-redeem" class="app-tab-pane">
+                <!-- Diamond Vault -->
+                <section class="dashboard-section" id="redemption-vault">
+                    <div class="section-title">
+                        <h2><img src="diamond.png" alt="Diamond" class="section-title-img"> REDEEM DIAMONDS</h2>
+                    </div>
+                    <p class="section-desc">Instantly claim Free Fire In-Game Diamonds to your Player UID.</p>
+
+                    <div class="ff-uid-input-group">
+                        <label for="ff-uid"><i class="fa-solid fa-id-card"></i> FREE FIRE PLAYER UID</label>
+                        <input type="text" id="ff-uid" placeholder="Enter Player UID (e.g. 123456789)" maxlength="12">
+                    </div>
+
+                    <div class="packages-grid">
+                        <div class="package-card" onclick="app.selectPackage(this, 100, 100)">
+                            <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
+                            <div class="pkg-cost">100 DIAMONDS</div>
+                            <button class="btn-redeem">REDEEM NOW</button>
+                        </div>
+                        <div class="package-card" onclick="app.selectPackage(this, 310, 310)">
+                            <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
+                            <div class="pkg-cost">310 DIAMONDS</div>
+                            <button class="btn-redeem">REDEEM NOW</button>
+                        </div>
+                        <div class="package-card" onclick="app.selectPackage(this, 520, 520)">
+                            <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
+                            <div class="pkg-cost">520 DIAMONDS</div>
+                            <button class="btn-redeem">REDEEM NOW</button>
+                        </div>
+                        <div class="package-card" onclick="app.selectPackage(this, 1060, 1060)">
+                            <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
+                            <div class="pkg-cost">1,060 DIAMONDS</div>
+                            <button class="btn-redeem">REDEEM NOW</button>
+                        </div>
+                        <div class="package-card" onclick="app.selectPackage(this, 2180, 2180)">
+                            <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
+                            <div class="pkg-cost">2,180 DIAMONDS</div>
+                            <button class="btn-redeem">REDEEM NOW</button>
+                        </div>
+                        <div class="package-card" onclick="app.selectPackage(this, 5600, 5600)">
+                            <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
+                            <div class="pkg-cost">5,600 DIAMONDS</div>
+                            <button class="btn-redeem">REDEEM NOW</button>
                         </div>
                     </div>
-                    <button class="btn-primary" id="watch-ad-btn" onclick="app.watchRewardAd()">
-                        <i class="fa-solid fa-play"></i> WATCH AD
-                    </button>
-                </div>
-            </section>
+                </section>
 
-            <!-- Section 3: Torox Offerwall Station -->
-            <section class="dashboard-section" id="torox-station">
-                <div class="section-title">
-                    <h2><i class="fa-solid fa-trophy"></i> TOROX OFFERWALL</h2>
-                    <span class="sub-badge" style="background: rgba(255, 215, 0, 0.15); color: #ffd700;">HIGH REWARDS</span>
-                </div>
-                <p class="section-desc">Complete premium surveys and gaming tasks to earn massive diamonds!</p>
-
-                <div class="integration-card">
-                    <div class="integration-info">
-                        <div class="integration-icon" style="color: #ffd700;"><i class="fa-solid fa-gamepad"></i></div>
-                        <div>
-                            <h4>TOROX GAMING OFFERS</h4>
-                            <p>Play games, complete levels & surveys</p>
-                        </div>
+                <!-- Redeem History -->
+                <section class="dashboard-section" id="history-section">
+                    <div class="section-title">
+                        <h2><i class="fa-solid fa-clock-rotate-left"></i> REDEEM HISTORY</h2>
                     </div>
-                    <button class="btn-primary" style="background: linear-gradient(135deg, #ffd700, #ff8c00);" onclick="app.openToroxOfferwall()">
-                        <i class="fa-solid fa-fire"></i> OPEN OFFERWALL
-                    </button>
-                </div>
-            </section>
+                    <p class="section-desc">Track your diamond redemption status in real-time.</p>
 
-            <!-- Section 4: Gamezop Play & Earn Station -->
-            <section class="dashboard-section" id="gamezop-station">
-                <div class="section-title">
-                    <h2><i class="fa-solid fa-gamepad"></i> GAMEZOP MINI-GAMES</h2>
-                    <span class="sub-badge" style="background: rgba(0, 230, 118, 0.15); color: #00e676;">PLAY & EARN</span>
-                </div>
-                <p class="section-desc">Play instant mini-games for 3 minutes to earn free diamonds!</p>
-
-                <div class="integration-card">
-                    <div class="integration-info">
-                        <div class="integration-icon" style="color: #00e676;"><i class="fa-solid fa-chess-knight"></i></div>
-                        <div>
-                            <h4>INSTANT MINI-GAMES</h4>
-                            <p id="gamezop-reward-label">Play 3 Mins = +5 Diamonds</p>
-                        </div>
+                    <div class="history-list" id="history-container">
+                        <!-- History cards rendered via JS -->
                     </div>
-                    <button class="btn-primary" style="background: linear-gradient(135deg, #00e676, #00b0ff);" onclick="app.launchGamezop()">
-                        <i class="fa-solid fa-play"></i> PLAY GAMES NOW
-                    </button>
-                </div>
-            </section>
-
-            <!-- Section 5: Refer & Earn -->
-            <section class="dashboard-section">
-                <div class="section-title">
-                    <h2><i class="fa-solid fa-users"></i> REFER & EARN</h2>
-                </div>
-                <p class="section-desc">Share your link with friends and get bonus diamonds for each join!</p>
-
-                <div class="referral-box">
-                    <div class="referral-input-wrap">
-                        <input type="text" id="referral-link-input" readonly value="Syncing link...">
-                        <button class="btn-primary" onclick="app.copyReferralLink()"><i class="fa-solid fa-copy"></i> COPY</button>
-                    </div>
-                    <button class="btn-share" onclick="app.shareNative()"><i class="fa-solid fa-share-nodes"></i> SHARE</button>
-                </div>
-            </section>
-
-            <!-- Section 6: Diamond Vault -->
-            <section class="dashboard-section" id="redemption-vault">
-                <div class="section-title">
-                    <h2><img src="diamond.png" alt="Diamond" class="section-title-img"> REDEEM DIAMONDS</h2>
-                </div>
-                <p class="section-desc">Instantly claim Free Fire In-Game Diamonds to your Player UID.</p>
-
-                <div class="ff-uid-input-group">
-                    <label for="ff-uid"><i class="fa-solid fa-id-card"></i> FREE FIRE PLAYER UID</label>
-                    <input type="text" id="ff-uid" placeholder="Enter Player UID (e.g. 123456789)" maxlength="12">
-                </div>
-
-                <div class="packages-grid">
-                    <div class="package-card" onclick="app.selectPackage(this, 100, 100)">
-                        <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
-                        <div class="pkg-cost">100 DIAMONDS</div>
-                        <button class="btn-redeem">REDEEM NOW</button>
-                    </div>
-                    <div class="package-card" onclick="app.selectPackage(this, 310, 310)">
-                        <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
-                        <div class="pkg-cost">310 DIAMONDS</div>
-                        <button class="btn-redeem">REDEEM NOW</button>
-                    </div>
-                    <div class="package-card" onclick="app.selectPackage(this, 520, 520)">
-                        <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
-                        <div class="pkg-cost">520 DIAMONDS</div>
-                        <button class="btn-redeem">REDEEM NOW</button>
-                    </div>
-                    <div class="package-card" onclick="app.selectPackage(this, 1060, 1060)">
-                        <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
-                        <div class="pkg-cost">1,060 DIAMONDS</div>
-                        <button class="btn-redeem">REDEEM NOW</button>
-                    </div>
-                    <div class="package-card" onclick="app.selectPackage(this, 2180, 2180)">
-                        <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
-                        <div class="pkg-cost">2,180 DIAMONDS</div>
-                        <button class="btn-redeem">REDEEM NOW</button>
-                    </div>
-                    <div class="package-card" onclick="app.selectPackage(this, 5600, 5600)">
-                        <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
-                        <div class="pkg-cost">5,600 DIAMONDS</div>
-                        <button class="btn-redeem">REDEEM NOW</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Section 7: Redeem History -->
-            <section class="dashboard-section" id="history-section">
-                <div class="section-title">
-                    <h2><i class="fa-solid fa-clock-rotate-left"></i> REDEEM HISTORY</h2>
-                </div>
-                <p class="section-desc">Track your diamond redemption status in real-time.</p>
-
-                <div class="history-list" id="history-container">
-                    <!-- History cards rendered via JS -->
-                </div>
-            </section>
+                </section>
+            </div>
 
         </main>
 
