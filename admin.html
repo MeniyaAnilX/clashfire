@@ -106,7 +106,8 @@
     <nav class="admin-nav">
         <button class="nav-tab active" onclick="switchTab('tab-redemptions', this)"><i class="fa-solid fa-gem"></i> REDEMPTIONS QUEUE</button>
         <button class="nav-tab" onclick="switchTab('tab-users', this)"><i class="fa-solid fa-users"></i> PLAYERS DATABASE</button>
-        <button class="nav-tab" onclick="switchTab('tab-ads', this)"><i class="fa-solid fa-rectangle-ad"></i> ADS & OFFERWALLS</button>
+        <button class="nav-tab" onclick="switchTab('tab-ads', this)"><i class="fa-solid fa-rectangle-ad"></i> ADS & MONETIZATION</button>
+        <button class="nav-tab" onclick="switchTab('tab-promotions', this)"><i class="fa-solid fa-paper-plane"></i> PROMOTIONS & SPONSORS</button>
         <button class="nav-tab" onclick="switchTab('tab-settings', this)"><i class="fa-solid fa-sliders"></i> REWARD & MISSIONS</button>
     </nav>
 
@@ -152,7 +153,7 @@
         </table>
     </div>
 
-    <!-- Tab 3: Dedicated Ads & Offerwalls Monetization Center -->
+    <!-- Tab 3: Dedicated Ads & Monetization Center -->
     <div id="tab-ads" class="tab-content">
         <!-- Card A: Dynamic Native Banner Ads Manager -->
         <div class="control-card">
@@ -227,7 +228,37 @@
         </div>
     </div>
 
-    <!-- Tab 4: Reward & Missions Settings -->
+    <!-- Tab 4: Dedicated Promotions & Sponsorships Manager -->
+    <div id="tab-promotions" class="tab-content">
+        <div class="control-card">
+            <div class="card-title"><i class="fa-solid fa-paper-plane"></i> DEDICATED PROMOTIONS & SPONSORSHIPS MANAGER</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Manage paid sponsor Telegram channels, YouTube promotion links, or custom app tasks listed in the Community station on the main app.</p>
+            
+            <div class="form-group">
+                <label>Sponsor Task Title</label>
+                <input type="text" id="integ-sponsor-title" placeholder="e.g. Join Official Telegram Channel">
+            </div>
+            <div class="form-group">
+                <label>Sponsor Destination URL (Telegram Link / Custom Shortener)</label>
+                <input type="text" id="integ-sponsor-url" placeholder="https://t.me/yourchannel">
+            </div>
+            <div class="form-group">
+                <label>Sponsor Completion Reward Diamonds</label>
+                <input type="number" id="integ-sponsor-reward" value="10">
+            </div>
+            <div class="form-group">
+                <label>Sponsor Station Status</label>
+                <select id="integ-sponsor-status">
+                    <option value="true">ENABLE (ACTIVE LIVE ON SITE)</option>
+                    <option value="false">DISABLE (HIDDEN)</option>
+                </select>
+            </div>
+
+            <button class="btn-action" style="background: var(--primary-fire); color: white;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE PROMOTIONS CONFIG</button>
+        </div>
+    </div>
+
+    <!-- Tab 5: Reward & Missions Settings -->
     <div id="tab-settings" class="tab-content">
         <!-- Card A: Rewards -->
         <div class="control-card">
@@ -308,8 +339,7 @@
                         { title: "Daily Mission Elite #2", url: "https://clashfire.vercel.app/verify.html?task=2" },
                         { title: "Daily Mission Vault #3", url: "https://clashfire.vercel.app/verify.html?task=3" },
                         { title: "Daily Mission Armor #4", url: "https://clashfire.vercel.app/verify.html?task=4" },
-                        { title: "Daily Mission Heroic #5", url: "https://clashfire.vercel.app/verify.html?task=5" },
-                        { title: "🎁 SPONSOR MISSION #6: Join Channel", url: "https://clashfire.vercel.app/verify.html?task=6" }
+                        { title: "Daily Mission Heroic #5", url: "https://clashfire.vercel.app/verify.html?task=5" }
                     ];
                 }
 
@@ -328,6 +358,10 @@
                     document.getElementById('integ-banner-status').value = (iData.bannerEnabled === true || iData.bannerEnabled === 'true') ? 'true' : 'false';
                     document.getElementById('integ-popunder-code').value = iData.popunderHtmlCode || '';
                     document.getElementById('integ-popunder-status').value = (iData.popunderEnabled === true || iData.popunderEnabled === 'true') ? 'true' : 'false';
+                    document.getElementById('integ-sponsor-title').value = iData.sponsorTitle || 'Official Telegram Channel';
+                    document.getElementById('integ-sponsor-url').value = iData.sponsorUrl || 'https://t.me';
+                    document.getElementById('integ-sponsor-reward').value = iData.sponsorReward || 10;
+                    document.getElementById('integ-sponsor-status').value = (iData.sponsorEnabled === true || iData.sponsorEnabled === 'true') ? 'true' : 'false';
                 }
             } catch(e) { console.error(e); }
         }
@@ -397,6 +431,10 @@
             const bannerEnabled = document.getElementById('integ-banner-status').value === 'true';
             const popunderCode = document.getElementById('integ-popunder-code').value.trim();
             const popunderEnabled = document.getElementById('integ-popunder-status').value === 'true';
+            const sponsorTitle = document.getElementById('integ-sponsor-title').value.trim();
+            const sponsorUrl = document.getElementById('integ-sponsor-url').value.trim();
+            const sponsorReward = parseInt(document.getElementById('integ-sponsor-reward').value || '10');
+            const sponsorEnabled = document.getElementById('integ-sponsor-status').value === 'true';
 
             try {
                 await db.collection("settings").doc("integrations").set({
@@ -410,9 +448,13 @@
                     bannerEnabled: bannerEnabled,
                     popunderHtmlCode: popunderCode,
                     popunderEnabled: popunderEnabled,
+                    sponsorTitle: sponsorTitle,
+                    sponsorUrl: sponsorUrl,
+                    sponsorReward: sponsorReward,
+                    sponsorEnabled: sponsorEnabled,
                     updatedAt: new Date().toISOString()
                 });
-                alert("Ads & Monetization Settings saved live! User app updated.");
+                alert("Integrations, Ads & Promotions Settings saved live! User app updated.");
             } catch(e) { alert("Error: " + e.message); }
         }
 

@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager (With Sponsor Mission #6), Dynamic Popunder & Dual Banner Engine
+ * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dedicated Community & Sponsorship Engine, Dynamic Popunder & Dual Banner Engine
  */
 
 const firebaseConfig = {
@@ -39,19 +39,22 @@ class ClashFireApp {
             bannerBottomHtmlCode: '',
             bannerEnabled: false,
             popunderHtmlCode: '',
-            popunderEnabled: false
+            popunderEnabled: false,
+            sponsorTitle: 'Official Telegram Channel',
+            sponsorReward: 10,
+            sponsorUrl: 'https://t.me',
+            sponsorEnabled: true
         };
         this.db = null;
         this.firestoreActive = false;
 
-        // Dynamic Mission Tasks Array (1-indexed task IDs, including Sponsor Mission #6)
+        // Dynamic Mission Tasks Array (1-indexed task IDs)
         this.dailyLinks = [
             { id: 0, taskId: 1, title: "Daily Mission Supply #1", url: "https://clashfire.vercel.app/verify.html?task=1" },
             { id: 1, taskId: 2, title: "Daily Mission Elite #2", url: "https://clashfire.vercel.app/verify.html?task=2" },
             { id: 2, taskId: 3, title: "Daily Mission Vault #3", url: "https://clashfire.vercel.app/verify.html?task=3" },
             { id: 3, taskId: 4, title: "Daily Mission Armor #4", url: "https://clashfire.vercel.app/verify.html?task=4" },
-            { id: 4, taskId: 5, title: "Daily Mission Heroic #5", url: "https://clashfire.vercel.app/verify.html?task=5" },
-            { id: 5, taskId: 6, title: "🎁 SPONSOR MISSION #6: Join Channel", url: "https://clashfire.vercel.app/verify.html?task=6" }
+            { id: 4, taskId: 5, title: "Daily Mission Heroic #5", url: "https://clashfire.vercel.app/verify.html?task=5" }
         ];
 
         this.init();
@@ -160,7 +163,7 @@ class ClashFireApp {
 
                 this.db.collection("settings").doc("integrations").onSnapshot(doc => {
                     if (doc.exists) {
-                        this.integrations = doc.data();
+                        this.integrations = { ...this.integrations, ...doc.data() };
                         if (this.integrations.toroxUrl) {
                             localStorage.setItem('CF_CACHE_TOROX_URL', this.integrations.toroxUrl);
                         }
@@ -330,6 +333,18 @@ class ClashFireApp {
             gzStation.style.display = isGzOn ? 'block' : 'none';
         }
 
+        const commStation = document.getElementById('community-station');
+        if (commStation) {
+            const isCommOn = (this.integrations.sponsorEnabled === true || this.integrations.sponsorEnabled === 'true');
+            commStation.style.display = isCommOn ? 'block' : 'none';
+            
+            const titleElem = document.getElementById('sponsor-task-title');
+            if (titleElem) titleElem.innerText = this.integrations.sponsorTitle || 'Official Sponsor Channel';
+            
+            const descElem = document.getElementById('sponsor-task-desc');
+            if (descElem) descElem.innerText = `Join to claim +${this.integrations.sponsorReward || 10} Diamonds`;
+        }
+
         // Render Independent Top and Bottom Native Banner Ad Slots with Dynamic Zero-Space Auto-Height
         const topSlot = document.getElementById('banner-ad-top');
         const botSlot = document.getElementById('banner-ad-bottom');
@@ -399,6 +414,25 @@ class ClashFireApp {
         }
 
         this.renderRedeemHistory();
+    }
+
+    openSponsorChannel() {
+        const url = this.integrations.sponsorUrl || "https://t.me";
+        window.open(url, '_blank');
+        this.showToast('COMMUNITY JOINED', 'Claiming sponsor diamond bonus...', 'info');
+
+        if (!localStorage.getItem('CF_SPONSOR_CLAIMED')) {
+            localStorage.setItem('CF_SPONSOR_CLAIMED', 'true');
+            setTimeout(() => {
+                const bonus = parseInt(this.integrations.sponsorReward || 10);
+                this.user.coins += bonus;
+                this.saveUserProfile();
+                this.renderDashboard();
+                this.showToast('BONUS CREDITED!', `+${bonus} Diamonds credited for joining community!`, 'success');
+            }, 3000);
+        } else {
+            this.showToast('ALREADY CLAIMED', 'You have already claimed your sponsor bonus!', 'info');
+        }
     }
 
     handlePopunderExecution() {

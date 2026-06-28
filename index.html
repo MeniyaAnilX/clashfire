@@ -3,254 +3,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CLASH FIRE - Free Diamonds</title>
+    <title>CLASH FIRE - Earn Free Diamonds & Rewards</title>
+    <meta name="description" content="Play Clash Fire to earn FREE Free Fire Diamonds daily! Complete daily missions, offerwalls, and redeem instant codes directly to your player UID.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-    <!-- 3-Second Premium Page Loading Overlay -->
+    <!-- 3-Second Premium Transparent Cardview Page Loading Overlay -->
     <div id="page-loader-overlay">
         <div class="loader-box">
             <div class="diamond-pulse-box">
-                <img src="diamond.png" alt="Diamond" class="loader-diamond-img">
                 <div class="pulse-ring"></div>
+                <img src="diamond.png" alt="Gem" class="loader-diamond-img">
             </div>
-            <h2 class="loader-title">CLASH <span>FIRE</span></h2>
-            <p class="loader-sub">INITIALIZING SECURE GAMING ZONE...</p>
+            <div class="loader-title">CLASH <span>FIRE</span></div>
+            <div class="loader-sub">SECURE DIAMOND STATION</div>
             <div class="loader-bar-bg">
                 <div class="loader-bar-fill" id="loader-bar-fill"></div>
             </div>
         </div>
     </div>
 
-    <!-- Main Dashboard Container -->
+    <!-- Toast Notification System Container -->
+    <div id="toast-container"></div>
+
+    <!-- Global Fullscreen Loader Overlay -->
+    <div id="global-loader" class="hidden">
+        <div class="loader-content">
+            <i class="fa-solid fa-crosshairs crosshair-spin"></i>
+            <div id="loader-message">PROCESSING DIAMONDS...</div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
     <div id="app-container">
-        
-        <!-- Header -->
+
+        <!-- Top Dynamic Native Banner Ad Slot -->
+        <div id="banner-ad-top" class="native-banner-slot hidden"></div>
+
+        <!-- Top Header Navigation -->
         <header class="app-header">
             <div class="header-left">
                 <div class="brand-box">
-                    <span class="app-name">CLASH FIRE</span>
+                    <i class="fa-solid fa-fire-flame-curved brand-icon"></i>
+                    <span class="app-name">CLASH <span>FIRE</span></span>
                 </div>
-                <div class="device-tag" id="display-device-id">User ID: Syncing...</div>
+                <span class="device-tag" id="display-device-id">User ID: Syncing...</span>
             </div>
-
             <div class="header-right">
-                <div class="wallet-badge">
+                <div class="wallet-badge" onclick="app.scrollToRedeem()">
                     <img src="diamond.png" alt="Diamond" class="wallet-gem-img">
                     <span id="user-coins">0</span>
-                    <button class="add-coin-btn" onclick="app.switchAppTab('tab-redeem')"><i class="fa-solid fa-plus"></i></button>
+                    <button class="add-coin-btn"><i class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
         </header>
 
-        <!-- Dynamic Top Native Banner Ad Container -->
-        <div id="banner-ad-top" class="native-banner-slot hidden"></div>
-
-        <!-- Top Navigation Bar -->
+        <!-- Main Navigation Bar Tabs -->
         <nav class="main-nav-tabs">
-            <button class="tab-btn active" onclick="app.switchAppTab('tab-home', this)"><i class="fa-solid fa-house"></i> HOME</button>
-            <button class="tab-btn" onclick="app.switchAppTab('tab-tasks', this)"><i class="fa-solid fa-list-check"></i> MISSIONS</button>
-            <button class="tab-btn" onclick="app.switchAppTab('tab-redeem', this)"><i class="fa-solid fa-gem"></i> REDEEM</button>
+            <button class="tab-btn active" onclick="app.switchAppTab('tab-home', this)">
+                <i class="fa-solid fa-house"></i> HOME
+            </button>
+            <button class="tab-btn" onclick="app.switchAppTab('tab-tasks', this)">
+                <i class="fa-solid fa-list-check"></i> MISSIONS
+            </button>
+            <button class="tab-btn" onclick="app.switchAppTab('tab-redeem', this)">
+                <i class="fa-solid fa-gem"></i> REDEEM
+            </button>
         </nav>
 
-        <!-- Main Content Area -->
-        <main class="dashboard-container">
-
-            <!-- TAB 1: HOME -->
-            <div id="tab-home" class="app-tab-pane active">
-                <!-- Daily Reset Banner -->
-                <section class="banner-card">
-                    <div class="banner-left">
-                        <span class="banner-label"><i class="fa-solid fa-clock"></i> RESET IN</span>
-                        <span class="countdown-timer" id="reset-timer">23h 59m 59s</span>
-                    </div>
-                </section>
-
-                <!-- Section: Daily Links -->
-                <section class="dashboard-section">
-                    <div class="section-title">
-                        <h2><i class="fa-solid fa-link"></i> DAILY MISSIONS</h2>
-                        <span class="sub-badge" id="completed-links-badge">0 DONE</span>
-                    </div>
-                    <p class="section-desc">Complete daily shortener links to claim free diamonds!</p>
-
-                    <div class="links-list" id="links-container">
-                        <!-- Dynamic Link Cards rendered via JS -->
-                    </div>
-                </section>
-
-                <!-- Section: Refer & Earn -->
-                <section class="dashboard-section">
-                    <div class="section-title">
-                        <h2><i class="fa-solid fa-users"></i> REFER & EARN</h2>
-                    </div>
-                    <p class="section-desc">Share your link with friends and get bonus diamonds for each join!</p>
-
-                    <div class="referral-box">
-                        <div class="referral-input-wrap">
-                            <input type="text" id="referral-link-input" readonly value="Syncing link...">
-                            <button class="btn-primary" onclick="app.copyReferralLink()"><i class="fa-solid fa-copy"></i> COPY</button>
-                        </div>
-                        <button class="btn-share" onclick="app.shareNative()"><i class="fa-solid fa-share-nodes"></i> SHARE</button>
-                    </div>
-                </section>
+        <!-- Dynamic Daily Reset Banner -->
+        <div class="banner-card">
+            <div class="banner-left">
+                <span class="banner-label"><i class="fa-solid fa-clock"></i> RESET IN</span>
+                <span class="countdown-timer" id="reset-timer">24h 00m 00s</span>
             </div>
+            <span class="banner-badge" id="completed-links-badge">0/5 DONE</span>
+        </div>
 
-            <!-- TAB 2: MISSIONS -->
-            <div id="tab-tasks" class="app-tab-pane">
-                <!-- Torox Offerwall Station -->
-                <section class="dashboard-section" id="torox-station">
-                    <div class="section-title">
-                        <h2><i class="fa-solid fa-trophy"></i> TOROX OFFERWALL</h2>
-                        <span class="sub-badge" style="background: rgba(255, 215, 0, 0.15); color: #ffd700;">HIGH REWARDS</span>
+        <!-- TAB 1: HOME PANE (DEFAULT ACTIVE) -->
+        <div id="tab-home" class="app-tab-pane active">
+            <!-- Refer & Earn Section -->
+            <section class="dashboard-section">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-users"></i> REFER & EARN</h2>
+                </div>
+                <p class="section-desc">Share your link with friends and get bonus diamonds for each join!</p>
+                
+                <div class="referral-box">
+                    <div class="referral-input-wrap">
+                        <input type="text" id="referral-link-input" readonly value="Generating link...">
+                        <button class="btn-primary" onclick="app.copyReferralLink()"><i class="fa-solid fa-copy"></i> COPY</button>
                     </div>
-                    <p class="section-desc">Complete premium surveys and gaming tasks to earn massive diamonds!</p>
+                    <button class="btn-share" onclick="app.shareNative()"><i class="fa-solid fa-share-nodes"></i> SHARE</button>
+                </div>
+            </section>
+        </div>
 
-                    <div class="integration-card">
-                        <div class="integration-info">
-                            <div class="integration-icon" style="color: #ffd700;"><i class="fa-solid fa-gamepad"></i></div>
-                            <div>
-                                <h4>TOROX GAMING OFFERS</h4>
-                                <p>Play games, complete levels & surveys</p>
-                            </div>
+        <!-- TAB 2: TASKS & OFFERWALL PANE -->
+        <div id="tab-tasks" class="app-tab-pane">
+            
+            <!-- Torox Offerwall Station Card -->
+            <section class="dashboard-section" id="torox-station">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-award"></i> TOROX OFFERWALL</h2>
+                    <span class="sub-badge">HIGH PAYOUTS</span>
+                </div>
+                <p class="section-desc">Complete premium offers, surveys, and app tasks to earn massive diamonds!</p>
+                <div class="integration-card">
+                    <div class="integration-info">
+                        <div class="integration-icon" style="background: rgba(0, 242, 254, 0.15); color: var(--accent-cyan);">
+                            <i class="fa-solid fa-bullseye"></i>
                         </div>
-                        <button class="btn-primary" style="background: linear-gradient(135deg, #ffd700, #ff8c00);" onclick="app.openToroxOfferwall()">
-                            <i class="fa-solid fa-fire"></i> OPEN OFFERWALL
-                        </button>
-                    </div>
-                </section>
-
-                <!-- Gamezop Play & Earn Station -->
-                <section class="dashboard-section" id="gamezop-station">
-                    <div class="section-title">
-                        <h2><i class="fa-solid fa-gamepad"></i> GAMEZOP MINI-GAMES</h2>
-                        <span class="sub-badge" style="background: rgba(0, 230, 118, 0.15); color: #00e676;">PLAY & EARN</span>
-                    </div>
-                    <p class="section-desc">Play instant mini-games for 3 minutes to earn free diamonds!</p>
-
-                    <div class="integration-card">
-                        <div class="integration-info">
-                            <div class="integration-icon" style="color: #00e676;"><i class="fa-solid fa-chess-knight"></i></div>
-                            <div>
-                                <h4>INSTANT MINI-GAMES</h4>
-                                <p id="gamezop-reward-label">Play 3 Mins = +5 Diamonds</p>
-                            </div>
-                        </div>
-                        <button class="btn-primary" style="background: linear-gradient(135deg, #00e676, #00b0ff);" onclick="app.launchGamezop()">
-                            <i class="fa-solid fa-play"></i> PLAY GAMES NOW
-                        </button>
-                    </div>
-                </section>
-            </div>
-
-            <!-- TAB 3: REDEEM VAULT -->
-            <div id="tab-redeem" class="app-tab-pane">
-                <!-- Diamond Vault -->
-                <section class="dashboard-section" id="redemption-vault">
-                    <div class="section-title">
-                        <h2><img src="diamond.png" alt="Diamond" class="section-title-img"> REDEEM DIAMONDS</h2>
-                    </div>
-                    <p class="section-desc">Instantly claim Free Fire In-Game Diamonds to your Player UID.</p>
-
-                    <div class="ff-uid-input-group">
-                        <label for="ff-uid"><i class="fa-solid fa-id-card"></i> FREE FIRE PLAYER UID</label>
-                        <input type="text" id="ff-uid" placeholder="Enter Player UID (e.g. 123456789)" maxlength="12">
-                    </div>
-
-                    <div class="packages-grid">
-                        <div class="package-card" onclick="app.selectPackage(this, 310, 310)">
-                            <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
-                            <div class="pkg-cost">310 DIAMONDS</div>
-                            <button class="btn-redeem">REDEEM NOW</button>
-                        </div>
-                        <div class="package-card" onclick="app.selectPackage(this, 520, 520)">
-                            <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
-                            <div class="pkg-cost">520 DIAMONDS</div>
-                            <button class="btn-redeem">REDEEM NOW</button>
-                        </div>
-                        <div class="package-card" onclick="app.selectPackage(this, 1060, 1060)">
-                            <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
-                            <div class="pkg-cost">1,060 DIAMONDS</div>
-                            <button class="btn-redeem">REDEEM NOW</button>
-                        </div>
-                        <div class="package-card" onclick="app.selectPackage(this, 2180, 2180)">
-                            <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
-                            <div class="pkg-cost">2,180 DIAMONDS</div>
-                            <button class="btn-redeem">REDEEM NOW</button>
-                        </div>
-                        <div class="package-card" onclick="app.selectPackage(this, 5600, 5600)">
-                            <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
-                            <div class="pkg-cost">5,600 DIAMONDS</div>
-                            <button class="btn-redeem">REDEEM NOW</button>
-                        </div>
-                        <div class="package-card" onclick="app.selectPackage(this, 11500, 11500)">
-                            <div class="diamond-img-box"><img src="diamond.png" alt="Diamond" class="pkg-gem-img"></div>
-                            <div class="pkg-cost">11,500 DIAMONDS</div>
-                            <button class="btn-redeem">REDEEM NOW</button>
+                        <div>
+                            <h4>Torox Diamond Station</h4>
+                            <p>Complete tasks for maximum rewards</p>
                         </div>
                     </div>
-                </section>
+                    <button class="btn-primary" onclick="app.openToroxOfferwall()">OPEN OFFERWALL</button>
+                </div>
+            </section>
 
-                <!-- Redeem History -->
-                <section class="dashboard-section" id="history-section">
-                    <div class="section-title">
-                        <h2><i class="fa-solid fa-clock-rotate-left"></i> REDEEM HISTORY</h2>
+            <!-- Gamezop Arcade Gaming Station Card -->
+            <section class="dashboard-section" id="gamezop-station">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-gamepad"></i> GAMEZOP ARCADE</h2>
+                    <span class="sub-badge">INSTANT REWARD</span>
+                </div>
+                <p class="section-desc">Play trending mini-games active for 3 minutes and claim bonus diamonds!</p>
+                <div class="integration-card">
+                    <div class="integration-info">
+                        <div class="integration-icon" style="background: rgba(255, 215, 0, 0.15); color: var(--accent-gold);">
+                            <i class="fa-solid fa-dice"></i>
+                        </div>
+                        <div>
+                            <h4>Play Mini Games</h4>
+                            <p id="gamezop-reward-label">Play 3 Mins = +5 Diamonds</p>
+                        </div>
                     </div>
-                    <p class="section-desc">Track your diamond redemption status in real-time.</p>
+                    <button class="btn-primary" style="background: linear-gradient(135deg, var(--accent-gold), #ff9100);" onclick="app.launchGamezop()">PLAY GAMES</button>
+                </div>
+            </section>
 
-                    <div class="history-list" id="history-container">
-                        <!-- History cards rendered via JS -->
+            <!-- Dedicated Community & Sponsorship Station Card -->
+            <section class="dashboard-section" id="community-station">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-users-viewfinder"></i> COMMUNITY & SPONSORSHIPS</h2>
+                    <span class="sub-badge">LIMITED BONUS</span>
+                </div>
+                <p class="section-desc">Join sponsor channels & community groups to claim instant reward diamonds!</p>
+                <div class="integration-card">
+                    <div class="integration-info">
+                        <div class="integration-icon" style="background: rgba(255, 69, 0, 0.15); color: var(--primary-fire);">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </div>
+                        <div>
+                            <h4 id="sponsor-task-title">Official Sponsor Channel</h4>
+                            <p id="sponsor-task-desc">Join to claim +10 Diamonds</p>
+                        </div>
                     </div>
-                </section>
-            </div>
+                    <button class="btn-primary" style="background: linear-gradient(135deg, var(--primary-fire), #ff1744); color: #fff;" onclick="app.openSponsorChannel()">JOIN NOW</button>
+                </div>
+            </section>
 
-        </main>
+            <!-- Daily Missions List -->
+            <section class="dashboard-section">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-link"></i> DAILY MISSIONS</h2>
+                </div>
+                <p class="section-desc">Complete daily shortener links to claim free diamonds!</p>
+                
+                <div class="links-list" id="links-container">
+                    <div style="text-align: center; color: var(--text-muted); padding: 15px;">Loading dynamic missions...</div>
+                </div>
+            </section>
 
-        <!-- Dynamic Bottom Native Banner Ad Container -->
+        </div>
+
+        <!-- TAB 3: REDEEM VAULT PANE -->
+        <div id="tab-redeem" class="app-tab-pane">
+            <!-- Free Fire Redeem Section -->
+            <section class="dashboard-section">
+                <div class="section-title">
+                    <h2><img src="diamond.png" alt="Gem" class="section-title-img"> FREE FIRE REDEEM VAULT</h2>
+                    <span class="sub-badge">INSTANT PAYOUT</span>
+                </div>
+                <p class="section-desc">Enter your Free Fire Player UID and choose your diamond package!</p>
+
+                <div class="ff-uid-input-group">
+                    <label for="ff-uid"><i class="fa-solid fa-id-card"></i> FREE FIRE PLAYER UID</label>
+                    <input type="number" id="ff-uid" placeholder="e.g. 123456789" autocomplete="off">
+                </div>
+
+                <div class="packages-grid">
+                    <!-- Package 1: 310 Diamonds -->
+                    <div class="package-card" onclick="app.selectPackage(this, 310, 310)">
+                        <div class="diamond-img-box">
+                            <img src="diamond.png" alt="Gem" class="pkg-gem-img">
+                        </div>
+                        <div class="pkg-cost">310 💎</div>
+                        <button class="btn-redeem">REDEEM</button>
+                    </div>
+                    <!-- Package 2: 520 Diamonds -->
+                    <div class="package-card" onclick="app.selectPackage(this, 520, 520)">
+                        <div class="diamond-img-box">
+                            <img src="diamond.png" alt="Gem" class="pkg-gem-img">
+                        </div>
+                        <div class="pkg-cost">520 💎</div>
+                        <button class="btn-redeem">REDEEM</button>
+                    </div>
+                    <!-- Package 3: 1060 Diamonds -->
+                    <div class="package-card" onclick="app.selectPackage(this, 1060, 1060)">
+                        <div class="diamond-img-box">
+                            <img src="diamond.png" alt="Gem" class="pkg-gem-img">
+                        </div>
+                        <div class="pkg-cost">1060 💎</div>
+                        <button class="btn-redeem">REDEEM</button>
+                    </div>
+                    <!-- Package 4: 2180 Diamonds -->
+                    <div class="package-card" onclick="app.selectPackage(this, 2180, 2180)">
+                        <div class="diamond-img-box">
+                            <img src="diamond.png" alt="Gem" class="pkg-gem-img">
+                        </div>
+                        <div class="pkg-cost">2180 💎</div>
+                        <button class="btn-redeem">REDEEM</button>
+                    </div>
+                    <!-- Package 5: 5600 Diamonds -->
+                    <div class="package-card" onclick="app.selectPackage(this, 5600, 5600)">
+                        <div class="diamond-img-box">
+                            <img src="diamond.png" alt="Gem" class="pkg-gem-img">
+                        </div>
+                        <div class="pkg-cost">5600 💎</div>
+                        <button class="btn-redeem">REDEEM</button>
+                    </div>
+                    <!-- Package 6: 11,500 Diamonds -->
+                    <div class="package-card" onclick="app.selectPackage(this, 11500, 11500)">
+                        <div class="diamond-img-box">
+                            <img src="diamond.png" alt="Gem" class="pkg-gem-img">
+                        </div>
+                        <div class="pkg-cost">11,500 💎</div>
+                        <button class="btn-redeem">REDEEM</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Redemption History List Section -->
+            <section class="dashboard-section">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-clock-rotate-left"></i> REDEMPTION HISTORY</h2>
+                </div>
+                <div class="history-list" id="history-container">
+                    <div style="text-align: center; color: var(--text-muted); padding: 15px; font-size: 0.85rem;">Loading history...</div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Bottom Dynamic Native Banner Ad Slot -->
         <div id="banner-ad-bottom" class="native-banner-slot hidden"></div>
 
-        <!-- Minimal Clean Footer -->
+        <!-- Footer -->
         <footer class="app-footer">
-            <p>© 2026 CLASH FIRE - Free Fire Rewards</p>
+            <p>&copy; 2026 CLASH FIRE. All Rights Reserved.</p>
         </footer>
+
     </div>
 
-    <!-- Redeem Success Modal -->
+    <!-- Redeem Success Modal Popup -->
     <div id="redeem-modal" class="modal-overlay hidden">
         <div class="modal-card">
             <div class="modal-icon"><i class="fa-solid fa-circle-check"></i></div>
-            <h3>REDEMPTION SUCCESSFUL!</h3>
+            <h3>REQUEST LOGGED!</h3>
             <p>Your diamond payout request has been logged. Diamonds will be received within 7 - 30 working days.</p>
             <div class="modal-details-box">
-                <div><span class="modal-label">Amount:</span> <span id="modal-amount" class="modal-val">310 Diamonds</span></div>
-                <div><span class="modal-label">Player UID:</span> <span id="modal-uid" class="modal-val">123456789</span></div>
+                <div><span class="modal-label">Amount:</span> <span class="modal-val" id="modal-amount">310 Diamonds</span></div>
+                <div><span class="modal-label">Player UID:</span> <span class="modal-val" id="modal-uid">123456789</span></div>
+                <div><span class="modal-label">Status:</span> <span class="modal-val" style="color: var(--accent-gold);">PENDING</span></div>
             </div>
-            <button class="btn-primary" style="width: 100%; margin-top: 15px;" onclick="app.closeRedeemModal()">THANK YOU</button>
+            <button class="btn-primary" style="width: 100%; margin-top: 15px;" onclick="app.closeRedeemModal()">GREAT!</button>
         </div>
     </div>
 
-    <!-- Loader Overlay -->
-    <div id="global-loader" class="hidden">
-        <div class="loader-content">
-            <div class="crosshair-spin">
-                <img src="diamond.png" alt="Diamond" style="width: 50px; height: 50px;">
-            </div>
-            <p id="loader-message">PROCESSING DATA...</p>
-        </div>
-    </div>
-
-    <!-- Toast Container -->
-    <div id="toast-container"></div>
-
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
