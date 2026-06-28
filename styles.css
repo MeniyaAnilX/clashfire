@@ -114,6 +114,13 @@ body {
 }
 .btn-share:active { transform: scale(0.97); }
 
+/* Integration Cards */
+.integration-card { background: rgba(10, 12, 20, 0.75); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.integration-info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+.integration-icon { width: 40px; height: 40px; flex-shrink: 0; background: rgba(255, 255, 255, 0.05); border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 1.3rem; }
+.integration-info h4 { font-size: clamp(0.85rem, 3.5vw, 0.95rem); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.integration-info p { font-size: 0.75rem; color: var(--text-muted); }
+
 /* Dashboard Layout */
 #app-container { max-width: 600px; margin: 0 auto; padding: 12px; padding-bottom: 30px; }
 

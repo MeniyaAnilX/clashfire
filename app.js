@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System & Quota Shield
+ * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations
  */
 
 const firebaseConfig = {
@@ -30,6 +30,13 @@ class ClashFireApp {
             linkReward: 5,
             adReward: 2,
             referralReward: 10
+        };
+        this.integrations = {
+            toroxUrl: "https://offerwalls.com",
+            toroxEnabled: true,
+            gamezopUrl: "https://www.gamezop.com",
+            gamezopReward: 5,
+            gamezopEnabled: true
         };
         this.db = null;
         this.firestoreActive = false;
@@ -99,9 +106,7 @@ class ClashFireApp {
         if (this.firestoreActive) {
             try {
                 const doc = await this.db.collection("settings").doc("global").get();
-                if (doc.exists) {
-                    this.globalSettings = doc.data();
-                }
+                if (doc.exists) this.globalSettings = doc.data();
 
                 const linksDoc = await this.db.collection("settings").doc("links").get();
                 if (linksDoc.exists) {
@@ -111,6 +116,11 @@ class ClashFireApp {
                             if (u && this.dailyLinks[i]) this.dailyLinks[i].url = u;
                         });
                     }
+                }
+
+                const integDoc = await this.db.collection("settings").doc("integrations").get();
+                if (integDoc.exists) {
+                    this.integrations = integDoc.data();
                 }
             } catch(e) { console.error(e); }
         }
@@ -236,6 +246,16 @@ class ClashFireApp {
         const adLabel = document.getElementById('ad-reward-label');
         if (adLabel) adLabel.innerText = `Reward: +${this.globalSettings.adReward || 2} Diamonds`;
 
+        const gzLabel = document.getElementById('gamezop-reward-label');
+        if (gzLabel) gzLabel.innerText = `Play 3 Mins = +${this.integrations.gamezopReward || 5} Diamonds`;
+
+        // Render Stations Visibility
+        const toroxStation = document.getElementById('torox-station');
+        if (toroxStation) toroxStation.style.display = this.integrations.toroxEnabled !== false ? 'block' : 'none';
+
+        const gzStation = document.getElementById('gamezop-station');
+        if (gzStation) gzStation.style.display = this.integrations.gamezopEnabled !== false ? 'block' : 'none';
+
         if (this.user.freeFireUid) {
             document.getElementById('ff-uid').value = this.user.freeFireUid;
         }
@@ -306,6 +326,26 @@ class ClashFireApp {
             `;
             historyContainer.appendChild(itemElem);
         });
+    }
+
+    openToroxOfferwall() {
+        const url = this.integrations.toroxUrl || "https://offerwalls.com";
+        window.open(url, '_blank');
+        this.showToast('TOROX OFFERWALL', 'Complete tasks on Torox tab to earn rewards!', 'info');
+    }
+
+    launchGamezop() {
+        const url = this.integrations.gamezopUrl || "https://www.gamezop.com";
+        window.open(url, '_blank');
+        this.showToast('GAMEZOP LAUNCHED', 'Play games active for 3 mins to claim reward!', 'info');
+        
+        setTimeout(() => {
+            const gzReward = this.integrations.gamezopReward || 5;
+            this.user.coins += gzReward;
+            this.saveUserProfile();
+            this.renderDashboard();
+            this.showToast('GAMEPLAY BONUS!', `+${gzReward} Diamonds credited for active gameplay!`, 'success');
+        }, 180000); // 3-minute verified gameplay
     }
 
     async executeLinkTask(index) {

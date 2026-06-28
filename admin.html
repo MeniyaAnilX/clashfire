@@ -38,12 +38,12 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        .control-card { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); max-width: 750px; }
+        .control-card { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); max-width: 750px; margin-bottom: 20px; }
         .card-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 15px; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px; }
 
         .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
         .form-group label { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); }
-        .form-group input { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 0.95rem; outline: none; }
+        .form-group input, .form-group select { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 0.95rem; outline: none; }
         .form-group input:focus { border-color: var(--accent-cyan); }
         
         .btn-action { background: linear-gradient(135deg, var(--accent-cyan), #00a8ff); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 10px; }
@@ -102,7 +102,7 @@
     <nav class="admin-nav">
         <button class="nav-tab active" onclick="switchTab('tab-redemptions', this)"><i class="fa-solid fa-gem"></i> REDEMPTIONS QUEUE</button>
         <button class="nav-tab" onclick="switchTab('tab-users', this)"><i class="fa-solid fa-users"></i> PLAYERS DATABASE</button>
-        <button class="nav-tab" onclick="switchTab('tab-settings', this)"><i class="fa-solid fa-sliders"></i> REWARD & LINKS SETTINGS</button>
+        <button class="nav-tab" onclick="switchTab('tab-settings', this)"><i class="fa-solid fa-sliders"></i> REWARD & INTEGRATIONS</button>
     </nav>
 
     <!-- Tab 1: Redemptions Queue (DEFAULT VIEW) -->
@@ -147,51 +147,88 @@
         </table>
     </div>
 
-    <!-- Tab 3: Reward & Links Settings -->
-    <div id="tab-settings" class="tab-content control-card">
-        <div class="card-title"><i class="fa-solid fa-sliders"></i> DYNAMIC REWARD AMOUNTS</div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
-            <div class="form-group">
-                <label>Diamonds Per Link</label>
-                <input type="number" id="setting-link-reward" value="5">
+    <!-- Tab 3: Reward & Integrations Settings -->
+    <div id="tab-settings" class="tab-content">
+        <!-- Card A: Rewards -->
+        <div class="control-card">
+            <div class="card-title"><i class="fa-solid fa-sliders"></i> DYNAMIC REWARD AMOUNTS</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                <div class="form-group">
+                    <label>Diamonds Per Link</label>
+                    <input type="number" id="setting-link-reward" value="5">
+                </div>
+                <div class="form-group">
+                    <label>Diamonds Per Watch Ad</label>
+                    <input type="number" id="setting-ad-reward" value="2">
+                </div>
+                <div class="form-group">
+                    <label>Referral Bonus Diamonds</label>
+                    <input type="number" id="setting-ref-reward" value="10">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Diamonds Per Watch Ad</label>
-                <input type="number" id="setting-ad-reward" value="2">
-            </div>
-            <div class="form-group">
-                <label>Referral Bonus Diamonds</label>
-                <input type="number" id="setting-ref-reward" value="10">
-            </div>
+            <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE REWARD AMOUNTS</button>
         </div>
-        <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE REWARD AMOUNTS</button>
 
-        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+        <!-- Card B: Torox & Gamezop Integrations -->
+        <div class="control-card">
+            <div class="card-title"><i class="fa-solid fa-gamepad"></i> TOROX & GAMEZOP INTEGRATIONS</div>
+            <div class="form-group">
+                <label>Torox Offerwall Publisher Link / App URL</label>
+                <input type="text" id="integ-torox-url" placeholder="https://offerwalls.com/...">
+            </div>
+            <div class="form-group">
+                <label>Torox Station Status</label>
+                <select id="integ-torox-status">
+                    <option value="true">ENABLE (ACTIVE)</option>
+                    <option value="false">DISABLE (HIDDEN)</option>
+                </select>
+            </div>
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.08); margin: 15px 0;">
+            <div class="form-group">
+                <label>Gamezop Web URL / Publisher Link</label>
+                <input type="text" id="integ-gz-url" placeholder="https://www.gamezop.com/...">
+            </div>
+            <div class="form-group">
+                <label>Gamezop Playtime Reward Diamonds (3 Mins Play)</label>
+                <input type="number" id="integ-gz-reward" value="5">
+            </div>
+            <div class="form-group">
+                <label>Gamezop Station Status</label>
+                <select id="integ-gz-status">
+                    <option value="true">ENABLE (ACTIVE)</option>
+                    <option value="false">DISABLE (HIDDEN)</option>
+                </select>
+            </div>
+            <button class="btn-action" style="background: #00e676;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE INTEGRATIONS CONFIG</button>
+        </div>
 
-        <div class="card-title"><i class="fa-solid fa-link"></i> 5 DAILY MISSION SHORTENER LINKS</div>
-        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Paste your shortened GPLinks / Shortener URLs here. (Set GPLinks destination target to https://clash-fire.vercel.app/verify.html?task=0 to 4)</p>
-        
-        <div class="form-group">
-            <label>Mission Link 1 URL (Target task=0)</label>
-            <input type="text" id="link-url-0" value="https://clash-fire.vercel.app/verify.html?task=0">
+        <!-- Card C: Shortener Links -->
+        <div class="control-card">
+            <div class="card-title"><i class="fa-solid fa-link"></i> 5 DAILY MISSION SHORTENER LINKS</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Paste your shortened GPLinks / Shortener URLs here.</p>
+            
+            <div class="form-group">
+                <label>Mission Link 1 URL (Target task=0)</label>
+                <input type="text" id="link-url-0" value="https://clash-fire.vercel.app/verify.html?task=0">
+            </div>
+            <div class="form-group">
+                <label>Mission Link 2 URL (Target task=1)</label>
+                <input type="text" id="link-url-1" value="https://clash-fire.vercel.app/verify.html?task=1">
+            </div>
+            <div class="form-group">
+                <label>Mission Link 3 URL (Target task=2)</label>
+                <input type="text" id="link-url-2" value="https://clash-fire.vercel.app/verify.html?task=2">
+            </div>
+            <div class="form-group">
+                <label>Mission Link 4 URL (Target task=3)</label>
+                <input type="text" id="link-url-3" value="https://clash-fire.vercel.app/verify.html?task=3">
+            </div>
+            <div class="form-group">
+                <label>Mission Link 5 URL (Target task=4)</label>
+                <input type="text" id="link-url-4" value="https://clash-fire.vercel.app/verify.html?task=4">
+            </div>
+            <button class="btn-action" style="background: var(--accent-gold);" onclick="saveMissionLinks()"><i class="fa-solid fa-save"></i> SAVE MISSION SHORTENER LINKS</button>
         </div>
-        <div class="form-group">
-            <label>Mission Link 2 URL (Target task=1)</label>
-            <input type="text" id="link-url-1" value="https://clash-fire.vercel.app/verify.html?task=1">
-        </div>
-        <div class="form-group">
-            <label>Mission Link 3 URL (Target task=2)</label>
-            <input type="text" id="link-url-2" value="https://clash-fire.vercel.app/verify.html?task=2">
-        </div>
-        <div class="form-group">
-            <label>Mission Link 4 URL (Target task=3)</label>
-            <input type="text" id="link-url-3" value="https://clash-fire.vercel.app/verify.html?task=3">
-        </div>
-        <div class="form-group">
-            <label>Mission Link 5 URL (Target task=4)</label>
-            <input type="text" id="link-url-4" value="https://clash-fire.vercel.app/verify.html?task=4">
-        </div>
-        <button class="btn-action" style="background: var(--accent-gold);" onclick="saveMissionLinks()"><i class="fa-solid fa-save"></i> SAVE MISSION SHORTENER LINKS</button>
     </div>
 
     <script>
@@ -235,6 +272,16 @@
                         });
                     }
                 }
+
+                const integDoc = await db.collection("settings").doc("integrations").get();
+                if (integDoc.exists) {
+                    const iData = integDoc.data();
+                    document.getElementById('integ-torox-url').value = iData.toroxUrl || '';
+                    document.getElementById('integ-torox-status').value = iData.toroxEnabled !== false ? 'true' : 'false';
+                    document.getElementById('integ-gz-url').value = iData.gamezopUrl || '';
+                    document.getElementById('integ-gz-reward').value = iData.gamezopReward || 5;
+                    document.getElementById('integ-gz-status').value = iData.gamezopEnabled !== false ? 'true' : 'false';
+                }
             } catch(e) { console.error(e); }
         }
 
@@ -254,6 +301,26 @@
             } catch(e) { alert("Error: " + e.message); }
         }
 
+        async function saveIntegrationsSettings() {
+            const toroxUrl = document.getElementById('integ-torox-url').value.trim();
+            const toroxEnabled = document.getElementById('integ-torox-status').value === 'true';
+            const gzUrl = document.getElementById('integ-gz-url').value.trim();
+            const gzReward = parseInt(document.getElementById('integ-gz-reward').value || '5');
+            const gzEnabled = document.getElementById('integ-gz-status').value === 'true';
+
+            try {
+                await db.collection("settings").doc("integrations").set({
+                    toroxUrl: toroxUrl,
+                    toroxEnabled: toroxEnabled,
+                    gamezopUrl: gzUrl,
+                    gamezopReward: gzReward,
+                    gamezopEnabled: gzEnabled,
+                    updatedAt: new Date().toISOString()
+                });
+                alert("Torox & Gamezop Integrations Config saved live! User app updated.");
+            } catch(e) { alert("Error: " + e.message); }
+        }
+
         async function saveMissionLinks() {
             const urls = [
                 document.getElementById('link-url-0').value.trim(),
@@ -268,7 +335,7 @@
                     urls: urls,
                     updatedAt: new Date().toISOString()
                 });
-                alert("All 5 Mission Shortener Links saved live! Users will now be directed to these links.");
+                alert("All 5 Mission Shortener Links saved live!");
             } catch(e) { alert("Error saving links: " + e.message); }
         }
 
