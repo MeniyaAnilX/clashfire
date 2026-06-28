@@ -79,11 +79,11 @@ body {
 }
 .tab-btn {
     background: transparent; color: var(--text-muted); border: none;
-    padding: 10px; border-radius: 12px; font-weight: 800; font-size: 0.85rem;
-    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
-    transition: all 0.25 ease; white-space: nowrap;
+    padding: 10px 6px; border-radius: 12px; font-weight: 800; font-size: 0.82rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;
+    transition: all 0.25s ease; white-space: nowrap;
 }
-.tab-btn i { font-size: 0.95rem; }
+.tab-btn i { font-size: 0.9rem; }
 .tab-btn.active {
     background: linear-gradient(135deg, var(--accent-cyan), #00a8ff);
     color: #000; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
@@ -98,9 +98,9 @@ body {
     background: linear-gradient(135deg, var(--accent-cyan), #00a8ff);
     color: #000;
     border: none;
-    padding: 10px 16px;
+    padding: 10px 14px;
     font-family: var(--font-body);
-    font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+    font-size: 0.85rem;
     font-weight: 800;
     border-radius: 10px;
     cursor: pointer;
@@ -136,12 +136,49 @@ body {
 }
 .btn-share:active { transform: scale(0.97); }
 
-/* Integration Cards */
-.integration-card { background: rgba(10, 12, 20, 0.75); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.integration-info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
-.integration-icon { width: 40px; height: 40px; flex-shrink: 0; background: rgba(255, 255, 255, 0.05); border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 1.3rem; }
-.integration-info h4 { font-size: clamp(0.85rem, 3.5vw, 0.95rem); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.integration-info p { font-size: 0.75rem; color: var(--text-muted); }
+/* Integration & Task Cards Layout */
+.integration-card, .ad-card, .link-card {
+    background: rgba(10, 12, 20, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap; /* Prevents button overlap on small screens */
+}
+.ad-card { border: 1.5px dashed var(--primary-fire); }
+
+.integration-info, .ad-card-info, .link-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 180px;
+}
+.integration-icon, .ad-icon, .link-icon-box {
+    width: 40px; height: 40px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 1.2rem;
+}
+.integration-icon { background: rgba(255, 255, 255, 0.05); }
+.ad-icon { background: rgba(255, 69, 0, 0.15); color: var(--primary-fire); }
+.link-icon-box { background: rgba(0, 242, 254, 0.12); color: var(--accent-cyan); }
+.completed .link-icon-box { background: rgba(0, 230, 118, 0.15); color: #00e676; }
+
+.integration-info h4, .ad-details h4, .link-details h4 {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.3;
+    white-space: normal; /* Full text visible naturally */
+    word-break: break-word;
+}
+.integration-info p, .ad-details p { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+.link-details p { font-size: 0.75rem; color: var(--accent-gold); font-weight: 700; margin-top: 2px; }
 
 /* Dashboard Layout */
 #app-container { max-width: 600px; margin: 0 auto; padding: 12px; padding-bottom: 30px; }
@@ -193,21 +230,6 @@ body {
 
 /* Links List */
 .links-list { display: flex; flex-direction: column; gap: 10px; }
-.link-card { background: rgba(10, 12, 20, 0.75); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.link-info { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
-.link-icon-box { width: 36px; height: 36px; flex-shrink: 0; border-radius: 8px; background: rgba(0, 242, 254, 0.12); color: var(--accent-cyan); display: flex; justify-content: center; align-items: center; font-size: 1rem; }
-.completed .link-icon-box { background: rgba(0, 230, 118, 0.15); color: #00e676; }
-.link-details { min-width: 0; flex: 1; }
-.link-details h4 { font-size: clamp(0.85rem, 3.5vw, 0.95rem); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
-.link-details p { font-size: 0.75rem; color: var(--accent-gold); font-weight: 700; }
-
-/* Ad Card */
-.ad-card { background: rgba(10, 12, 20, 0.75); border: 1.5px dashed var(--primary-fire); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.ad-card-info { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
-.ad-icon { width: 38px; height: 38px; flex-shrink: 0; background: rgba(255, 69, 0, 0.15); border-radius: 8px; color: var(--primary-fire); display: flex; justify-content: center; align-items: center; font-size: 1.2rem; }
-.ad-details { min-width: 0; }
-.ad-details h4 { font-size: clamp(0.85rem, 3.5vw, 0.95rem); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ad-details p { font-size: 0.75rem; color: var(--text-muted); }
 
 /* Referral Box */
 .referral-box { display: flex; flex-direction: column; gap: 8px; }
@@ -264,3 +286,14 @@ body {
 .crosshair-spin { font-size: 3rem; color: var(--accent-cyan); animation: spinGem 1.4s infinite ease-in-out; }
 @keyframes spinGem { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 #loader-message { font-size: 1.1rem; font-weight: 700; margin-top: 12px; color: var(--accent-gold); }
+
+/* Mobile Proportional Optimization */
+@media (max-width: 480px) {
+    .integration-card, .ad-card, .link-card {
+        justify-content: space-between;
+    }
+    .integration-card .btn-primary, .ad-card .btn-primary, .link-card .btn-primary {
+        width: 100%;
+        margin-top: 6px;
+    }
+}
