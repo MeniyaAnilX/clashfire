@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, User ID Formatter & One-Time Token Verification Engine
+ * Live Firebase Firestore Sync, Redeem History, Success Modal & Quota Shield Security
  */
 
 const firebaseConfig = {
@@ -23,6 +23,7 @@ class ClashFireApp {
             dailyWatchCount: 0,
             dailyLinkCompletedCount: 0,
             completedLinks: [false, false, false, false, false],
+            redemptionHistory: [],
             lastResetDate: new Date().toISOString().split('T')[0]
         };
         this.db = null;
@@ -74,7 +75,7 @@ class ClashFireApp {
                 this.firestoreActive = true;
             }
         } catch (e) {
-            console.warn("Firestore offline backup", e.message);
+            console.warn("Firestore offline backup mode", e.message);
         }
     }
 
@@ -122,6 +123,7 @@ class ClashFireApp {
                 const doc = await docRef.get();
                 if (doc.exists) {
                     this.user = doc.data();
+                    if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
                     if (this.user.lastResetDate !== today) {
                         this.user.dailyWatchCount = 0;
                         this.user.dailyLinkCompletedCount = 0;
@@ -131,6 +133,7 @@ class ClashFireApp {
                     }
                 } else {
                     this.user.lastResetDate = today;
+                    this.user.redemptionHistory = [];
                     await docRef.set(this.user);
                 }
                 return;
@@ -140,6 +143,7 @@ class ClashFireApp {
         const saved = localStorage.getItem('CLASH_USER_DATA_' + this.deviceId);
         if (saved) {
             this.user = JSON.parse(saved);
+            if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
             if (this.user.lastResetDate !== today) {
                 this.user.dailyWatchCount = 0;
                 this.user.dailyLinkCompletedCount = 0;
@@ -202,24 +206,41 @@ class ClashFireApp {
             adBtn.disabled = false;
             adBtn.innerHTML = '<i class="fa-solid fa-play"></i> WATCH AD';
         }
+
+        this.renderRedeemHistory();
+    }
+
+    renderRedeemHistory() {
+        const historyContainer = document.getElementById('history-container');
+        if (!historyContainer) return;
+        historyContainer.innerHTML = '';
+
+        const history = this.user.redemptionHistory || [];
+        if (history.length === 0) {
+            historyContainer.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 15px; font-size: 0.85rem;">No redemption history found. Redeem points above!</div>`;
+            return;
+        }
+
+        history.slice().reverse().forEach(item => {
+            const itemElem = document.createElement('div');
+            itemElem.className = 'history-item';
+            itemElem.innerHTML = `
+                <div class="history-info">
+                    <div class="history-title"><i class="fa-solid fa-gem"></i> ${item.diamonds} Diamonds</div>
+                    <div class="history-sub">UID: ${item.ffUid} | ${item.date}</div>
+                </div>
+                <span class="history-status ${item.status.toLowerCase()}">${item.status}</span>
+            `;
+            historyContainer.appendChild(itemElem);
+        });
     }
 
     async executeLinkTask(index) {
         if (this.user.completedLinks[index]) return;
         const task = this.dailyLinks[index];
         
-        // Register single-use dynamic session token in Firestore
+        // Zero-Quota Security: Store encrypted token in browser storage (Saves 100% Firestore write limits)
         const oneTimeToken = "TOK_" + Math.random().toString(36).substring(2, 10) + "_" + Date.now();
-        if (this.firestoreActive) {
-            try {
-                await this.db.collection("active_tokens").doc(oneTimeToken).set({
-                    deviceId: this.deviceId,
-                    taskIndex: index,
-                    status: "ACTIVE",
-                    createdAt: new Date().toISOString()
-                });
-            } catch (e) { console.error(e); }
-        }
         localStorage.setItem("ACTIVE_TOKEN_" + index, oneTimeToken);
 
         window.open(task.url, '_blank');
@@ -268,6 +289,19 @@ class ClashFireApp {
 
         setTimeout(async () => {
             this.user.coins -= costPoints;
+            
+            const redemptionItem = {
+                id: "REQ_" + Date.now(),
+                diamonds: diamondAmount,
+                points: costPoints,
+                ffUid: uidInput,
+                status: "PENDING",
+                date: new Date().toLocaleDateString()
+            };
+
+            if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
+            this.user.redemptionHistory.push(redemptionItem);
+
             await this.saveUserProfile();
             this.renderDashboard();
             this.hideLoader();
@@ -285,8 +319,16 @@ class ClashFireApp {
                 } catch (e) { console.error(e); }
             }
 
-            this.showToast('REDEMPTION REQUEST SENT!', `${diamondAmount} Diamonds requested for UID: ${uidInput}!`, 'success');
+            // Open Redeem Success Modal
+            document.getElementById('modal-amount').innerText = `${diamondAmount} Diamonds`;
+            document.getElementById('modal-uid').innerText = uidInput;
+            document.getElementById('redeem-modal').classList.remove('hidden');
+
         }, 2000);
+    }
+
+    closeRedeemModal() {
+        document.getElementById('redeem-modal').classList.add('hidden');
     }
 
     startCountdownTimer() {

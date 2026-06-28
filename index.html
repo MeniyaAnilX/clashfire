@@ -135,12 +135,38 @@
                 </div>
             </section>
 
+            <!-- Section 4: Redeem History -->
+            <section class="dashboard-section" id="history-section">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-clock-rotate-left"></i> REDEEM HISTORY</h2>
+                </div>
+                <p class="section-desc">Track your diamond redemption status in real-time.</p>
+
+                <div class="history-list" id="history-container">
+                    <!-- History cards rendered via JS -->
+                </div>
+            </section>
+
         </main>
 
         <!-- Minimal Clean Footer -->
         <footer class="app-footer">
             <p>© 2026 CLASH FIRE - Free Fire Rewards</p>
         </footer>
+    </div>
+
+    <!-- Redeem Success Modal -->
+    <div id="redeem-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <h3>REDEMPTION SUCCESSFUL!</h3>
+            <p>Your diamond payout request has been logged and sent to admins.</p>
+            <div class="modal-details-box">
+                <div><span class="modal-label">Amount:</span> <span id="modal-amount" class="modal-val">310 Diamonds</span></div>
+                <div><span class="modal-label">Player UID:</span> <span id="modal-uid" class="modal-val">123456789</span></div>
+            </div>
+            <button class="btn-primary" style="width: 100%; margin-top: 15px;" onclick="app.closeRedeemModal()">THANK YOU</button>
+        </div>
     </div>
 
     <!-- Loader Overlay -->
