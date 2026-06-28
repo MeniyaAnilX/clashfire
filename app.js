@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, Server Postback Verification Engine & Strict Anti-Cheat Guard
+ * Live Firebase Firestore Sync, User ID Formatter & One-Time Token Verification Engine
  */
 
 const firebaseConfig = {
@@ -16,6 +16,7 @@ const firebaseConfig = {
 class ClashFireApp {
     constructor() {
         this.deviceId = null;
+        this.displayUserId = null;
         this.user = {
             coins: 0,
             freeFireUid: '',
@@ -40,12 +41,13 @@ class ClashFireApp {
     }
 
     async init() {
-        this.showSplashProgress(15);
+        this.showSplashProgress(20);
         this.initFirebase();
-        this.showSplashProgress(40);
+        this.showSplashProgress(50);
 
         this.deviceId = await this.generateCrossBrowserHardwareID();
-        document.getElementById('display-device-id').innerText = this.deviceId.substring(0, 14);
+        this.displayUserId = "CF-" + this.deviceId.substring(9, 15);
+        document.getElementById('display-device-id').innerText = "User ID: " + this.displayUserId;
         this.showSplashProgress(75);
 
         await this.loadUserProfile();
@@ -56,7 +58,7 @@ class ClashFireApp {
             document.getElementById('app-container').classList.remove('hidden');
             this.renderDashboard();
             this.startCountdownTimer();
-        }, 500);
+        }, 400);
     }
 
     showSplashProgress(percent) {
@@ -70,10 +72,9 @@ class ClashFireApp {
                 firebase.initializeApp(firebaseConfig);
                 this.db = firebase.firestore();
                 this.firestoreActive = true;
-                console.log("🔥 Live Firestore Connected to project: clashfirediamond");
             }
         } catch (e) {
-            console.warn("Firestore running in offline backup mode.", e.message);
+            console.warn("Firestore offline backup", e.message);
         }
     }
 
@@ -133,9 +134,7 @@ class ClashFireApp {
                     await docRef.set(this.user);
                 }
                 return;
-            } catch (err) {
-                console.error("Firestore sync error", err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         const saved = localStorage.getItem('CLASH_USER_DATA_' + this.deviceId);
@@ -158,9 +157,7 @@ class ClashFireApp {
         if (this.firestoreActive) {
             try {
                 await this.db.collection("users").doc(this.deviceId).set(this.user, { merge: true });
-            } catch (err) {
-                console.error("Firestore save error", err);
-            }
+            } catch (err) { console.error(err); }
         }
     }
 
@@ -183,7 +180,7 @@ class ClashFireApp {
             card.innerHTML = `
                 <div class="link-info">
                     <div class="link-icon-box">
-                        <i class="fa-solid ${isDone ? 'fa-circle-check' : 'fa-gem'}"></i>
+                        <i class="fa-solid ${isDone ? 'fa-check' : 'fa-gem'}"></i>
                     </div>
                     <div class="link-details">
                         <h4>${link.title}</h4>
@@ -191,7 +188,7 @@ class ClashFireApp {
                     </div>
                 </div>
                 <button class="btn-primary" ${isDone ? 'disabled' : ''} onclick="app.executeLinkTask(${idx})">
-                    ${isDone ? '<i class="fa-solid fa-check"></i> CLAIMED' : '<i class="fa-solid fa-arrow-right-long"></i> VISIT LINK'}
+                    ${isDone ? 'CLAIMED' : 'VISIT LINK'}
                 </button>
             `;
             linksContainer.appendChild(card);
@@ -207,14 +204,24 @@ class ClashFireApp {
         }
     }
 
-    /**
-     * Launch Link Task for Shortener Navigation
-     */
-    executeLinkTask(index) {
+    async executeLinkTask(index) {
         if (this.user.completedLinks[index]) return;
         const task = this.dailyLinks[index];
         
-        // Open shortener link in new tab
+        // Register single-use dynamic session token in Firestore
+        const oneTimeToken = "TOK_" + Math.random().toString(36).substring(2, 10) + "_" + Date.now();
+        if (this.firestoreActive) {
+            try {
+                await this.db.collection("active_tokens").doc(oneTimeToken).set({
+                    deviceId: this.deviceId,
+                    taskIndex: index,
+                    status: "ACTIVE",
+                    createdAt: new Date().toISOString()
+                });
+            } catch (e) { console.error(e); }
+        }
+        localStorage.setItem("ACTIVE_TOKEN_" + index, oneTimeToken);
+
         window.open(task.url, '_blank');
         this.showToast('MISSION LAUNCHED', 'Complete shortener navigation on target tab to claim reward!', 'info');
     }
@@ -246,7 +253,7 @@ class ClashFireApp {
         const uidInput = document.getElementById('ff-uid').value.trim();
         
         if (!uidInput || uidInput.length < 8) {
-            this.showToast('VALIDATION ERROR', 'Please enter your valid 8-12 digit Free Fire Player UID!', 'error');
+            this.showToast('VALIDATION ERROR', 'Please enter your valid Player UID!', 'error');
             document.getElementById('ff-uid').focus();
             return;
         }
@@ -278,8 +285,8 @@ class ClashFireApp {
                 } catch (e) { console.error(e); }
             }
 
-            this.showToast('REDEMPTION REQUEST SENT!', `${diamondAmount} Diamonds requested for UID: ${uidInput}. Logged in Firestore!`, 'success');
-        }, 2500);
+            this.showToast('REDEMPTION REQUEST SENT!', `${diamondAmount} Diamonds requested for UID: ${uidInput}!`, 'success');
+        }, 2000);
     }
 
     startCountdownTimer() {
@@ -327,7 +334,7 @@ class ClashFireApp {
             toast.style.opacity = '0';
             toast.style.transform = 'translateX(100%)';
             setTimeout(() => toast.remove(), 300);
-        }, 4000);
+        }, 3500);
     }
 
     showLoader(msg) {

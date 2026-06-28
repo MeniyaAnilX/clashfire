@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CLASH FIRE - Mission Verified</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     
@@ -14,32 +14,32 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
-<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: radial-gradient(circle at center, #110e24 0%, #040406 100%);">
+<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #07070c; padding: 15px;">
 
-    <div style="max-width: 420px; width: 90%; text-align: center; background: rgba(15, 17, 26, 0.95); border: 2px solid #00f2fe; border-radius: 20px; padding: 30px; box-shadow: 0 0 40px rgba(0, 242, 254, 0.4);">
+    <div id="verify-card" style="max-width: 400px; width: 100%; text-align: center; background: rgba(18, 20, 32, 0.95); border: 1.5px solid #00f2fe; border-radius: 20px; padding: 25px; box-shadow: 0 10px 40px rgba(0, 242, 254, 0.25);">
         
-        <div style="font-size: 4.5rem; color: #ffd700; margin-bottom: 10px; filter: drop-shadow(0 0 20px #ffd700);">
+        <div id="status-icon" style="font-size: 3.5rem; color: #ffd700; margin-bottom: 10px;">
             <i class="fa-solid fa-trophy"></i>
         </div>
 
-        <h1 style="font-family: 'Teko', sans-serif; font-size: 3rem; letter-spacing: 2px; color: #fff; margin-bottom: 5px; line-height: 1;">
+        <h1 id="status-title" style="font-size: 2rem; font-weight: 800; color: #fff; margin-bottom: 5px;">
             MISSION <span style="color: #00e676;">VERIFIED!</span>
         </h1>
 
-        <p style="font-size: 1.1rem; color: #94a3b8; font-weight: 600; margin-bottom: 20px;">
+        <p id="status-desc" style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 20px;">
             Shortener navigation confirmed! Reward claimed.
         </p>
 
-        <div style="background: rgba(0, 242, 254, 0.1); border: 1px solid #00f2fe; border-radius: 12px; padding: 15px; margin-bottom: 25px;">
-            <div style="font-family: 'Teko', sans-serif; font-size: 2rem; color: #ffd700;">
+        <div id="reward-box" style="background: rgba(0, 242, 254, 0.1); border: 1px solid #00f2fe; border-radius: 14px; padding: 15px; margin-bottom: 20px;">
+            <div style="font-size: 1.5rem; font-weight: 800; color: #ffd700;">
                 <i class="fa-solid fa-gem"></i> +50 DIAMOND POINTS
             </div>
-            <div style="font-size: 0.85rem; color: #00f2fe; margin-top: 4px;">
-                Added to Device ID: <span id="verify-uid">Syncing...</span>
+            <div style="font-size: 0.8rem; color: #00f2fe; margin-top: 4px;">
+                <span id="verify-uid">Syncing...</span>
             </div>
         </div>
 
-        <button onclick="window.location.href='index.html'" class="btn-primary" style="width: 100%; padding: 12px; font-size: 1.3rem;">
+        <button onclick="window.location.href='index.html'" class="btn-primary" style="width: 100%;">
             <i class="fa-solid fa-house"></i> RETURN TO DASHBOARD
         </button>
     </div>
@@ -58,13 +58,24 @@
         async function processVerification() {
             const urlParams = new URLSearchParams(window.location.search);
             const taskIdx = parseInt(urlParams.get('task') || '0');
-            
-            // Retrieve persistent hardware device ID
-            let deviceId = localStorage.getItem('CLASH_FIRE_HW_ID') || urlParams.get('uid');
-            
+            let deviceId = localStorage.getItem('CLASH_FIRE_HW_ID');
+
             if (deviceId) {
-                document.getElementById('verify-uid').innerText = deviceId.substring(0, 14);
+                const displayUserId = "User ID: CF-" + deviceId.substring(9, 15);
+                document.getElementById('verify-uid').innerText = displayUserId;
             }
+
+            // Check dynamic single-use active token
+            let activeToken = localStorage.getItem("ACTIVE_TOKEN_" + taskIdx);
+            
+            // If token missing or already used, block direct URL paste!
+            if (!activeToken) {
+                showSecurityError("DIRECT LINK ACCESS BLOCKED!", "You cannot paste or bookmark this URL directly. Launch task from Clash Fire app.");
+                return;
+            }
+
+            // Burn active token immediately (Single-Use Guard)
+            localStorage.removeItem("ACTIVE_TOKEN_" + taskIdx);
 
             try {
                 if (typeof firebase !== 'undefined') {
@@ -86,9 +97,7 @@
                         }
                     }
                 }
-            } catch(e) {
-                console.error(e);
-            }
+            } catch(e) { console.error(e); }
 
             // Local storage fallback sync
             if (deviceId) {
@@ -103,6 +112,14 @@
                     }
                 }
             }
+        }
+
+        function showSecurityError(title, msg) {
+            document.getElementById('verify-card').style.borderColor = "#ff1744";
+            document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-shield-cat" style="color: #ff1744;"></i>';
+            document.getElementById('status-title').innerHTML = `<span style="color: #ff1744;">${title}</span>`;
+            document.getElementById('status-desc').innerText = msg;
+            document.getElementById('reward-box').style.display = "none";
         }
 
         window.addEventListener('DOMContentLoaded', processVerification);

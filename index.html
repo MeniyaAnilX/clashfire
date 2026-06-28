@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CLASH FIRE - Diamond Zone</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CLASH FIRE - Free Diamonds</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     
-    <!-- Firebase SDK (Compat version for script tags) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
@@ -24,34 +24,30 @@
                 <i class="fa-solid fa-fire-flame-curved flame-aura"></i>
             </div>
             <h1 class="splash-title">CLASH <span>FIRE</span></h1>
-            <p class="splash-subtitle">HARDWARE LOCKING & DEVICE FINGERPRINTING...</p>
+            <p class="splash-subtitle">LOADING SECURE GAMING ZONE...</p>
             <div class="loading-bar-container">
                 <div class="loading-bar" id="splash-loading-bar"></div>
-            </div>
-            <div class="security-badge">
-                <i class="fa-solid fa-shield-halved"></i> CROSS-BROWSER HARDWARE ANTI-CHEAT ACTIVE
             </div>
         </div>
     </div>
 
-    <!-- Main Dashboard -->
+    <!-- Main Mobile Dashboard -->
     <div id="app-container" class="hidden">
         
         <!-- Header -->
         <header class="app-header">
             <div class="brand-box">
                 <div class="header-logo">
-                    <i class="fa-solid fa-gem gem-glow"></i>
+                    <i class="fa-solid fa-fire-flame-curved"></i>
                 </div>
                 <div class="brand-text">
                     <span class="app-name">CLASH FIRE</span>
-                    <span class="app-tagline">DIAMOND VAULT</span>
                 </div>
             </div>
 
             <div class="user-profile-summary">
                 <div class="device-tag">
-                    <i class="fa-solid fa-microchip"></i> HW-ID: <span id="display-device-id">Syncing...</span>
+                    <i class="fa-solid fa-user"></i> <span id="display-device-id">Syncing...</span>
                 </div>
                 <div class="wallet-badge">
                     <i class="fa-solid fa-gem gem-icon"></i>
@@ -64,41 +60,41 @@
         <!-- Daily Reset Banner -->
         <section class="banner-card">
             <div class="banner-content">
-                <h3><i class="fa-solid fa-fire-flame-simple"></i> CLASH BATTLES RESET IN:</h3>
+                <h3><i class="fa-solid fa-clock"></i> DAILY MISSIONS RESET IN:</h3>
                 <div class="countdown-timer" id="reset-timer">23h 59m 59s</div>
             </div>
-            <div class="banner-badge"><i class="fa-solid fa-crown"></i> DAILY 5X LOOT</div>
+            <div class="banner-badge">DAILY 5X</div>
         </section>
 
-        <!-- Main Grid Layout -->
-        <main class="dashboard-grid">
+        <!-- Main Dashboard Container -->
+        <main class="dashboard-container">
 
-            <!-- Section 1: Daily 5 Shortener Links -->
+            <!-- Section 1: Daily Links -->
             <section class="dashboard-section">
                 <div class="section-title">
-                    <h2><i class="fa-solid fa-link"></i> DAILY LINK MISSIONS (5/5)</h2>
+                    <h2><i class="fa-solid fa-link"></i> DAILY LINK MISSIONS</h2>
                     <span class="sub-badge" id="completed-links-badge">0/5 DONE</span>
                 </div>
-                <p class="section-desc">Complete 5 daily GPLink & Shortener tasks to extract free diamond points!</p>
+                <p class="section-desc">Complete daily shortener links to claim free diamond points!</p>
 
                 <div class="links-list" id="links-container">
                     <!-- Dynamic Link Cards rendered via JS -->
                 </div>
             </section>
 
-            <!-- Section 2: Daily Rewarded Ads Station -->
+            <!-- Section 2: Watch & Earn Ads -->
             <section class="dashboard-section">
                 <div class="section-title">
-                    <h2><i class="fa-solid fa-tv"></i> SPONSORED REWARD STATION</h2>
+                    <h2><i class="fa-solid fa-tv"></i> WATCH & EARN</h2>
                     <span class="sub-badge" id="ad-watch-badge">0/5 WATCHED</span>
                 </div>
-                <p class="section-desc">Watch sponsored video broadcasts to boost your daily battle diamonds!</p>
+                <p class="section-desc">Watch video broadcasts to boost your daily diamond points!</p>
 
                 <div class="ad-card">
                     <div class="ad-card-info">
-                        <div class="ad-icon"><i class="fa-solid fa-film"></i></div>
+                        <div class="ad-icon"><i class="fa-solid fa-play-circle"></i></div>
                         <div>
-                            <h4>CLASH REWARD VIDEO</h4>
+                            <h4>SPONSORED VIDEO AD</h4>
                             <p>Reward: +20 Diamond Points per ad</p>
                         </div>
                     </div>
@@ -108,16 +104,16 @@
                 </div>
             </section>
 
-            <!-- Section 3: Diamond Redemption Vault -->
+            <!-- Section 3: Diamond Vault -->
             <section class="dashboard-section" id="redemption-vault">
                 <div class="section-title">
-                    <h2><i class="fa-solid fa-vault"></i> DIAMOND REDEMPTION VAULT</h2>
+                    <h2><i class="fa-solid fa-gem"></i> REDEEM DIAMONDS</h2>
                 </div>
                 <p class="section-desc">Instantly claim Free Fire In-Game Diamonds to your Player UID.</p>
 
                 <div class="ff-uid-input-group">
                     <label for="ff-uid"><i class="fa-solid fa-id-card"></i> FREE FIRE PLAYER UID</label>
-                    <input type="text" id="ff-uid" placeholder="Enter your 8-12 digit FF UID (e.g. 123456789)" maxlength="12">
+                    <input type="text" id="ff-uid" placeholder="Enter your Player UID (e.g. 123456789)" maxlength="12">
                 </div>
 
                 <div class="packages-grid">
@@ -145,23 +141,23 @@
 
         </main>
 
-        <!-- Footer -->
+        <!-- Minimal Clean Footer -->
         <footer class="app-footer">
-            <p><i class="fa-solid fa-shield-halved"></i> CLASH FIRE HARDWARE PROTECTED | Firestore Live Active</p>
+            <p>© 2026 CLASH FIRE - Free Fire Rewards</p>
         </footer>
     </div>
 
-    <!-- Global Premium Loader -->
+    <!-- Loader Overlay -->
     <div id="global-loader" class="hidden">
         <div class="loader-content">
             <div class="crosshair-spin">
                 <i class="fa-solid fa-gem"></i>
             </div>
-            <p id="loader-message">PROCESSING HARDWARE DATA...</p>
+            <p id="loader-message">PROCESSING DATA...</p>
         </div>
     </div>
 
-    <!-- Premium Toast Container -->
+    <!-- Toast Container -->
     <div id="toast-container"></div>
 
     <script src="app.js"></script>
