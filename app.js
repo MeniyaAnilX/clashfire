@@ -26,11 +26,8 @@ class ClashFireApp {
         };
         this.db = null;
         this.firestoreActive = false;
-        this.activeTaskIndex = null;
-        this.taskStartTime = null;
-        this.postbackUnsubscribe = null;
 
-        // Base 5 Daily Shortener Tasks
+        // Base 5 Daily Shortener Tasks (Replace URLs with your shortened GPLinks)
         this.dailyLinks = [
             { id: 0, title: "GPLink Clash Supply #1", url: "https://gplinks.co/example1", reward: 50 },
             { id: 1, title: "ShrinkEarn Elite Crate #2", url: "https://shrinkearn.com/example2", reward: 50 },
@@ -52,7 +49,6 @@ class ClashFireApp {
         this.showSplashProgress(75);
 
         await this.loadUserProfile();
-        this.setupTabFocusGuard();
         this.showSplashProgress(100);
 
         setTimeout(() => {
@@ -212,94 +208,15 @@ class ClashFireApp {
     }
 
     /**
-     * Strict Tab Focus & Anti-Cheat Navigation Guard
-     */
-    setupTabFocusGuard() {
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && this.activeTaskIndex !== null) {
-                const timeSpent = (Date.now() - this.taskStartTime) / 1000;
-                // If user switched back in less than 8 seconds without finishing shortener navigation
-                if (timeSpent < 8) {
-                    this.hideLoader();
-                    this.showToast('ANTI-CHEAT WARNING', 'You switched back too fast! Finish navigating the shortener link first.', 'error');
-                    this.activeTaskIndex = null;
-                    if (this.postbackUnsubscribe) this.postbackUnsubscribe();
-                }
-            }
-        });
-    }
-
-    /**
-     * Execute Task with Server Level Postback Webhook Listener
+     * Launch Link Task for Shortener Navigation
      */
     executeLinkTask(index) {
         if (this.user.completedLinks[index]) return;
-
         const task = this.dailyLinks[index];
-        const sessionToken = `TOKEN_${this.deviceId}_${index}_${Date.now()}`;
         
-        // Dynamic target link with tracking payload
-        const trackingUrl = `${task.url}?uid=${this.deviceId}&token=${sessionToken}`;
-        window.open(trackingUrl, '_blank');
-
-        this.activeTaskIndex = index;
-        this.taskStartTime = Date.now();
-
-        this.showLoader(`WAITING FOR SHORTENER POSTBACK VERIFICATION...`);
-
-        // Real-Time Postback Webhook Listener in Firestore
-        if (this.firestoreActive) {
-            const postbackDocRef = this.db.collection("postbacks").doc(`${this.deviceId}_task_${index}`);
-            
-            // Set pending doc
-            postbackDocRef.set({
-                deviceId: this.deviceId,
-                taskId: index,
-                status: "PENDING",
-                timestamp: new Date().toISOString()
-            }, { merge: true });
-
-            // Listen for server callback update
-            this.postbackUnsubscribe = postbackDocRef.onSnapshot((snapshot) => {
-                const data = snapshot.data();
-                if (data && data.status === "VERIFIED") {
-                    this.confirmTaskCompletion(index, task.reward);
-                }
-            });
-        }
-
-        // Fallback Client Security Verification Guard (Ensures minimum genuine navigation duration)
-        let secondsLeft = 15;
-        const timer = setInterval(() => {
-            if (this.activeTaskIndex !== index) {
-                clearInterval(timer);
-                return;
-            }
-            secondsLeft--;
-            document.getElementById('loader-message').innerText = `VERIFYING NAVIGATION... (${secondsLeft}s)`;
-            
-            if (secondsLeft <= 0) {
-                clearInterval(timer);
-                this.confirmTaskCompletion(index, task.reward);
-            }
-        }, 1000);
-    }
-
-    confirmTaskCompletion(index, reward) {
-        if (this.activeTaskIndex === null && this.user.completedLinks[index]) return;
-
-        this.hideLoader();
-        if (this.postbackUnsubscribe) this.postbackUnsubscribe();
-        
-        this.user.completedLinks[index] = true;
-        this.user.dailyLinkCompletedCount++;
-        this.user.coins += reward;
-        this.activeTaskIndex = null;
-
-        this.saveUserProfile();
-        this.renderDashboard();
-
-        this.showToast('MISSION VERIFIED!', `+${reward} Points credited to wallet!`, 'success');
+        // Open shortener link in new tab
+        window.open(task.url, '_blank');
+        this.showToast('MISSION LAUNCHED', 'Complete shortener navigation on target tab to claim reward!', 'info');
     }
 
     watchRewardAd() {

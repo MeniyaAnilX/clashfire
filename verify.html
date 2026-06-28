@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLASH FIRE - Mission Verified</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: radial-gradient(circle at center, #110e24 0%, #040406 100%);">
+
+    <div style="max-width: 420px; width: 90%; text-align: center; background: rgba(15, 17, 26, 0.95); border: 2px solid #00f2fe; border-radius: 20px; padding: 30px; box-shadow: 0 0 40px rgba(0, 242, 254, 0.4);">
+        
+        <div style="font-size: 4.5rem; color: #ffd700; margin-bottom: 10px; filter: drop-shadow(0 0 20px #ffd700);">
+            <i class="fa-solid fa-trophy"></i>
+        </div>
+
+        <h1 style="font-family: 'Teko', sans-serif; font-size: 3rem; letter-spacing: 2px; color: #fff; margin-bottom: 5px; line-height: 1;">
+            MISSION <span style="color: #00e676;">VERIFIED!</span>
+        </h1>
+
+        <p style="font-size: 1.1rem; color: #94a3b8; font-weight: 600; margin-bottom: 20px;">
+            Shortener navigation confirmed! Reward claimed.
+        </p>
+
+        <div style="background: rgba(0, 242, 254, 0.1); border: 1px solid #00f2fe; border-radius: 12px; padding: 15px; margin-bottom: 25px;">
+            <div style="font-family: 'Teko', sans-serif; font-size: 2rem; color: #ffd700;">
+                <i class="fa-solid fa-gem"></i> +50 DIAMOND POINTS
+            </div>
+            <div style="font-size: 0.85rem; color: #00f2fe; margin-top: 4px;">
+                Added to Device ID: <span id="verify-uid">Syncing...</span>
+            </div>
+        </div>
+
+        <button onclick="window.location.href='index.html'" class="btn-primary" style="width: 100%; padding: 12px; font-size: 1.3rem;">
+            <i class="fa-solid fa-house"></i> RETURN TO DASHBOARD
+        </button>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCQocUJB6rMG-1qHVyXwXDoYBlTb17XX3k",
+            authDomain: "clashfirediamond.firebaseapp.com",
+            projectId: "clashfirediamond",
+            storageBucket: "clashfirediamond.firebasestorage.app",
+            messagingSenderId: "901946161853",
+            appId: "1:901946161853:web:03f9a4be00070134c0d5d4",
+            measurementId: "G-N31S9SDP2L"
+        };
+
+        async function processVerification() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const taskIdx = parseInt(urlParams.get('task') || '0');
+            
+            // Retrieve persistent hardware device ID
+            let deviceId = localStorage.getItem('CLASH_FIRE_HW_ID') || urlParams.get('uid');
+            
+            if (deviceId) {
+                document.getElementById('verify-uid').innerText = deviceId.substring(0, 14);
+            }
+
+            try {
+                if (typeof firebase !== 'undefined') {
+                    firebase.initializeApp(firebaseConfig);
+                    const db = firebase.firestore();
+
+                    if (deviceId) {
+                        const userRef = db.collection("users").doc(deviceId);
+                        const doc = await userRef.get();
+                        
+                        if (doc.exists) {
+                            let data = doc.data();
+                            if (!data.completedLinks[taskIdx]) {
+                                data.completedLinks[taskIdx] = true;
+                                data.dailyLinkCompletedCount = (data.dailyLinkCompletedCount || 0) + 1;
+                                data.coins = (data.coins || 0) + 50;
+                                await userRef.update(data);
+                            }
+                        }
+                    }
+                }
+            } catch(e) {
+                console.error(e);
+            }
+
+            // Local storage fallback sync
+            if (deviceId) {
+                let localData = localStorage.getItem('CLASH_USER_DATA_' + deviceId);
+                if (localData) {
+                    let u = JSON.parse(localData);
+                    if (!u.completedLinks[taskIdx]) {
+                        u.completedLinks[taskIdx] = true;
+                        u.dailyLinkCompletedCount = (u.dailyLinkCompletedCount || 0) + 1;
+                        u.coins = (u.coins || 0) + 50;
+                        localStorage.setItem('CLASH_USER_DATA_' + deviceId, JSON.stringify(u));
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', processVerification);
+    </script>
+</body>
+</html>
