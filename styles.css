@@ -35,19 +35,27 @@ body {
 
 .hidden { display: none !important; }
 
-/* Dynamic Native Banner Slots */
+/* Dynamic Responsive Auto-Scaling Native Banner Slots */
 .native-banner-slot {
     background: rgba(14, 16, 28, 0.85);
     border: 1px dashed rgba(0, 242, 254, 0.3);
     border-radius: 14px;
-    padding: 10px;
+    padding: 6px;
     margin-bottom: 12px;
     text-align: center;
-    min-height: 60px;
+    min-height: 50px;
+    max-width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    position: relative;
+}
+
+.native-banner-slot iframe, .native-banner-slot img {
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain;
 }
 
 /* 3-Second Premium Transparent Cardview Page Loading Overlay */
