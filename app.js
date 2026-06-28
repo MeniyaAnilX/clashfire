@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager, Variable-Isolation Dual Banner Engine
+ * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager, Zero-Space Dynamic Height Engine
  */
 
 const firebaseConfig = {
@@ -327,7 +327,7 @@ class ClashFireApp {
             gzStation.style.display = isGzOn ? 'block' : 'none';
         }
 
-        // Render Independent Top and Bottom Native Banner Ad Slots with Variable Isolation
+        // Render Independent Top and Bottom Native Banner Ad Slots with Dynamic Zero-Space Auto-Height
         const topSlot = document.getElementById('banner-ad-top');
         const botSlot = document.getElementById('banner-ad-bottom');
         const isBannerOn = (this.integrations.bannerEnabled === true || this.integrations.bannerEnabled === 'true');
@@ -399,19 +399,20 @@ class ClashFireApp {
         if (!containerElement) return;
         containerElement.innerHTML = '';
 
-        // Determine height
-        let frameHeight = '100px';
-        if (rawHtmlCode.includes('height: 250') || rawHtmlCode.includes('"height" : 250') || rawHtmlCode.includes("'height' : 250") || rawHtmlCode.includes("height:250")) {
-            frameHeight = '260px';
-        } else if (rawHtmlCode.includes('height: 50') || rawHtmlCode.includes('"height" : 50') || rawHtmlCode.includes("'height' : 50") || rawHtmlCode.includes("height:50")) {
-            frameHeight = '65px';
+        // Initial height estimation based on format
+        let initialHeight = 90;
+        if (rawHtmlCode.includes('250') || rawHtmlCode.includes('300x250')) {
+            initialHeight = 250;
+        } else if (rawHtmlCode.includes('50') || rawHtmlCode.includes('320x50')) {
+            initialHeight = 50;
         }
-        containerElement.style.minHeight = frameHeight;
 
-        // Isolated Iframe Sandbox preventing global atOptions collision
+        containerElement.style.height = (initialHeight + 8) + 'px';
+
+        // Isolated Iframe Sandbox preventing global atOptions collision and auto-resizing
         const iframe = document.createElement('iframe');
         iframe.style.width = '100%';
-        iframe.style.height = frameHeight;
+        iframe.style.height = initialHeight + 'px';
         iframe.style.border = 'none';
         iframe.style.overflow = 'hidden';
         iframe.scrolling = 'no';
@@ -426,8 +427,8 @@ class ClashFireApp {
             <head>
                 <base target="_blank">
                 <style>
-                    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; overflow: hidden; height: 100%; width: 100%; }
-                    iframe, img, div { max-width: 100% !important; height: auto !important; margin: 0 auto; }
+                    html, body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; overflow: hidden; }
+                    iframe, img, div { max-width: 100% !important; margin: 0 auto; display: block; }
                 </style>
             </head>
             <body>
@@ -436,6 +437,30 @@ class ClashFireApp {
             </html>
         `);
         doc.close();
+
+        // Dynamic Real-time Height Auto-fit Detection
+        const adjustHeight = () => {
+            try {
+                if (iframe.contentWindow && iframe.contentWindow.document && iframe.contentWindow.document.body) {
+                    const body = iframe.contentWindow.document.body;
+                    const childElems = body.querySelectorAll('iframe, img, div');
+                    let maxChildH = 0;
+                    childElems.forEach(el => {
+                        if (el.offsetHeight > maxChildH) maxChildH = el.offsetHeight;
+                    });
+                    
+                    const actualH = maxChildH > 30 ? maxChildH : body.scrollHeight;
+                    if (actualH > 30) {
+                        iframe.style.height = actualH + 'px';
+                        containerElement.style.height = (actualH + 8) + 'px';
+                    }
+                }
+            } catch(e){}
+        };
+
+        setTimeout(adjustHeight, 600);
+        setTimeout(adjustHeight, 1500);
+        setTimeout(adjustHeight, 3000);
     }
 
     renderRedeemHistory() {

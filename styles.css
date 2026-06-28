@@ -40,20 +40,16 @@ body {
     background: rgba(14, 16, 28, 0.85);
     border: 1px dashed rgba(0, 242, 254, 0.3);
     border-radius: 14px;
-    padding: 6px;
+    padding: 4px;
     margin-bottom: 12px;
     text-align: center;
-    min-height: 50px;
     max-width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
     position: relative;
-}
-
-.native-banner-slot:empty {
-    display: none !important;
+    transition: height 0.3s ease;
 }
 
 .ad-scale-wrapper {
