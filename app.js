@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager, Direct DOM Script Execution Engine
+ * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager, Independent Dual Banner Engine
  */
 
 const firebaseConfig = {
@@ -36,6 +36,7 @@ class ClashFireApp {
             gamezopReward: 5,
             gamezopEnabled: true,
             bannerHtmlCode: '',
+            bannerBottomHtmlCode: '',
             bannerEnabled: false
         };
         this.db = null;
@@ -326,19 +327,25 @@ class ClashFireApp {
             gzStation.style.display = isGzOn ? 'block' : 'none';
         }
 
-        // Render Native Banner Ad Slots with Direct DOM Execution and Auto Scaling
+        // Render Independent Top and Bottom Native Banner Ad Slots
         const topSlot = document.getElementById('banner-ad-top');
         const botSlot = document.getElementById('banner-ad-bottom');
         const isBannerOn = (this.integrations.bannerEnabled === true || this.integrations.bannerEnabled === 'true');
 
-        if (isBannerOn && this.integrations.bannerHtmlCode) {
-            if (topSlot) {
+        if (isBannerOn) {
+            if (topSlot && this.integrations.bannerHtmlCode) {
                 topSlot.classList.remove('hidden');
                 this.executeDirectDomAdScript(topSlot, this.integrations.bannerHtmlCode);
+            } else if (topSlot) {
+                topSlot.classList.add('hidden'); topSlot.innerHTML = '';
             }
-            if (botSlot) {
+
+            const botCode = this.integrations.bannerBottomHtmlCode || this.integrations.bannerHtmlCode;
+            if (botSlot && botCode) {
                 botSlot.classList.remove('hidden');
-                this.executeDirectDomAdScript(botSlot, this.integrations.bannerHtmlCode);
+                this.executeDirectDomAdScript(botSlot, botCode);
+            } else if (botSlot) {
+                botSlot.classList.add('hidden'); botSlot.innerHTML = '';
             }
         } else {
             if (topSlot) { topSlot.classList.add('hidden'); topSlot.innerHTML = ''; }

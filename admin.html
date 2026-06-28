@@ -171,10 +171,14 @@
 
         <!-- Card B: Dynamic Native Banner Ads Manager -->
         <div class="control-card">
-            <div class="card-title"><i class="fa-solid fa-rectangle-ad"></i> NATIVE BANNER ADS MANAGER</div>
+            <div class="card-title"><i class="fa-solid fa-rectangle-ad"></i> NATIVE BANNER ADS MANAGER (INDEPENDENT DUAL SLOTS)</div>
             <div class="form-group">
-                <label>Ad Network Banner Script / HTML Code (Monetag / Adsterra)</label>
-                <textarea id="integ-banner-code" rows="4" placeholder="Paste your <script> or HTML ad code here..."></textarea>
+                <label>TOP BANNER Ad Code (Monetag / Adsterra Script #1)</label>
+                <textarea id="integ-banner-code" rows="3" placeholder="Paste TOP banner <script> code here..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>BOTTOM BANNER Ad Code (Monetag / Adsterra Script #2)</label>
+                <textarea id="integ-banner-bot-code" rows="3" placeholder="Paste BOTTOM banner <script> code here (or leave empty to duplicate top)..."></textarea>
             </div>
             <div class="form-group">
                 <label>Banner Ads Status</label>
@@ -297,6 +301,7 @@
                     document.getElementById('integ-gz-reward').value = iData.gamezopReward || 5;
                     document.getElementById('integ-gz-status').value = (iData.gamezopEnabled === true || iData.gamezopEnabled === 'true') ? 'true' : 'false';
                     document.getElementById('integ-banner-code').value = iData.bannerHtmlCode || '';
+                    document.getElementById('integ-banner-bot-code').value = iData.bannerBottomHtmlCode || '';
                     document.getElementById('integ-banner-status').value = (iData.bannerEnabled === true || iData.bannerEnabled === 'true') ? 'true' : 'false';
                 }
             } catch(e) { console.error(e); }
@@ -363,6 +368,7 @@
             const gzReward = parseInt(document.getElementById('integ-gz-reward').value || '5');
             const gzEnabled = document.getElementById('integ-gz-status').value === 'true';
             const bannerCode = document.getElementById('integ-banner-code').value.trim();
+            const bannerBotCode = document.getElementById('integ-banner-bot-code').value.trim();
             const bannerEnabled = document.getElementById('integ-banner-status').value === 'true';
 
             try {
@@ -373,6 +379,7 @@
                     gamezopReward: gzReward,
                     gamezopEnabled: gzEnabled,
                     bannerHtmlCode: bannerCode,
+                    bannerBottomHtmlCode: bannerBotCode,
                     bannerEnabled: bannerEnabled,
                     updatedAt: new Date().toISOString()
                 });
