@@ -96,7 +96,7 @@ class ClashFireApp {
         if (!overlay || !fill) return;
 
         let startTime = Date.now();
-        const duration = 3000;
+        const duration = 1000; // 1-second ultra-fast loading
 
         const interval = setInterval(() => {
             let elapsed = Date.now() - startTime;
@@ -106,9 +106,9 @@ class ClashFireApp {
             if (elapsed >= duration) {
                 clearInterval(interval);
                 overlay.style.opacity = '0';
-                setTimeout(() => overlay.classList.add('hidden'), 500);
+                setTimeout(() => overlay.classList.add('hidden'), 300);
             }
-        }, 30);
+        }, 20);
     }
 
     initFirebase() {
