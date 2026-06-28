@@ -6,7 +6,7 @@
     <title>CLASH FIRE - Free Diamonds</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     
@@ -31,24 +31,20 @@
         </div>
     </div>
 
-    <!-- Main Mobile Dashboard -->
+    <!-- Main Dashboard Container -->
     <div id="app-container" class="hidden">
         
         <!-- Header -->
         <header class="app-header">
-            <div class="brand-box">
-                <div class="header-logo">
-                    <i class="fa-solid fa-fire-flame-curved"></i>
-                </div>
-                <div class="brand-text">
+            <div class="header-left">
+                <div class="brand-box">
+                    <i class="fa-solid fa-fire-flame-curved brand-icon"></i>
                     <span class="app-name">CLASH FIRE</span>
                 </div>
+                <div class="device-tag" id="display-device-id">User ID: Syncing...</div>
             </div>
 
-            <div class="user-profile-summary">
-                <div class="device-tag">
-                    <i class="fa-solid fa-user"></i> <span id="display-device-id">Syncing...</span>
-                </div>
+            <div class="header-right">
                 <div class="wallet-badge">
                     <i class="fa-solid fa-gem gem-icon"></i>
                     <span id="user-coins">0</span>
@@ -59,20 +55,20 @@
 
         <!-- Daily Reset Banner -->
         <section class="banner-card">
-            <div class="banner-content">
-                <h3><i class="fa-solid fa-clock"></i> DAILY MISSIONS RESET IN:</h3>
-                <div class="countdown-timer" id="reset-timer">23h 59m 59s</div>
+            <div class="banner-left">
+                <span class="banner-label"><i class="fa-solid fa-clock"></i> RESET IN</span>
+                <span class="countdown-timer" id="reset-timer">23h 59m 59s</span>
             </div>
             <div class="banner-badge">DAILY 5X</div>
         </section>
 
-        <!-- Main Dashboard Container -->
+        <!-- Main Content Grid -->
         <main class="dashboard-container">
 
             <!-- Section 1: Daily Links -->
             <section class="dashboard-section">
                 <div class="section-title">
-                    <h2><i class="fa-solid fa-link"></i> DAILY LINK MISSIONS</h2>
+                    <h2><i class="fa-solid fa-link"></i> DAILY MISSIONS</h2>
                     <span class="sub-badge" id="completed-links-badge">0/5 DONE</span>
                 </div>
                 <p class="section-desc">Complete daily shortener links to claim free diamond points!</p>
@@ -93,9 +89,9 @@
                 <div class="ad-card">
                     <div class="ad-card-info">
                         <div class="ad-icon"><i class="fa-solid fa-play-circle"></i></div>
-                        <div>
+                        <div class="ad-details">
                             <h4>SPONSORED VIDEO AD</h4>
-                            <p>Reward: +20 Diamond Points per ad</p>
+                            <p>Reward: +20 Points</p>
                         </div>
                     </div>
                     <button class="btn-primary" id="watch-ad-btn" onclick="app.watchRewardAd()">
@@ -113,7 +109,7 @@
 
                 <div class="ff-uid-input-group">
                     <label for="ff-uid"><i class="fa-solid fa-id-card"></i> FREE FIRE PLAYER UID</label>
-                    <input type="text" id="ff-uid" placeholder="Enter your Player UID (e.g. 123456789)" maxlength="12">
+                    <input type="text" id="ff-uid" placeholder="Enter Player UID (e.g. 123456789)" maxlength="12">
                 </div>
 
                 <div class="packages-grid">
