@@ -32,7 +32,7 @@ class ClashFireApp {
             referralReward: 10
         };
         this.integrations = {
-            toroxUrl: "https://offerwalls.com",
+            toroxUrl: "https://torox.io",
             toroxEnabled: true,
             gamezopUrl: "https://www.gamezop.com",
             gamezopReward: 5,
@@ -348,7 +348,7 @@ class ClashFireApp {
     }
 
     openToroxOfferwall() {
-        let url = this.integrations.toroxUrl || "https://offerwalls.com";
+        let url = this.integrations.toroxUrl || "https://torox.io";
         
         // Dynamic Replacement for both USER_ID=[USER_ID] and subid tracking
         if (url.includes('[USER_ID]')) {
