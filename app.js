@@ -176,12 +176,10 @@ class ClashFireApp {
         const urlParams = new URLSearchParams(window.location.search);
         const refCode = urlParams.get('ref');
         
-        // Award referral bonus ONLY to the referrer (not the new user)
         if (refCode && refCode !== this.displayUserId && !localStorage.getItem('REFERRAL_PROCESSED')) {
             localStorage.setItem('REFERRAL_PROCESSED', 'true');
             const bonus = this.globalSettings.referralReward || 10;
             
-            // Credit referrer in Firestore directly
             if (this.firestoreActive) {
                 try {
                     const snapshot = await this.db.collection("users").get();
@@ -390,10 +388,19 @@ class ClashFireApp {
         this.showToast('COPIED!', 'Referral link copied to clipboard!', 'success');
     }
 
-    shareWhatsApp() {
+    shareNative() {
         const refLink = `${window.location.origin}${window.location.pathname}?ref=${this.displayUserId}`;
-        const text = `🔥 Play Clash Fire & earn FREE Free Fire Diamonds daily! Join using my link: ${refLink}`;
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        const shareData = {
+            title: 'CLASH FIRE - Free Diamonds',
+            text: `🔥 Play Clash Fire & earn FREE Free Fire Diamonds daily! Join using my link:`,
+            url: refLink
+        };
+
+        if (navigator.share) {
+            navigator.share(shareData).catch(err => console.log('Share error:', err));
+        } else {
+            this.copyReferralLink();
+        }
     }
 
     closeRedeemModal() {
