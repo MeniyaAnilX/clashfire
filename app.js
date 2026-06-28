@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dedicated Community & Sponsorship Engine, Dynamic Popunder & Dual Banner Engine
+ * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Offerwall & Gamezop Integrations, Dedicated Official Community Engine, Dynamic Popunder & Dual Banner Engine
  */
 
 const firebaseConfig = {
@@ -40,10 +40,11 @@ class ClashFireApp {
             bannerEnabled: false,
             popunderHtmlCode: '',
             popunderEnabled: false,
-            sponsorTitle: 'Official Telegram Channel',
+            sponsorTitle: 'Join Our Channel',
             sponsorReward: 10,
             sponsorUrl: 'https://t.me',
             sponsorBtnText: 'JOIN NOW',
+            sponsorIcon: 'telegram',
             sponsorEnabled: true
         };
         this.db = null;
@@ -340,13 +341,38 @@ class ClashFireApp {
             commStation.style.display = isCommOn ? 'block' : 'none';
             
             const titleElem = document.getElementById('sponsor-task-title');
-            if (titleElem) titleElem.innerText = this.integrations.sponsorTitle || 'Official Sponsor Channel';
+            if (titleElem) titleElem.innerText = this.integrations.sponsorTitle || 'Join Our Channel';
             
             const descElem = document.getElementById('sponsor-task-desc');
             if (descElem) descElem.innerText = `Join to claim +${this.integrations.sponsorReward || 10} Diamonds`;
 
             const btnElem = document.getElementById('sponsor-btn-action');
             if (btnElem) btnElem.innerText = this.integrations.sponsorBtnText || 'JOIN NOW';
+
+            // Dynamic Platform Icon Rendering (YouTube 🔴 / Telegram ✈️ / Web 🌐)
+            const iconBox = document.getElementById('sponsor-icon-box');
+            const iconElem = document.getElementById('sponsor-icon-elem');
+            const platform = this.integrations.sponsorIcon || 'telegram';
+
+            if (iconBox && iconElem) {
+                if (platform === 'youtube') {
+                    iconBox.style.background = 'rgba(255, 0, 0, 0.15)';
+                    iconBox.style.color = '#ff0000';
+                    iconElem.className = 'fa-brands fa-youtube';
+                } else if (platform === 'telegram') {
+                    iconBox.style.background = 'rgba(0, 136, 204, 0.15)';
+                    iconBox.style.color = '#0088cc';
+                    iconElem.className = 'fa-solid fa-paper-plane';
+                } else if (platform === 'globe') {
+                    iconBox.style.background = 'rgba(0, 242, 254, 0.15)';
+                    iconBox.style.color = 'var(--accent-cyan)';
+                    iconElem.className = 'fa-solid fa-globe';
+                } else {
+                    iconBox.style.background = 'rgba(255, 69, 0, 0.15)';
+                    iconBox.style.color = 'var(--primary-fire)';
+                    iconElem.className = 'fa-solid fa-star';
+                }
+            }
         }
 
         // Render Independent Top and Bottom Native Banner Ad Slots with Dynamic Zero-Space Auto-Height
@@ -423,19 +449,19 @@ class ClashFireApp {
     openSponsorChannel() {
         const url = this.integrations.sponsorUrl || "https://t.me";
         window.open(url, '_blank');
-        this.showToast('COMMUNITY JOINED', 'Claiming sponsor diamond bonus...', 'info');
+        this.showToast('COMMUNITY LAUNCHED', 'Claiming community diamond bonus...', 'info');
 
-        if (!localStorage.getItem('CF_SPONSOR_CLAIMED')) {
-            localStorage.setItem('CF_SPONSOR_CLAIMED', 'true');
+        if (!localStorage.getItem('CF_COMMUNITY_CLAIMED')) {
+            localStorage.setItem('CF_COMMUNITY_CLAIMED', 'true');
             setTimeout(() => {
                 const bonus = parseInt(this.integrations.sponsorReward || 10);
                 this.user.coins += bonus;
                 this.saveUserProfile();
                 this.renderDashboard();
-                this.showToast('BONUS CREDITED!', `+${bonus} Diamonds credited for completing sponsor task!`, 'success');
+                this.showToast('BONUS CREDITED!', `+${bonus} Diamonds credited for joining community!`, 'success');
             }, 3000);
         } else {
-            this.showToast('ALREADY CLAIMED', 'You have already claimed your sponsor bonus!', 'info');
+            this.showToast('ALREADY CLAIMED', 'You have already claimed your community bonus!', 'info');
         }
     }
 
@@ -582,7 +608,7 @@ class ClashFireApp {
         }
 
         window.open(url, '_blank');
-        this.showToast('TOROX OFFERWALL', 'Complete tasks on Torox tab to earn rewards!', 'info');
+        this.showToast('OFFERWALL LAUNCHED', 'Complete tasks on offerwall tab to earn rewards!', 'info');
     }
 
     launchGamezop() {
