@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager, Dynamic Popunder & Dual Banner Engine
+ * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager (With Sponsor Mission #6), Dynamic Popunder & Dual Banner Engine
  */
 
 const firebaseConfig = {
@@ -44,13 +44,14 @@ class ClashFireApp {
         this.db = null;
         this.firestoreActive = false;
 
-        // Dynamic Mission Tasks Array (1-indexed task IDs)
+        // Dynamic Mission Tasks Array (1-indexed task IDs, including Sponsor Mission #6)
         this.dailyLinks = [
             { id: 0, taskId: 1, title: "Daily Mission Supply #1", url: "https://clashfire.vercel.app/verify.html?task=1" },
             { id: 1, taskId: 2, title: "Daily Mission Elite #2", url: "https://clashfire.vercel.app/verify.html?task=2" },
             { id: 2, taskId: 3, title: "Daily Mission Vault #3", url: "https://clashfire.vercel.app/verify.html?task=3" },
             { id: 3, taskId: 4, title: "Daily Mission Armor #4", url: "https://clashfire.vercel.app/verify.html?task=4" },
-            { id: 4, taskId: 5, title: "Daily Mission Heroic #5", url: "https://clashfire.vercel.app/verify.html?task=5" }
+            { id: 4, taskId: 5, title: "Daily Mission Heroic #5", url: "https://clashfire.vercel.app/verify.html?task=5" },
+            { id: 5, taskId: 6, title: "🎁 SPONSOR MISSION #6: Join Channel", url: "https://clashfire.vercel.app/verify.html?task=6" }
         ];
 
         this.init();
