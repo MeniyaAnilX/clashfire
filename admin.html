@@ -106,7 +106,8 @@
     <nav class="admin-nav">
         <button class="nav-tab active" onclick="switchTab('tab-redemptions', this)"><i class="fa-solid fa-gem"></i> REDEMPTIONS QUEUE</button>
         <button class="nav-tab" onclick="switchTab('tab-users', this)"><i class="fa-solid fa-users"></i> PLAYERS DATABASE</button>
-        <button class="nav-tab" onclick="switchTab('tab-settings', this)"><i class="fa-solid fa-sliders"></i> REWARD & INTEGRATIONS</button>
+        <button class="nav-tab" onclick="switchTab('tab-ads', this)"><i class="fa-solid fa-rectangle-ad"></i> ADS & OFFERWALLS</button>
+        <button class="nav-tab" onclick="switchTab('tab-settings', this)"><i class="fa-solid fa-sliders"></i> REWARD & MISSIONS</button>
     </nav>
 
     <!-- Tab 1: Redemptions Queue (DEFAULT VIEW) -->
@@ -151,27 +152,11 @@
         </table>
     </div>
 
-    <!-- Tab 3: Reward & Integrations Settings -->
-    <div id="tab-settings" class="tab-content">
-        <!-- Card A: Rewards -->
+    <!-- Tab 3: Dedicated Ads & Offerwalls Monetization Center -->
+    <div id="tab-ads" class="tab-content">
+        <!-- Card A: Dynamic Native Banner Ads Manager -->
         <div class="control-card">
-            <div class="card-title"><i class="fa-solid fa-sliders"></i> DYNAMIC REWARD AMOUNTS</div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
-                <div class="form-group">
-                    <label>Diamonds Per Link</label>
-                    <input type="number" id="setting-link-reward" value="5">
-                </div>
-                <div class="form-group">
-                    <label>Referral Bonus Diamonds</label>
-                    <input type="number" id="setting-ref-reward" value="10">
-                </div>
-            </div>
-            <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE REWARD AMOUNTS</button>
-        </div>
-
-        <!-- Card B: Dynamic Native Banner Ads Manager -->
-        <div class="control-card">
-            <div class="card-title"><i class="fa-solid fa-rectangle-ad"></i> NATIVE BANNER ADS MANAGER (INDEPENDENT DUAL SLOTS)</div>
+            <div class="card-title"><i class="fa-solid fa-rectangle-ad"></i> NATIVE BANNER ADS MANAGER (DUAL SLOTS)</div>
             <div class="form-group">
                 <label>TOP BANNER Ad Code (Monetag / Adsterra Script #1)</label>
                 <textarea id="integ-banner-code" rows="3" placeholder="Paste TOP banner <script> code here..."></textarea>
@@ -190,9 +175,27 @@
             <button class="btn-action" style="background: #00e676;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE NATIVE BANNER CONFIG</button>
         </div>
 
+        <!-- Card B: Popunder Direct Ads Manager -->
+        <div class="control-card">
+            <div class="card-title"><i class="fa-solid fa-window-restore"></i> POPUNDER ADS MANAGER (ZERO DIAMOND REWARD)</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Paste popunder script code. When enabled, triggers background ad opens on user clicks without rewarding diamonds.</p>
+            <div class="form-group">
+                <label>Popunder Ad Script Code (Adsterra / Monetag Popunder)</label>
+                <textarea id="integ-popunder-code" rows="3" placeholder="Paste popunder <script> code here..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Popunder Ads Status</label>
+                <select id="integ-popunder-status">
+                    <option value="false">DISABLE (OFF - HIDDEN)</option>
+                    <option value="true">ENABLE (ACTIVE LIVE)</option>
+                </select>
+            </div>
+            <button class="btn-action" style="background: #00e676;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE POPUNDER CONFIG</button>
+        </div>
+
         <!-- Card C: Torox & Gamezop Integrations -->
         <div class="control-card">
-            <div class="card-title"><i class="fa-solid fa-gamepad"></i> TOROX & GAMEZOP INTEGRATIONS</div>
+            <div class="card-title"><i class="fa-solid fa-gamepad"></i> TOROX & GAMEZOP OFFERWALL INTEGRATIONS</div>
             <div class="form-group">
                 <label>Torox Offerwall Publisher Link / App URL</label>
                 <input type="text" id="integ-torox-url" placeholder="https://offerwalls.com/...">
@@ -222,8 +225,27 @@
             </div>
             <button class="btn-action" style="background: #00e676;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE TOROX & GAMEZOP CONFIG</button>
         </div>
+    </div>
 
-        <!-- Card D: Unlimited Dynamic Shortener Links Manager -->
+    <!-- Tab 4: Reward & Missions Settings -->
+    <div id="tab-settings" class="tab-content">
+        <!-- Card A: Rewards -->
+        <div class="control-card">
+            <div class="card-title"><i class="fa-solid fa-sliders"></i> DYNAMIC REWARD AMOUNTS</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                <div class="form-group">
+                    <label>Diamonds Per Link</label>
+                    <input type="number" id="setting-link-reward" value="5">
+                </div>
+                <div class="form-group">
+                    <label>Referral Bonus Diamonds</label>
+                    <input type="number" id="setting-ref-reward" value="10">
+                </div>
+            </div>
+            <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE REWARD AMOUNTS</button>
+        </div>
+
+        <!-- Card B: Unlimited Dynamic Shortener Links Manager -->
         <div class="control-card">
             <div class="card-title"><i class="fa-solid fa-link"></i> DYNAMIC UNLIMITED MISSION LINKS MANAGER</div>
             <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Add as many shortener links as you want. Customize both Mission Name and Shortener URL!</p>
@@ -303,6 +325,8 @@
                     document.getElementById('integ-banner-code').value = iData.bannerHtmlCode || '';
                     document.getElementById('integ-banner-bot-code').value = iData.bannerBottomHtmlCode || '';
                     document.getElementById('integ-banner-status').value = (iData.bannerEnabled === true || iData.bannerEnabled === 'true') ? 'true' : 'false';
+                    document.getElementById('integ-popunder-code').value = iData.popunderHtmlCode || '';
+                    document.getElementById('integ-popunder-status').value = (iData.popunderEnabled === true || iData.popunderEnabled === 'true') ? 'true' : 'false';
                 }
             } catch(e) { console.error(e); }
         }
@@ -370,6 +394,8 @@
             const bannerCode = document.getElementById('integ-banner-code').value.trim();
             const bannerBotCode = document.getElementById('integ-banner-bot-code').value.trim();
             const bannerEnabled = document.getElementById('integ-banner-status').value === 'true';
+            const popunderCode = document.getElementById('integ-popunder-code').value.trim();
+            const popunderEnabled = document.getElementById('integ-popunder-status').value === 'true';
 
             try {
                 await db.collection("settings").doc("integrations").set({
@@ -381,9 +407,11 @@
                     bannerHtmlCode: bannerCode,
                     bannerBottomHtmlCode: bannerBotCode,
                     bannerEnabled: bannerEnabled,
+                    popunderHtmlCode: popunderCode,
+                    popunderEnabled: popunderEnabled,
                     updatedAt: new Date().toISOString()
                 });
-                alert("Integrations & Native Banner Config saved live! User app updated.");
+                alert("Ads & Monetization Settings saved live! User app updated.");
             } catch(e) { alert("Error: " + e.message); }
         }
 

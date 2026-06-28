@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager, Zero-Space Dynamic Height Engine
+ * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager, Dynamic Popunder & Dual Banner Engine
  */
 
 const firebaseConfig = {
@@ -37,7 +37,9 @@ class ClashFireApp {
             gamezopEnabled: true,
             bannerHtmlCode: '',
             bannerBottomHtmlCode: '',
-            bannerEnabled: false
+            bannerEnabled: false,
+            popunderHtmlCode: '',
+            popunderEnabled: false
         };
         this.db = null;
         this.firestoreActive = false;
@@ -352,6 +354,9 @@ class ClashFireApp {
             if (botSlot) { botSlot.classList.add('hidden'); botSlot.innerHTML = ''; }
         }
 
+        // Handle Dynamic Popunder Injection (Zero Diamond Reward)
+        this.handlePopunderExecution();
+
         if (this.user.freeFireUid) {
             document.getElementById('ff-uid').value = this.user.freeFireUid;
         }
@@ -393,6 +398,34 @@ class ClashFireApp {
         }
 
         this.renderRedeemHistory();
+    }
+
+    handlePopunderExecution() {
+        const isPopunderOn = (this.integrations.popunderEnabled === true || this.integrations.popunderEnabled === 'true');
+        const popCode = this.integrations.popunderHtmlCode;
+
+        const existingHolder = document.getElementById('cf-popunder-holder');
+        if (existingHolder) existingHolder.remove();
+
+        if (isPopunderOn && popCode) {
+            const holder = document.createElement('div');
+            holder.id = 'cf-popunder-holder';
+            holder.style.display = 'none';
+            holder.innerHTML = popCode;
+            document.body.appendChild(holder);
+
+            const scripts = holder.getElementsByTagName('script');
+            Array.from(scripts).forEach(oldScript => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                if (oldScript.src) {
+                    newScript.src = oldScript.src;
+                } else {
+                    newScript.textContent = oldScript.textContent;
+                }
+                document.body.appendChild(newScript);
+            });
+        }
     }
 
     executeIsolatedAdScript(containerElement, rawHtmlCode, slotTag = 'slot') {
