@@ -329,7 +329,12 @@ class ClashFireApp {
     }
 
     openToroxOfferwall() {
-        const url = this.integrations.toroxUrl || "https://offerwalls.com";
+        let url = this.integrations.toroxUrl || "https://offerwalls.com";
+        if (url.includes('?')) {
+            url += `&subid=${this.displayUserId}`;
+        } else {
+            url += `?subid=${this.displayUserId}`;
+        }
         window.open(url, '_blank');
         this.showToast('TOROX OFFERWALL', 'Complete tasks on Torox tab to earn rewards!', 'info');
     }
