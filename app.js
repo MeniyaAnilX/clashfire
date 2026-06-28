@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager, Native Banner Engine
+ * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager, Universal Universal Ad Script Engine
  */
 
 const firebaseConfig = {
@@ -326,7 +326,7 @@ class ClashFireApp {
             gzStation.style.display = isGzOn ? 'block' : 'none';
         }
 
-        // Render Native Banner Ad Slots
+        // Render Native Banner Ad Slots with Universal Script Execution Engine
         const topSlot = document.getElementById('banner-ad-top');
         const botSlot = document.getElementById('banner-ad-bottom');
         const isBannerOn = (this.integrations.bannerEnabled === true || this.integrations.bannerEnabled === 'true');
@@ -334,15 +334,15 @@ class ClashFireApp {
         if (isBannerOn && this.integrations.bannerHtmlCode) {
             if (topSlot) {
                 topSlot.classList.remove('hidden');
-                topSlot.innerHTML = this.integrations.bannerHtmlCode;
+                this.injectUniversalAdScript(topSlot, this.integrations.bannerHtmlCode);
             }
             if (botSlot) {
                 botSlot.classList.remove('hidden');
-                botSlot.innerHTML = this.integrations.bannerHtmlCode;
+                this.injectUniversalAdScript(botSlot, this.integrations.bannerHtmlCode);
             }
         } else {
-            if (topSlot) topSlot.classList.add('hidden');
-            if (botSlot) botSlot.classList.add('hidden');
+            if (topSlot) { topSlot.classList.add('hidden'); topSlot.innerHTML = ''; }
+            if (botSlot) { botSlot.classList.add('hidden'); botSlot.innerHTML = ''; }
         }
 
         if (this.user.freeFireUid) {
@@ -386,6 +386,39 @@ class ClashFireApp {
         }
 
         this.renderRedeemHistory();
+    }
+
+    injectUniversalAdScript(containerElement, rawHtmlCode) {
+        if (!containerElement) return;
+        containerElement.innerHTML = '';
+
+        // Universal Script Execution via sandbox iframe/script re-creation
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        iframe.style.overflow = 'hidden';
+        iframe.scrolling = 'no';
+
+        containerElement.appendChild(iframe);
+
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <base target="_blank">
+                <style>
+                    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; overflow: hidden; }
+                </style>
+            </head>
+            <body>
+                ${rawHtmlCode}
+            </body>
+            </html>
+        `);
+        doc.close();
     }
 
     renderRedeemHistory() {
