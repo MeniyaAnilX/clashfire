@@ -62,7 +62,6 @@ class ClashFireApp {
             document.getElementById('app-container').classList.remove('hidden');
             this.renderDashboard();
             this.startCountdownTimer();
-            this.showToast('HARDWARE LOCK ACTIVE', 'Live Firestore synced for ID: ' + this.deviceId.substring(0, 8), 'info');
         }, 600);
     }
 
