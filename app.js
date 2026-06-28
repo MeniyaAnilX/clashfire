@@ -47,7 +47,9 @@ class ClashFireApp {
     }
 
     async init() {
+        this.start3SecPageLoader();
         this.initFirebase();
+        
         this.deviceId = await this.generateCrossBrowserHardwareID();
         this.displayUserId = "CF-" + this.deviceId.substring(9, 15);
         
@@ -60,6 +62,27 @@ class ClashFireApp {
 
         this.renderDashboard();
         this.startCountdownTimer();
+    }
+
+    start3SecPageLoader() {
+        const overlay = document.getElementById('page-loader-overlay');
+        const fill = document.getElementById('loader-bar-fill');
+        if (!overlay || !fill) return;
+
+        let startTime = Date.now();
+        const duration = 3000;
+
+        const interval = setInterval(() => {
+            let elapsed = Date.now() - startTime;
+            let percent = Math.min(100, (elapsed / duration) * 100);
+            fill.style.width = percent + '%';
+
+            if (elapsed >= duration) {
+                clearInterval(interval);
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.classList.add('hidden'), 500);
+            }
+        }, 30);
     }
 
     initFirebase() {
