@@ -239,8 +239,12 @@
                 <input type="text" id="integ-sponsor-title" placeholder="e.g. Join Official Telegram Channel">
             </div>
             <div class="form-group">
-                <label>Sponsor Destination URL (Telegram Link / Custom Shortener)</label>
+                <label>Sponsor Destination URL (Telegram Link / YouTube Link)</label>
                 <input type="text" id="integ-sponsor-url" placeholder="https://t.me/yourchannel">
+            </div>
+            <div class="form-group">
+                <label>Sponsor Button Text (e.g. JOIN NOW / SUBSCRIBE / VISIT)</label>
+                <input type="text" id="integ-sponsor-btn" placeholder="JOIN NOW">
             </div>
             <div class="form-group">
                 <label>Sponsor Completion Reward Diamonds</label>
@@ -360,6 +364,7 @@
                     document.getElementById('integ-popunder-status').value = (iData.popunderEnabled === true || iData.popunderEnabled === 'true') ? 'true' : 'false';
                     document.getElementById('integ-sponsor-title').value = iData.sponsorTitle || 'Official Telegram Channel';
                     document.getElementById('integ-sponsor-url').value = iData.sponsorUrl || 'https://t.me';
+                    document.getElementById('integ-sponsor-btn').value = iData.sponsorBtnText || 'JOIN NOW';
                     document.getElementById('integ-sponsor-reward').value = iData.sponsorReward || 10;
                     document.getElementById('integ-sponsor-status').value = (iData.sponsorEnabled === true || iData.sponsorEnabled === 'true') ? 'true' : 'false';
                 }
@@ -433,6 +438,7 @@
             const popunderEnabled = document.getElementById('integ-popunder-status').value === 'true';
             const sponsorTitle = document.getElementById('integ-sponsor-title').value.trim();
             const sponsorUrl = document.getElementById('integ-sponsor-url').value.trim();
+            const sponsorBtnText = document.getElementById('integ-sponsor-btn').value.trim();
             const sponsorReward = parseInt(document.getElementById('integ-sponsor-reward').value || '10');
             const sponsorEnabled = document.getElementById('integ-sponsor-status').value === 'true';
 
@@ -450,6 +456,7 @@
                     popunderEnabled: popunderEnabled,
                     sponsorTitle: sponsorTitle,
                     sponsorUrl: sponsorUrl,
+                    sponsorBtnText: sponsorBtnText,
                     sponsorReward: sponsorReward,
                     sponsorEnabled: sponsorEnabled,
                     updatedAt: new Date().toISOString()

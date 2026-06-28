@@ -85,8 +85,20 @@
             <span class="banner-badge" id="completed-links-badge">0/5 DONE</span>
         </div>
 
-        <!-- TAB 1: HOME PANE (DEFAULT ACTIVE) -->
+        <!-- TAB 1: HOME PANE (DEFAULT ACTIVE WITH DAILY MISSIONS) -->
         <div id="tab-home" class="app-tab-pane active">
+            <!-- Daily Missions List Section (LOCATED ON HOME PANE) -->
+            <section class="dashboard-section">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-link"></i> DAILY MISSIONS</h2>
+                </div>
+                <p class="section-desc">Complete daily shortener links to claim free diamonds!</p>
+                
+                <div class="links-list" id="links-container">
+                    <div style="text-align: center; color: var(--text-muted); padding: 15px;">Loading dynamic missions...</div>
+                </div>
+            </section>
+
             <!-- Refer & Earn Section -->
             <section class="dashboard-section">
                 <div class="section-title">
@@ -104,7 +116,7 @@
             </section>
         </div>
 
-        <!-- TAB 2: TASKS & OFFERWALL PANE -->
+        <!-- TAB 2: TASKS, OFFERWALLS & COMMUNITY PANE -->
         <div id="tab-tasks" class="app-tab-pane">
             
             <!-- Torox Offerwall Station Card -->
@@ -166,19 +178,7 @@
                             <p id="sponsor-task-desc">Join to claim +10 Diamonds</p>
                         </div>
                     </div>
-                    <button class="btn-primary" style="background: linear-gradient(135deg, var(--primary-fire), #ff1744); color: #fff;" onclick="app.openSponsorChannel()">JOIN NOW</button>
-                </div>
-            </section>
-
-            <!-- Daily Missions List -->
-            <section class="dashboard-section">
-                <div class="section-title">
-                    <h2><i class="fa-solid fa-link"></i> DAILY MISSIONS</h2>
-                </div>
-                <p class="section-desc">Complete daily shortener links to claim free diamonds!</p>
-                
-                <div class="links-list" id="links-container">
-                    <div style="text-align: center; color: var(--text-muted); padding: 15px;">Loading dynamic missions...</div>
+                    <button class="btn-primary" id="sponsor-btn-action" style="background: linear-gradient(135deg, var(--primary-fire), #ff1744); color: #fff;" onclick="app.openSponsorChannel()">JOIN NOW</button>
                 </div>
             </section>
 

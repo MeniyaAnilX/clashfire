@@ -43,6 +43,7 @@ class ClashFireApp {
             sponsorTitle: 'Official Telegram Channel',
             sponsorReward: 10,
             sponsorUrl: 'https://t.me',
+            sponsorBtnText: 'JOIN NOW',
             sponsorEnabled: true
         };
         this.db = null;
@@ -343,6 +344,9 @@ class ClashFireApp {
             
             const descElem = document.getElementById('sponsor-task-desc');
             if (descElem) descElem.innerText = `Join to claim +${this.integrations.sponsorReward || 10} Diamonds`;
+
+            const btnElem = document.getElementById('sponsor-btn-action');
+            if (btnElem) btnElem.innerText = this.integrations.sponsorBtnText || 'JOIN NOW';
         }
 
         // Render Independent Top and Bottom Native Banner Ad Slots with Dynamic Zero-Space Auto-Height
@@ -428,7 +432,7 @@ class ClashFireApp {
                 this.user.coins += bonus;
                 this.saveUserProfile();
                 this.renderDashboard();
-                this.showToast('BONUS CREDITED!', `+${bonus} Diamonds credited for joining community!`, 'success');
+                this.showToast('BONUS CREDITED!', `+${bonus} Diamonds credited for completing sponsor task!`, 'success');
             }, 3000);
         } else {
             this.showToast('ALREADY CLAIMED', 'You have already claimed your sponsor bonus!', 'info');
