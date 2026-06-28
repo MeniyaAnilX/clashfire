@@ -42,7 +42,7 @@
         .btn-action { background: linear-gradient(135deg, var(--accent-cyan), #00a8ff); color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 5px; }
         .btn-action:hover { opacity: 0.9; }
 
-        .section-box { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); overflow-x: auto; }
+        .section-box { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); overflow-x: auto; margin-bottom: 25px; }
         .section-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; color: var(--accent-cyan); }
 
         table { width: 100%; border-collapse: collapse; text-align: left; min-width: 650px; }
@@ -56,7 +56,10 @@
 
         .btn-complete { background: #00e676; color: #000; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 0.85rem; cursor: pointer; transition: 0.2s ease; }
         .btn-complete:hover { background: #00c853; }
-        .btn-toggle { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; margin-left: 5px; }
+
+        .dia-input { background: rgba(0,0,0,0.6); border: 1px solid var(--accent-gold); border-radius: 6px; padding: 6px 10px; color: var(--accent-gold); font-weight: 800; width: 110px; font-size: 0.95rem; outline: none; }
+        .btn-save-dia { background: var(--accent-gold); color: #000; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 0.8rem; cursor: pointer; margin-left: 6px; }
+        .btn-save-dia:hover { opacity: 0.9; }
     </style>
 
     <!-- Firebase SDK -->
@@ -76,8 +79,8 @@
 
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-label">Total Redemptions</div>
-            <div class="stat-val" id="stat-total">0</div>
+            <div class="stat-label">Total Users</div>
+            <div class="stat-val" id="stat-users" style="color: var(--accent-cyan);">0</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">Pending Fulfillments</div>
@@ -89,41 +92,49 @@
         </div>
     </div>
 
-    <!-- Controls Row -->
+    <!-- App Settings Row -->
     <div class="control-grid">
-        <!-- App Reward Settings -->
         <div class="control-card">
             <div class="card-title"><i class="fa-solid fa-sliders"></i> DYNAMIC REWARD SETTINGS</div>
-            <div class="form-group">
-                <label>Diamonds Per Link Mission</label>
-                <input type="number" id="setting-link-reward" value="5">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                <div class="form-group">
+                    <label>Diamonds Per Link</label>
+                    <input type="number" id="setting-link-reward" value="5">
+                </div>
+                <div class="form-group">
+                    <label>Diamonds Per Watch Ad</label>
+                    <input type="number" id="setting-ad-reward" value="2">
+                </div>
+                <div class="form-group">
+                    <label>Referral Bonus Diamonds</label>
+                    <input type="number" id="setting-ref-reward" value="10">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Diamonds Per Watch Ad</label>
-                <input type="number" id="setting-ad-reward" value="2">
-            </div>
-            <div class="form-group">
-                <label>Referral Bonus Diamonds</label>
-                <input type="number" id="setting-ref-reward" value="10">
-            </div>
-            <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE APP SETTINGS</button>
-        </div>
-
-        <!-- User Diamond Editor -->
-        <div class="control-card">
-            <div class="card-title"><i class="fa-solid fa-user-gear"></i> USER DIAMOND EDITOR</div>
-            <div class="form-group">
-                <label>Target User ID (e.g. CF-892970) or Device ID</label>
-                <input type="text" id="edit-user-id" placeholder="Paste User ID">
-            </div>
-            <div class="form-group">
-                <label>New Diamond Balance</label>
-                <input type="number" id="edit-user-diamonds" placeholder="e.g. 500">
-            </div>
-            <button class="btn-action" style="background: var(--accent-gold);" onclick="updateUserDiamonds()"><i class="fa-solid fa-pen-to-square"></i> UPDATE PLAYER DIAMONDS</button>
+            <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE APP REWARD SETTINGS</button>
         </div>
     </div>
 
+    <!-- Section 1: All Players Database -->
+    <div class="section-box">
+        <div class="section-title">
+            <i class="fa-solid fa-users"></i> ALL PLAYERS DATABASE (EDIT DIAMONDS)
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Player FF UID</th>
+                    <th>Current Diamond Balance</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="users-table-body">
+                <tr><td colspan="4" style="text-align:center; color: var(--text-muted);">Loading registered players...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Section 2: Diamond Redemptions Queue -->
     <div class="section-box">
         <div class="section-title">
             <i class="fa-solid fa-gem"></i> DIAMOND REDEMPTIONS QUEUE
@@ -134,7 +145,7 @@
                     <th>Date</th>
                     <th>Player FF UID</th>
                     <th>Diamonds</th>
-                    <th>Device ID</th>
+                    <th>User ID</th>
                     <th>Status</th>
                     <th>Action</th>
                 </tr>
@@ -183,31 +194,57 @@
                     referralReward: refR,
                     updatedAt: new Date().toISOString()
                 });
-                alert("App Reward Settings saved live! Users will see updated amounts.");
+                alert("App Reward Settings saved live!");
             } catch(e) { alert("Error: " + e.message); }
         }
 
-        async function updateUserDiamonds() {
-            const inputId = document.getElementById('edit-user-id').value.trim();
-            const newDia = parseInt(document.getElementById('edit-user-diamonds').value || '0');
+        function loadLiveUsers() {
+            db.collection("users").onSnapshot(snapshot => {
+                const tbody = document.getElementById('users-table-body');
+                tbody.innerHTML = '';
+                let userCount = 0;
 
-            if (!inputId) { alert("Please enter User ID!"); return; }
-
-            try {
-                let targetDocId = inputId;
-                if (inputId.startsWith("CF-")) {
-                    const snapshot = await db.collection("users").get();
-                    snapshot.forEach(doc => {
-                        let cfId = "CF-" + doc.id.substring(9, 15);
-                        if (cfId === inputId) targetDocId = doc.id;
-                    });
+                if (snapshot.empty) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--text-muted);">No players registered yet!</td></tr>`;
                 }
 
-                await db.collection("users").doc(targetDocId).update({
+                snapshot.forEach(doc => {
+                    userCount++;
+                    const data = doc.data();
+                    const docId = doc.id;
+                    const displayUserId = "CF-" + docId.substring(9, 15);
+                    const currentDiamonds = data.coins || 0;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="font-weight: 800; color: var(--accent-cyan);">${displayUserId}</td>
+                        <td style="font-weight: 700; color: var(--text-main);">${data.freeFireUid || 'Not Set'}</td>
+                        <td>
+                            <input type="number" class="dia-input" id="input-dia-${docId}" value="${currentDiamonds}">
+                        </td>
+                        <td>
+                            <button class="btn-save-dia" onclick="savePlayerDiamonds('${docId}', '${displayUserId}')">
+                                <i class="fa-solid fa-save"></i> SAVE DIAMONDS
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                document.getElementById('stat-users').innerText = userCount;
+            });
+        }
+
+        async function savePlayerDiamonds(docId, displayUserId) {
+            const inputElem = document.getElementById(`input-dia-${docId}`);
+            const newDia = parseInt(inputElem.value || '0');
+
+            try {
+                await db.collection("users").doc(docId).update({
                     coins: newDia
                 });
-                alert(`Successfully updated Diamond balance to ${newDia} for User: ${inputId}`);
-            } catch(e) { alert("Error updating user: " + e.message); }
+                alert(`Updated balance to ${newDia} Diamonds for ${displayUserId}!`);
+            } catch(e) { alert("Error: " + e.message); }
         }
 
         function loadLiveRedemptions() {
@@ -215,18 +252,16 @@
                 const tbody = document.getElementById('redemptions-table-body');
                 tbody.innerHTML = '';
 
-                let total = 0, pending = 0, completed = 0;
+                let pending = 0, completed = 0;
 
                 if (snapshot.empty) {
                     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No diamond requests found yet!</td></tr>`;
                 }
 
                 snapshot.forEach(doc => {
-                    total++;
                     const data = doc.data();
                     const reqId = doc.id;
                     
-                    // Treat both PENDING and old PENDING_ADMIN_FULFILLMENT as pending
                     const isPending = (data.status === 'PENDING' || data.status === 'PENDING_ADMIN_FULFILLMENT');
                     const displayStatus = isPending ? 'PENDING' : 'COMPLETED';
 
@@ -248,7 +283,6 @@
                     tbody.appendChild(tr);
                 });
 
-                document.getElementById('stat-total').innerText = total;
                 document.getElementById('stat-pending').innerText = pending;
                 document.getElementById('stat-completed').innerText = completed;
             });
@@ -259,12 +293,10 @@
             if (!confirm(`Change redemption status to ${nextStatus} for FF UID: ${ffUid}?`)) return;
 
             try {
-                // Update redemptions collection
                 await db.collection("redemptions").doc(reqId).update({
                     status: nextStatus
                 });
 
-                // Update user doc history
                 if (deviceId) {
                     const userRef = db.collection("users").doc(deviceId);
                     const userDoc = await userRef.get();
@@ -285,6 +317,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadGlobalSettings();
+            loadLiveUsers();
             loadLiveRedemptions();
         });
     </script>
