@@ -393,7 +393,7 @@ class ClashFireApp {
     openToroxOfferwall() {
         let url = (this.integrations && this.integrations.toroxUrl) ? this.integrations.toroxUrl : (localStorage.getItem('CF_CACHE_TOROX_URL') || "https://torox.io");
         
-        // Dynamic Replacement for both USER_ID=[USER_ID] and subid tracking
+        // Dynamic Replacement for USER_ID=[USER_ID] and subid tracking
         if (url.includes('[USER_ID]')) {
             url = url.replace('[USER_ID]', this.displayUserId);
         } else if (url.includes('USER_ID=')) {
@@ -402,6 +402,13 @@ class ClashFireApp {
             url = url.replace(/subid=[^&]*/, `subid=${this.displayUserId}`);
         } else {
             url += (url.includes('?') ? '&' : '?') + `USER_ID=${this.displayUserId}&subid=${this.displayUserId}`;
+        }
+
+        // Dynamic Replacement for tag=[tag]
+        if (url.includes('[tag]')) {
+            url = url.replace('[tag]', 'clashfire');
+        } else if (url.includes('tag=')) {
+            url = url.replace(/tag=[^&]*/, 'tag=clashfire');
         }
 
         window.open(url, '_blank');
