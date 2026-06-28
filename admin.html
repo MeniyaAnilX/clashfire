@@ -48,6 +48,10 @@
         
         .btn-action { background: linear-gradient(135deg, var(--accent-cyan), #00a8ff); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 10px; }
 
+        .mission-row-item { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; margin-bottom: 12px; position: relative; }
+        .target-hint { font-size: 0.75rem; color: var(--accent-gold); font-weight: 700; margin-top: 4px; font-family: monospace; }
+        .btn-del-link { background: #ff1744; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; cursor: pointer; float: right; margin-top: -32px; }
+
         .section-box { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); overflow-x: auto; margin-bottom: 25px; }
         .section-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; color: var(--accent-cyan); }
 
@@ -202,32 +206,18 @@
             <button class="btn-action" style="background: #00e676;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE INTEGRATIONS CONFIG</button>
         </div>
 
-        <!-- Card C: Shortener Links -->
+        <!-- Card C: Unlimited Dynamic Shortener Links Manager -->
         <div class="control-card">
-            <div class="card-title"><i class="fa-solid fa-link"></i> 5 DAILY MISSION SHORTENER LINKS</div>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Paste your shortened GPLinks / Shortener URLs here.</p>
+            <div class="card-title"><i class="fa-solid fa-link"></i> DYNAMIC UNLIMITED MISSION LINKS MANAGER</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Add as many shortener links as you want. Customize both Mission Name and Shortener URL!</p>
             
-            <div class="form-group">
-                <label>Mission Link 1 URL (Target task=0)</label>
-                <input type="text" id="link-url-0" value="https://clash-fire.vercel.app/verify.html?task=0">
+            <div id="dynamic-links-list-container">
+                <!-- Dynamically populated links -->
             </div>
-            <div class="form-group">
-                <label>Mission Link 2 URL (Target task=1)</label>
-                <input type="text" id="link-url-1" value="https://clash-fire.vercel.app/verify.html?task=1">
-            </div>
-            <div class="form-group">
-                <label>Mission Link 3 URL (Target task=2)</label>
-                <input type="text" id="link-url-2" value="https://clash-fire.vercel.app/verify.html?task=2">
-            </div>
-            <div class="form-group">
-                <label>Mission Link 4 URL (Target task=3)</label>
-                <input type="text" id="link-url-3" value="https://clash-fire.vercel.app/verify.html?task=3">
-            </div>
-            <div class="form-group">
-                <label>Mission Link 5 URL (Target task=4)</label>
-                <input type="text" id="link-url-4" value="https://clash-fire.vercel.app/verify.html?task=4">
-            </div>
-            <button class="btn-action" style="background: var(--accent-gold);" onclick="saveMissionLinks()"><i class="fa-solid fa-save"></i> SAVE MISSION SHORTENER LINKS</button>
+
+            <button class="btn-action" style="background: rgba(0,242,254,0.15); color: var(--accent-cyan); border: 1.5px dashed var(--accent-cyan); margin-bottom: 15px;" onclick="addNewMissionRow()"><i class="fa-solid fa-plus"></i> ADD NEW MISSION LINK</button>
+
+            <button class="btn-action" style="background: var(--accent-gold);" onclick="saveMissionLinks()"><i class="fa-solid fa-save"></i> SAVE DYNAMIC MISSION LINKS</button>
         </div>
     </div>
 
@@ -244,6 +234,8 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+
+        let currentMissionLinks = [];
 
         function switchTab(tabId, btnElem) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -265,24 +257,74 @@
                 const linksDoc = await db.collection("settings").doc("links").get();
                 if (linksDoc.exists) {
                     const lData = linksDoc.data();
-                    if (lData.urls && Array.isArray(lData.urls)) {
-                        lData.urls.forEach((u, i) => {
-                            let inputElem = document.getElementById(`link-url-${i}`);
-                            if (inputElem && u) inputElem.value = u;
-                        });
+                    if (lData.items && Array.isArray(lData.items)) {
+                        currentMissionLinks = lData.items;
+                    } else if (lData.urls && Array.isArray(lData.urls)) {
+                        currentMissionLinks = lData.urls.map((u, i) => ({ title: `Daily Mission Supply #${i+1}`, url: u }));
                     }
                 }
+
+                if (!currentMissionLinks || currentMissionLinks.length === 0) {
+                    currentMissionLinks = [
+                        { title: "Daily Mission Supply #1", url: "https://clash-fire.vercel.app/verify.html?task=0" },
+                        { title: "Daily Mission Elite #2", url: "https://clash-fire.vercel.app/verify.html?task=1" },
+                        { title: "Daily Mission Vault #3", url: "https://clash-fire.vercel.app/verify.html?task=2" },
+                        { title: "Daily Mission Armor #4", url: "https://clash-fire.vercel.app/verify.html?task=3" },
+                        { title: "Daily Mission Heroic #5", url: "https://clash-fire.vercel.app/verify.html?task=4" }
+                    ];
+                }
+
+                renderAdminMissionRows();
 
                 const integDoc = await db.collection("settings").doc("integrations").get();
                 if (integDoc.exists) {
                     const iData = integDoc.data();
                     document.getElementById('integ-torox-url').value = iData.toroxUrl || '';
-                    document.getElementById('integ-torox-status').value = iData.toroxEnabled !== false ? 'true' : 'false';
+                    document.getElementById('integ-torox-status').value = (iData.toroxEnabled === true || iData.toroxEnabled === 'true') ? 'true' : 'false';
                     document.getElementById('integ-gz-url').value = iData.gamezopUrl || '';
                     document.getElementById('integ-gz-reward').value = iData.gamezopReward || 5;
-                    document.getElementById('integ-gz-status').value = iData.gamezopEnabled !== false ? 'true' : 'false';
+                    document.getElementById('integ-gz-status').value = (iData.gamezopEnabled === true || iData.gamezopEnabled === 'true') ? 'true' : 'false';
                 }
             } catch(e) { console.error(e); }
+        }
+
+        function renderAdminMissionRows() {
+            const container = document.getElementById('dynamic-links-list-container');
+            container.innerHTML = '';
+
+            currentMissionLinks.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = 'mission-row-item';
+                row.innerHTML = `
+                    <button class="btn-del-link" onclick="deleteMissionRow(${index})"><i class="fa-solid fa-trash"></i> DELETE</button>
+                    <div class="form-group" style="margin-bottom: 8px;">
+                        <label>Mission #${index+1} Custom Title</label>
+                        <input type="text" id="m-title-${index}" value="${item.title || ('Daily Mission #' + (index+1))}" placeholder="e.g. GPLink Elite Loot #${index+1}">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 4px;">
+                        <label>Mission #${index+1} Shortener URL</label>
+                        <input type="text" id="m-url-${index}" value="${item.url || ''}" placeholder="https://gplinks.co/...">
+                    </div>
+                    <div class="target-hint"><i class="fa-solid fa-bullseye"></i> Target Verification URL: https://clash-fire.vercel.app/verify.html?task=${index}</div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function addNewMissionRow() {
+            const nextIdx = currentMissionLinks.length;
+            currentMissionLinks.push({
+                title: `Daily Mission Supply #${nextIdx + 1}`,
+                url: `https://clash-fire.vercel.app/verify.html?task=${nextIdx}`
+            });
+            renderAdminMissionRows();
+        }
+
+        function deleteMissionRow(index) {
+            if (confirm(`Delete Mission #${index+1}?`)) {
+                currentMissionLinks.splice(index, 1);
+                renderAdminMissionRows();
+            }
         }
 
         async function saveGlobalSettings() {
@@ -322,20 +364,26 @@
         }
 
         async function saveMissionLinks() {
-            const urls = [
-                document.getElementById('link-url-0').value.trim(),
-                document.getElementById('link-url-1').value.trim(),
-                document.getElementById('link-url-2').value.trim(),
-                document.getElementById('link-url-3').value.trim(),
-                document.getElementById('link-url-4').value.trim()
-            ];
+            const items = [];
+            for (let i = 0; i < currentMissionLinks.length; i++) {
+                const t = document.getElementById(`m-title-${i}`).value.trim();
+                const u = document.getElementById(`m-url-${i}`).value.trim();
+                items.push({
+                    id: i,
+                    title: t || `Daily Mission #${i+1}`,
+                    url: u || `https://clash-fire.vercel.app/verify.html?task=${i}`
+                });
+            }
+
+            const plainUrls = items.map(x => x.url);
 
             try {
                 await db.collection("settings").doc("links").set({
-                    urls: urls,
+                    items: items,
+                    urls: plainUrls,
                     updatedAt: new Date().toISOString()
                 });
-                alert("All 5 Mission Shortener Links saved live!");
+                alert(`Successfully saved ${items.length} Dynamic Mission Links live!`);
             } catch(e) { alert("Error saving links: " + e.message); }
         }
 

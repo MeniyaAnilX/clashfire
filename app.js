@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Auto Hardware Re-Sync
+ * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System, Torox & Gamezop Integrations, Dynamic Unlimited Missions Manager
  */
 
 const firebaseConfig = {
@@ -22,7 +22,7 @@ class ClashFireApp {
             freeFireUid: '',
             dailyWatchCount: 0,
             dailyLinkCompletedCount: 0,
-            completedLinks: [false, false, false, false, false],
+            completedLinks: [],
             redemptionHistory: [],
             lastResetDate: new Date().toISOString().split('T')[0]
         };
@@ -41,7 +41,7 @@ class ClashFireApp {
         this.db = null;
         this.firestoreActive = false;
 
-        // Base 5 Daily Shortener Tasks
+        // Dynamic Mission Tasks Array
         this.dailyLinks = [
             { id: 0, title: "Daily Mission Supply #1", url: "https://clash-fire.vercel.app/verify.html?task=0" },
             { id: 1, title: "Daily Mission Elite #2", url: "https://clash-fire.vercel.app/verify.html?task=1" },
@@ -135,12 +135,16 @@ class ClashFireApp {
                 this.db.collection("settings").doc("links").onSnapshot(doc => {
                     if (doc.exists) {
                         const linksData = doc.data();
-                        if (linksData.urls && Array.isArray(linksData.urls)) {
-                            linksData.urls.forEach((u, i) => {
-                                if (u && this.dailyLinks[i]) this.dailyLinks[i].url = u;
-                            });
-                            this.renderDashboard();
+                        if (linksData.items && Array.isArray(linksData.items)) {
+                            this.dailyLinks = linksData.items;
+                        } else if (linksData.urls && Array.isArray(linksData.urls)) {
+                            this.dailyLinks = linksData.urls.map((u, i) => ({
+                                id: i,
+                                title: `Daily Mission Supply #${i+1}`,
+                                url: u
+                            }));
                         }
+                        this.renderDashboard();
                     }
                 });
 
@@ -227,16 +231,18 @@ class ClashFireApp {
                 if (doc.exists) {
                     this.user = doc.data();
                     if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
+                    if (!this.user.completedLinks) this.user.completedLinks = [];
                     if (this.user.lastResetDate !== today) {
                         this.user.dailyWatchCount = 0;
                         this.user.dailyLinkCompletedCount = 0;
-                        this.user.completedLinks = [false, false, false, false, false];
+                        this.user.completedLinks = [];
                         this.user.lastResetDate = today;
                         await docRef.update(this.user);
                     }
                 } else {
                     this.user.lastResetDate = today;
                     this.user.redemptionHistory = [];
+                    this.user.completedLinks = [];
                     await docRef.set(this.user);
                 }
                 return;
@@ -247,10 +253,11 @@ class ClashFireApp {
         if (saved) {
             this.user = JSON.parse(saved);
             if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
+            if (!this.user.completedLinks) this.user.completedLinks = [];
             if (this.user.lastResetDate !== today) {
                 this.user.dailyWatchCount = 0;
                 this.user.dailyLinkCompletedCount = 0;
-                this.user.completedLinks = [false, false, false, false, false];
+                this.user.completedLinks = [];
                 this.user.lastResetDate = today;
                 this.saveUserProfile();
             }
@@ -296,7 +303,8 @@ class ClashFireApp {
 
     renderDashboard() {
         document.getElementById('user-coins').innerText = this.user.coins;
-        document.getElementById('completed-links-badge').innerText = `${this.user.dailyLinkCompletedCount}/5 DONE`;
+        const totalLinks = this.dailyLinks ? this.dailyLinks.length : 0;
+        document.getElementById('completed-links-badge').innerText = `${this.user.dailyLinkCompletedCount}/${totalLinks} DONE`;
         document.getElementById('ad-watch-badge').innerText = `${this.user.dailyWatchCount}/5 WATCHED`;
         
         const adLabel = document.getElementById('ad-reward-label');
@@ -332,26 +340,30 @@ class ClashFireApp {
 
         const linkRewardAmt = this.globalSettings.linkReward || 5;
 
-        this.dailyLinks.forEach((link, idx) => {
-            const isDone = this.user.completedLinks[idx];
-            const card = document.createElement('div');
-            card.className = `link-card ${isDone ? 'completed' : ''}`;
-            card.innerHTML = `
-                <div class="link-info">
-                    <div class="link-icon-box">
-                        ${isDone ? '<i class="fa-solid fa-check"></i>' : '<img src="diamond.png" style="width: 22px; height: 22px;">'}
+        if (this.dailyLinks && this.dailyLinks.length > 0) {
+            this.dailyLinks.forEach((link, idx) => {
+                const isDone = this.user.completedLinks && this.user.completedLinks[idx];
+                const card = document.createElement('div');
+                card.className = `link-card ${isDone ? 'completed' : ''}`;
+                card.innerHTML = `
+                    <div class="link-info">
+                        <div class="link-icon-box">
+                            ${isDone ? '<i class="fa-solid fa-check"></i>' : '<img src="diamond.png" style="width: 22px; height: 22px;">'}
+                        </div>
+                        <div class="link-details">
+                            <h4>${link.title || ('Daily Mission #' + (idx+1))}</h4>
+                            <p>Reward: +${linkRewardAmt} Diamonds</p>
+                        </div>
                     </div>
-                    <div class="link-details">
-                        <h4>${link.title}</h4>
-                        <p>Reward: +${linkRewardAmt} Diamonds</p>
-                    </div>
-                </div>
-                <button class="btn-primary" ${isDone ? 'disabled' : ''} onclick="app.executeLinkTask(${idx})">
-                    ${isDone ? 'CLAIMED' : 'VISIT LINK'}
-                </button>
-            `;
-            linksContainer.appendChild(card);
-        });
+                    <button class="btn-primary" ${isDone ? 'disabled' : ''} onclick="app.executeLinkTask(${idx})">
+                        ${isDone ? 'CLAIMED' : 'VISIT LINK'}
+                    </button>
+                `;
+                linksContainer.appendChild(card);
+            });
+        } else {
+            linksContainer.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 15px;">No active missions right now. Check back soon!</div>`;
+        }
 
         const adBtn = document.getElementById('watch-ad-btn');
         if (this.user.dailyWatchCount >= 5) {
@@ -430,8 +442,9 @@ class ClashFireApp {
     }
 
     async executeLinkTask(index) {
-        if (this.user.completedLinks[index]) return;
+        if (this.user.completedLinks && this.user.completedLinks[index]) return;
         const task = this.dailyLinks[index];
+        if (!task) return;
         
         const oneTimeToken = "TOK_" + Math.random().toString(36).substring(2, 10) + "_" + Date.now();
         localStorage.setItem("ACTIVE_TOKEN_" + index, oneTimeToken);

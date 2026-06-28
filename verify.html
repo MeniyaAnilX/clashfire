@@ -3,45 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CLASH FIRE - Mission Verified</title>
+    <title>CLASH FIRE - Verifying Mission Reward...</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: rgba(18, 20, 32, 0.95);
+            --primary-fire: #ff4500;
+            --accent-gold: #ffd700;
+            --accent-cyan: #00f2fe;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 30%, rgba(0, 242, 254, 0.15) 0%, transparent 70%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px; text-align: center;
+        }
+        .verify-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--accent-cyan);
+            border-radius: 20px;
+            padding: 30px 20px;
+            max-width: 400px; width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 242, 254, 0.25);
+        }
+        .icon-box { font-size: 3.5rem; color: var(--accent-cyan); margin-bottom: 15px; }
+        .spin { animation: spin 1.5s infinite linear; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
+        p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px; }
+        .reward-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255, 215, 0, 0.15); border: 1px solid var(--accent-gold);
+            color: var(--accent-gold); padding: 8px 16px; border-radius: 20px;
+            font-weight: 800; font-size: 1.1rem; margin-bottom: 20px;
+        }
+        .btn-return {
+            background: linear-gradient(135deg, var(--accent-cyan), #00a8ff);
+            color: #000; border: none; padding: 14px; border-radius: 12px;
+            font-weight: 800; font-size: 1rem; cursor: pointer; width: 100%;
+            display: none; text-decoration: none; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+        }
+    </style>
 </head>
-<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #07070c; padding: 15px;">
+<body>
 
-    <div id="verify-card" style="max-width: 400px; width: 100%; text-align: center; background: rgba(18, 20, 32, 0.95); border: 1.5px solid #00f2fe; border-radius: 20px; padding: 25px; box-shadow: 0 10px 40px rgba(0, 242, 254, 0.25);">
-        
-        <div id="status-icon" style="font-size: 3.5rem; color: #ffd700; margin-bottom: 10px;">
-            <i class="fa-solid fa-trophy"></i>
-        </div>
-
-        <h1 id="status-title" style="font-size: 2rem; font-weight: 800; color: #fff; margin-bottom: 5px;">
-            MISSION <span style="color: #00e676;">VERIFIED!</span>
-        </h1>
-
-        <p id="status-desc" style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 20px;">
-            Shortener navigation confirmed! Reward claimed.
-        </p>
-
-        <div id="reward-box" style="background: rgba(0, 242, 254, 0.1); border: 1px solid #00f2fe; border-radius: 14px; padding: 15px; margin-bottom: 20px;">
-            <div style="font-size: 1.5rem; font-weight: 800; color: #ffd700; display: flex; justify-content: center; align-items: center; gap: 8px;" id="reward-text">
-                <img src="diamond.png" style="width: 30px; height: 30px;"> +5 DIAMONDS
-            </div>
-            <div style="font-size: 0.8rem; color: #00f2fe; margin-top: 4px;">
-                <span id="verify-uid">Syncing...</span>
-            </div>
-        </div>
-
-        <button onclick="window.location.href='index.html'" class="btn-primary" style="width: 100%;">
-            <i class="fa-solid fa-house"></i> RETURN TO DASHBOARD
-        </button>
+    <div class="verify-card">
+        <div class="icon-box" id="status-icon"><i class="fa-solid fa-spinner spin"></i></div>
+        <h2 id="status-title">VERIFYING MISSION...</h2>
+        <p id="status-desc">Validating task completion with anti-cheat servers.</p>
+        <div class="reward-badge"><img src="diamond.png" alt="Diamond" style="width: 24px; height: 24px; object-fit: contain;"> <span id="reward-amt">+5 Diamonds</span></div>
+        <a href="index.html" class="btn-return" id="return-btn">RETURN TO DASHBOARD</a>
     </div>
 
     <script>
@@ -55,76 +80,99 @@
             measurementId: "G-N31S9SDP2L"
         };
 
-        async function processVerification() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const taskIdx = parseInt(urlParams.get('task') || '0');
-            let deviceId = localStorage.getItem('CLASH_FIRE_HW_ID');
-
-            if (deviceId) {
-                const displayUserId = "User ID: CF-" + deviceId.substring(9, 15);
-                document.getElementById('verify-uid').innerText = displayUserId;
+        let db = null;
+        try {
+            if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
             }
+        } catch(e){}
 
-            let activeToken = localStorage.getItem("ACTIVE_TOKEN_" + taskIdx);
-            if (!activeToken) {
-                showSecurityError("DIRECT LINK ACCESS BLOCKED!", "You cannot paste or bookmark this URL directly. Launch task from Clash Fire app.");
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for(let i=0;i < ca.length;i++) {
+                let c = ca[i];
+                while (c.charAt(0)==' ') c = c.substring(1,c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+            }
+            return null;
+        }
+
+        async function verifyAndReward() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const taskIndex = parseInt(urlParams.get('task') || '0');
+
+            const deviceId = getCookie('CLASH_PERMANENT_HW_ID') || localStorage.getItem('CLASH_FIRE_HW_ID');
+            if (!deviceId) {
+                document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-xmark" style="color:#ff1744;"></i>';
+                document.getElementById('status-title').innerText = 'SESSION EXPIRED';
+                document.getElementById('status-desc').innerText = 'Please open Clash Fire dashboard first!';
+                document.getElementById('return-btn').style.display = 'block';
                 return;
             }
-            localStorage.removeItem("ACTIVE_TOKEN_" + taskIdx);
 
             let rewardAmt = 5;
-
-            try {
-                if (typeof firebase !== 'undefined') {
-                    firebase.initializeApp(firebaseConfig);
-                    const db = firebase.firestore();
-
-                    const settingsDoc = await db.collection("settings").doc("global").get();
-                    if (settingsDoc.exists) {
-                        rewardAmt = settingsDoc.data().linkReward || 5;
+            if (db) {
+                try {
+                    const gDoc = await db.collection("settings").doc("global").get();
+                    if (gDoc.exists && gDoc.data().linkReward) {
+                        rewardAmt = gDoc.data().linkReward;
                     }
-                    document.getElementById('reward-text').innerHTML = `<img src="diamond.png" style="width: 30px; height: 30px;"> +${rewardAmt} DIAMONDS`;
-
-                    if (deviceId) {
-                        const userRef = db.collection("users").doc(deviceId);
-                        const doc = await userRef.get();
-                        
-                        if (doc.exists) {
-                            let data = doc.data();
-                            if (!data.completedLinks[taskIdx]) {
-                                data.completedLinks[taskIdx] = true;
-                                data.dailyLinkCompletedCount = (data.dailyLinkCompletedCount || 0) + 1;
-                                data.coins = (data.coins || 0) + rewardAmt;
-                                await userRef.update(data);
-                            }
-                        }
-                    }
-                }
-            } catch(e) { console.error(e); }
-
-            if (deviceId) {
-                let localData = localStorage.getItem('CLASH_USER_DATA_' + deviceId);
-                if (localData) {
-                    let u = JSON.parse(localData);
-                    if (!u.completedLinks[taskIdx]) {
-                        u.completedLinks[taskIdx] = true;
-                        u.dailyLinkCompletedCount = (u.dailyLinkCompletedCount || 0) + 1;
-                        u.coins = (u.coins || 0) + rewardAmt;
-                        localStorage.setItem('CLASH_USER_DATA_' + deviceId, JSON.stringify(u));
-                    }
-                }
+                } catch(e){}
             }
+            document.getElementById('reward-amt').innerText = `+${rewardAmt} Diamonds`;
+
+            setTimeout(async () => {
+                let userData = null;
+                const saved = localStorage.getItem('CLASH_USER_DATA_' + deviceId);
+                if (saved) userData = JSON.parse(saved);
+
+                if (db) {
+                    try {
+                        const docRef = db.collection("users").doc(deviceId);
+                        const doc = await docRef.get();
+                        if (doc.exists) {
+                            userData = doc.data();
+                        }
+                    } catch(e){}
+                }
+
+                if (!userData) {
+                    userData = { coins: 0, completedLinks: [], dailyLinkCompletedCount: 0 };
+                }
+
+                if (!userData.completedLinks) userData.completedLinks = [];
+
+                if (userData.completedLinks[taskIndex]) {
+                    document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color:#ffd700;"></i>';
+                    document.getElementById('status-title').innerText = 'ALREADY CLAIMED!';
+                    document.getElementById('status-desc').innerText = 'You have already claimed reward for this mission today.';
+                    document.getElementById('return-btn').style.display = 'block';
+                    return;
+                }
+
+                userData.completedLinks[taskIndex] = true;
+                userData.coins = (userData.coins || 0) + rewardAmt;
+                userData.dailyLinkCompletedCount = (userData.dailyLinkCompletedCount || 0) + 1;
+
+                localStorage.setItem('CLASH_USER_DATA_' + deviceId, JSON.stringify(userData));
+
+                if (db) {
+                    try {
+                        await db.collection("users").doc(deviceId).set(userData, { merge: true });
+                    } catch(e){}
+                }
+
+                document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-check" style="color:#00e676;"></i>';
+                document.getElementById('status-title').innerText = 'MISSION COMPLETED!';
+                document.getElementById('status-desc').innerText = `Congratulations! +${rewardAmt} Diamonds credited to your account.`;
+                document.getElementById('return-btn').style.display = 'block';
+
+            }, 2500);
         }
 
-        function showSecurityError(title, msg) {
-            document.getElementById('verify-card').style.borderColor = "#ff1744";
-            document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-shield-cat" style="color: #ff1744;"></i>';
-            document.getElementById('status-title').innerHTML = `<span style="color: #ff1744;">${title}</span>`;
-            document.getElementById('status-desc').innerText = msg;
-            document.getElementById('reward-box').style.display = "none";
-        }
-
-        window.addEventListener('DOMContentLoaded', processVerification);
+        window.addEventListener('DOMContentLoaded', verifyAndReward);
     </script>
 </body>
 </html>
