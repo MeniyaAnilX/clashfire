@@ -266,11 +266,11 @@
 
                 if (!currentMissionLinks || currentMissionLinks.length === 0) {
                     currentMissionLinks = [
-                        { title: "Daily Mission Supply #1", url: "https://clash-fire.vercel.app/verify.html?task=1" },
-                        { title: "Daily Mission Elite #2", url: "https://clash-fire.vercel.app/verify.html?task=2" },
-                        { title: "Daily Mission Vault #3", url: "https://clash-fire.vercel.app/verify.html?task=3" },
-                        { title: "Daily Mission Armor #4", url: "https://clash-fire.vercel.app/verify.html?task=4" },
-                        { title: "Daily Mission Heroic #5", url: "https://clash-fire.vercel.app/verify.html?task=5" }
+                        { title: "Daily Mission Supply #1", url: "https://clashfire.vercel.app/verify.html?task=1" },
+                        { title: "Daily Mission Elite #2", url: "https://clashfire.vercel.app/verify.html?task=2" },
+                        { title: "Daily Mission Vault #3", url: "https://clashfire.vercel.app/verify.html?task=3" },
+                        { title: "Daily Mission Armor #4", url: "https://clashfire.vercel.app/verify.html?task=4" },
+                        { title: "Daily Mission Heroic #5", url: "https://clashfire.vercel.app/verify.html?task=5" }
                     ];
                 }
 
@@ -306,7 +306,7 @@
                         <label>Mission #${missionNum} Shortener URL</label>
                         <input type="text" id="m-url-${index}" value="${item.url || ''}" placeholder="https://gplinks.co/...">
                     </div>
-                    <div class="target-hint"><i class="fa-solid fa-bullseye"></i> Target Verification URL: https://clash-fire.vercel.app/verify.html?task=${missionNum}</div>
+                    <div class="target-hint"><i class="fa-solid fa-bullseye"></i> Target Verification URL: https://clashfire.vercel.app/verify.html?task=${missionNum}</div>
                 `;
                 container.appendChild(row);
             });
@@ -316,7 +316,7 @@
             const nextMissionNum = currentMissionLinks.length + 1;
             currentMissionLinks.push({
                 title: `Daily Mission Supply #${nextMissionNum}`,
-                url: `https://clash-fire.vercel.app/verify.html?task=${nextMissionNum}`
+                url: `https://clashfire.vercel.app/verify.html?task=${nextMissionNum}`
             });
             renderAdminMissionRows();
         }
@@ -374,7 +374,7 @@
                     id: i,
                     taskId: missionNum,
                     title: t || `Daily Mission #${missionNum}`,
-                    url: u || `https://clash-fire.vercel.app/verify.html?task=${missionNum}`
+                    url: u || `https://clashfire.vercel.app/verify.html?task=${missionNum}`
                 });
             }
 
