@@ -71,7 +71,7 @@
                     <h2><i class="fa-solid fa-link"></i> DAILY MISSIONS</h2>
                     <span class="sub-badge" id="completed-links-badge">0/5 DONE</span>
                 </div>
-                <p class="section-desc">Complete daily shortener links to claim free diamond points!</p>
+                <p class="section-desc">Complete daily shortener links to claim free diamonds!</p>
 
                 <div class="links-list" id="links-container">
                     <!-- Dynamic Link Cards rendered via JS -->
@@ -84,14 +84,14 @@
                     <h2><i class="fa-solid fa-tv"></i> WATCH & EARN</h2>
                     <span class="sub-badge" id="ad-watch-badge">0/5 WATCHED</span>
                 </div>
-                <p class="section-desc">Watch video broadcasts to boost your daily diamond points!</p>
+                <p class="section-desc">Watch video broadcasts to boost your daily diamond balance!</p>
 
                 <div class="ad-card">
                     <div class="ad-card-info">
                         <div class="ad-icon"><i class="fa-solid fa-play-circle"></i></div>
                         <div class="ad-details">
                             <h4>SPONSORED VIDEO AD</h4>
-                            <p>Reward: +20 Points</p>
+                            <p id="ad-reward-label">Reward: +2 Diamonds</p>
                         </div>
                     </div>
                     <button class="btn-primary" id="watch-ad-btn" onclick="app.watchRewardAd()">
@@ -100,7 +100,23 @@
                 </div>
             </section>
 
-            <!-- Section 3: Diamond Vault -->
+            <!-- Section 3: Refer & Earn -->
+            <section class="dashboard-section">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-users"></i> REFER & EARN</h2>
+                </div>
+                <p class="section-desc">Share your link with friends and get bonus diamonds for each join!</p>
+
+                <div class="referral-box">
+                    <div class="referral-input-wrap">
+                        <input type="text" id="referral-link-input" readonly value="Syncing link...">
+                        <button class="btn-primary" onclick="app.copyReferralLink()"><i class="fa-solid fa-copy"></i> COPY</button>
+                    </div>
+                    <button class="btn-whatsapp" onclick="app.shareWhatsApp()"><i class="fa-brands fa-whatsapp"></i> SHARE ON WHATSAPP</button>
+                </div>
+            </section>
+
+            <!-- Section 4: Diamond Vault -->
             <section class="dashboard-section" id="redemption-vault">
                 <div class="section-title">
                     <h2><i class="fa-solid fa-gem"></i> REDEEM DIAMONDS</h2>
@@ -113,29 +129,29 @@
                 </div>
 
                 <div class="packages-grid">
-                    <div class="package-card" onclick="app.selectPackage(this, 100, 500)">
+                    <div class="package-card" onclick="app.selectPackage(this, 100, 100)">
                         <div class="diamond-img-box"><i class="fa-solid fa-gem"></i></div>
                         <div class="pkg-header">100 DIAMONDS</div>
-                        <div class="pkg-cost">500 PTS</div>
+                        <div class="pkg-cost">100 DIAMONDS</div>
                         <button class="btn-redeem">REDEEM NOW</button>
                     </div>
-                    <div class="package-card featured" onclick="app.selectPackage(this, 310, 1400)">
+                    <div class="package-card featured" onclick="app.selectPackage(this, 310, 310)">
                         <div class="popular-tag">BEST VALUE</div>
                         <div class="diamond-img-box glow"><i class="fa-solid fa-gem"></i></div>
                         <div class="pkg-header">310 DIAMONDS</div>
-                        <div class="pkg-cost">1400 PTS</div>
+                        <div class="pkg-cost">310 DIAMONDS</div>
                         <button class="btn-redeem">REDEEM NOW</button>
                     </div>
-                    <div class="package-card" onclick="app.selectPackage(this, 520, 2200)">
+                    <div class="package-card" onclick="app.selectPackage(this, 520, 520)">
                         <div class="diamond-img-box"><i class="fa-solid fa-gem"></i></div>
                         <div class="pkg-header">520 DIAMONDS</div>
-                        <div class="pkg-cost">2200 PTS</div>
+                        <div class="pkg-cost">520 DIAMONDS</div>
                         <button class="btn-redeem">REDEEM NOW</button>
                     </div>
                 </div>
             </section>
 
-            <!-- Section 4: Redeem History -->
+            <!-- Section 5: Redeem History -->
             <section class="dashboard-section" id="history-section">
                 <div class="section-title">
                     <h2><i class="fa-solid fa-clock-rotate-left"></i> REDEEM HISTORY</h2>

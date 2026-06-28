@@ -1,6 +1,6 @@
 /**
  * CLASH FIRE - Core Application Script
- * Live Firebase Firestore Sync, Redeem History, Success Modal & Quota Shield Security
+ * Live Firebase Firestore Sync, Direct Diamond Engine, Referral System & Quota Shield
  */
 
 const firebaseConfig = {
@@ -18,7 +18,7 @@ class ClashFireApp {
         this.deviceId = null;
         this.displayUserId = null;
         this.user = {
-            coins: 0,
+            coins: 0, // Direct Diamonds balance
             freeFireUid: '',
             dailyWatchCount: 0,
             dailyLinkCompletedCount: 0,
@@ -26,16 +26,21 @@ class ClashFireApp {
             redemptionHistory: [],
             lastResetDate: new Date().toISOString().split('T')[0]
         };
+        this.globalSettings = {
+            linkReward: 5,
+            adReward: 2,
+            referralReward: 10
+        };
         this.db = null;
         this.firestoreActive = false;
 
-        // Base 5 Daily Shortener Tasks (Replace URLs with your shortened GPLinks)
+        // Base 5 Daily Shortener Tasks
         this.dailyLinks = [
-            { id: 0, title: "GPLink Clash Supply #1", url: "https://gplinks.co/example1", reward: 50 },
-            { id: 1, title: "ShrinkEarn Elite Crate #2", url: "https://shrinkearn.com/example2", reward: 50 },
-            { id: 2, title: "GPLink Diamond Vault #3", url: "https://gplinks.co/example3", reward: 50 },
-            { id: 3, title: "Shortur Armor Drop #4", url: "https://shortur.com/example4", reward: 50 },
-            { id: 4, title: "GPLink Heroic Loot #5", url: "https://gplinks.co/example5", reward: 50 }
+            { id: 0, title: "GPLink Clash Supply #1", url: "https://gplinks.co/example1" },
+            { id: 1, title: "ShrinkEarn Elite Crate #2", url: "https://shrinkearn.com/example2" },
+            { id: 2, title: "GPLink Diamond Vault #3", url: "https://gplinks.co/example3" },
+            { id: 3, title: "Shortur Armor Drop #4", url: "https://shortur.com/example4" },
+            { id: 4, title: "GPLink Heroic Loot #5", url: "https://gplinks.co/example5" }
         ];
 
         this.init();
@@ -51,7 +56,9 @@ class ClashFireApp {
         document.getElementById('display-device-id').innerText = "User ID: " + this.displayUserId;
         this.showSplashProgress(75);
 
+        await this.loadGlobalSettings();
         await this.loadUserProfile();
+        this.checkReferralBonus();
         this.showSplashProgress(100);
 
         setTimeout(() => {
@@ -74,8 +81,17 @@ class ClashFireApp {
                 this.db = firebase.firestore();
                 this.firestoreActive = true;
             }
-        } catch (e) {
-            console.warn("Firestore offline backup mode", e.message);
+        } catch (e) { console.warn(e.message); }
+    }
+
+    async loadGlobalSettings() {
+        if (this.firestoreActive) {
+            try {
+                const doc = await this.db.collection("settings").doc("global").get();
+                if (doc.exists) {
+                    this.globalSettings = doc.data();
+                }
+            } catch(e) { console.error(e); }
         }
     }
 
@@ -156,6 +172,35 @@ class ClashFireApp {
         }
     }
 
+    async checkReferralBonus() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const refCode = urlParams.get('ref');
+        
+        if (refCode && refCode !== this.displayUserId && !localStorage.getItem('REFERRAL_CLAIMED')) {
+            localStorage.setItem('REFERRAL_CLAIMED', 'true');
+            const bonus = this.globalSettings.referralReward || 10;
+            this.user.coins += bonus;
+            await this.saveUserProfile();
+            
+            // Credit referrer in Firestore if active
+            if (this.firestoreActive) {
+                try {
+                    const snapshot = await this.db.collection("users").get();
+                    snapshot.forEach(async doc => {
+                        let data = doc.data();
+                        let docRefId = "CF-" + doc.id.substring(9, 15);
+                        if (docRefId === refCode) {
+                            await this.db.collection("users").doc(doc.id).update({
+                                coins: (data.coins || 0) + bonus
+                            });
+                        }
+                    });
+                } catch(e) { console.error(e); }
+            }
+            this.showToast('REFERRAL BONUS!', `+${bonus} Diamonds claimed via referral link!`, 'success');
+        }
+    }
+
     async saveUserProfile() {
         localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
         if (this.firestoreActive) {
@@ -169,13 +214,24 @@ class ClashFireApp {
         document.getElementById('user-coins').innerText = this.user.coins;
         document.getElementById('completed-links-badge').innerText = `${this.user.dailyLinkCompletedCount}/5 DONE`;
         document.getElementById('ad-watch-badge').innerText = `${this.user.dailyWatchCount}/5 WATCHED`;
+        
+        const adLabel = document.getElementById('ad-reward-label');
+        if (adLabel) adLabel.innerText = `Reward: +${this.globalSettings.adReward || 2} Diamonds`;
 
         if (this.user.freeFireUid) {
             document.getElementById('ff-uid').value = this.user.freeFireUid;
         }
 
+        // Render Referral Link
+        const refInput = document.getElementById('referral-link-input');
+        if (refInput) {
+            refInput.value = `${window.location.origin}${window.location.pathname}?ref=${this.displayUserId}`;
+        }
+
         const linksContainer = document.getElementById('links-container');
         linksContainer.innerHTML = '';
+
+        const linkRewardAmt = this.globalSettings.linkReward || 5;
 
         this.dailyLinks.forEach((link, idx) => {
             const isDone = this.user.completedLinks[idx];
@@ -188,7 +244,7 @@ class ClashFireApp {
                     </div>
                     <div class="link-details">
                         <h4>${link.title}</h4>
-                        <p>Reward: +${link.reward} Points</p>
+                        <p>Reward: +${linkRewardAmt} Diamonds</p>
                     </div>
                 </div>
                 <button class="btn-primary" ${isDone ? 'disabled' : ''} onclick="app.executeLinkTask(${idx})">
@@ -217,7 +273,7 @@ class ClashFireApp {
 
         const history = this.user.redemptionHistory || [];
         if (history.length === 0) {
-            historyContainer.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 15px; font-size: 0.85rem;">No redemption history found. Redeem points above!</div>`;
+            historyContainer.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 15px; font-size: 0.85rem;">No redemption history found. Redeem diamonds above!</div>`;
             return;
         }
 
@@ -261,11 +317,12 @@ class ClashFireApp {
         setTimeout(() => {
             this.hideLoader();
             this.user.dailyWatchCount++;
-            this.user.coins += 20;
+            const rewardAmt = this.globalSettings.adReward || 2;
+            this.user.coins += rewardAmt;
             this.saveUserProfile();
             this.renderDashboard();
 
-            this.showToast('AD REWARD CLAIMED!', '+20 Points added for watching ad!', 'success');
+            this.showToast('AD REWARD CLAIMED!', `+${rewardAmt} Diamonds added for watching ad!`, 'success');
         }, 6500);
     }
 
@@ -279,7 +336,7 @@ class ClashFireApp {
         }
 
         if (this.user.coins < costPoints) {
-            this.showToast('INSUFFICIENT BALANCE', `You need ${costPoints} points to redeem ${diamondAmount} Diamonds!`, 'error');
+            this.showToast('INSUFFICIENT BALANCE', `You need ${costPoints} Diamonds to redeem ${diamondAmount} Diamonds!`, 'error');
             return;
         }
 
@@ -326,6 +383,19 @@ class ClashFireApp {
             document.getElementById('redeem-modal').classList.remove('hidden');
 
         }, 2000);
+    }
+
+    copyReferralLink() {
+        const refInput = document.getElementById('referral-link-input');
+        refInput.select();
+        navigator.clipboard.writeText(refInput.value);
+        this.showToast('COPIED!', 'Referral link copied to clipboard!', 'success');
+    }
+
+    shareWhatsApp() {
+        const refLink = `${window.location.origin}${window.location.pathname}?ref=${this.displayUserId}`;
+        const text = `🔥 Play Clash Fire & earn FREE Free Fire Diamonds daily! Join using my link: ${refLink}`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
     }
 
     closeRedeemModal() {

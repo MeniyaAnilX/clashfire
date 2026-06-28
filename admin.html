@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CLASH FIRE - Admin Management Panel</title>
+    <title>CLASH FIRE - Admin Control Center</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -31,6 +31,17 @@
         .stat-val { font-size: 1.8rem; font-weight: 800; color: var(--accent-gold); margin-top: 5px; }
         .stat-label { font-size: 0.85rem; color: var(--text-muted); }
 
+        .control-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .control-card { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); }
+        .card-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 15px; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px; }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        .form-group label { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); }
+        .form-group input { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 0.95rem; outline: none; }
+        
+        .btn-action { background: linear-gradient(135deg, var(--accent-cyan), #00a8ff); color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 5px; }
+        .btn-action:hover { opacity: 0.9; }
+
         .section-box { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); overflow-x: auto; }
         .section-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; color: var(--accent-cyan); }
 
@@ -44,8 +55,8 @@
         .status-badge.completed { background: rgba(0, 230, 118, 0.15); color: #00e676; border: 1px solid rgba(0, 230, 118, 0.3); }
 
         .btn-complete { background: #00e676; color: #000; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 0.85rem; cursor: pointer; transition: 0.2s ease; }
-        .btn-complete:hover { background: #00c853; transform: scale(1.03); }
-        .btn-complete:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-complete:hover { background: #00c853; }
+        .btn-toggle { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; margin-left: 5px; }
     </style>
 
     <!-- Firebase SDK -->
@@ -56,7 +67,7 @@
 
     <header>
         <div class="brand">
-            <i class="fa-solid fa-fire-flame-curved"></i> CLASH FIRE ADMIN PANEL
+            <i class="fa-solid fa-fire-flame-curved"></i> CLASH FIRE CONTROL CENTER
         </div>
         <div class="badge-live">
             <i class="fa-solid fa-circle"></i> FIRESTORE LIVE CONNECTED
@@ -75,6 +86,41 @@
         <div class="stat-card">
             <div class="stat-label">Completed Transfers</div>
             <div class="stat-val" id="stat-completed" style="color: #00e676;">0</div>
+        </div>
+    </div>
+
+    <!-- Controls Row -->
+    <div class="control-grid">
+        <!-- App Reward Settings -->
+        <div class="control-card">
+            <div class="card-title"><i class="fa-solid fa-sliders"></i> DYNAMIC REWARD SETTINGS</div>
+            <div class="form-group">
+                <label>Diamonds Per Link Mission</label>
+                <input type="number" id="setting-link-reward" value="5">
+            </div>
+            <div class="form-group">
+                <label>Diamonds Per Watch Ad</label>
+                <input type="number" id="setting-ad-reward" value="2">
+            </div>
+            <div class="form-group">
+                <label>Referral Bonus Diamonds</label>
+                <input type="number" id="setting-ref-reward" value="10">
+            </div>
+            <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE APP SETTINGS</button>
+        </div>
+
+        <!-- User Diamond Editor -->
+        <div class="control-card">
+            <div class="card-title"><i class="fa-solid fa-user-gear"></i> USER DIAMOND EDITOR</div>
+            <div class="form-group">
+                <label>Target User ID (e.g. CF-892970) or Device ID</label>
+                <input type="text" id="edit-user-id" placeholder="Paste User ID">
+            </div>
+            <div class="form-group">
+                <label>New Diamond Balance</label>
+                <input type="number" id="edit-user-diamonds" placeholder="e.g. 500">
+            </div>
+            <button class="btn-action" style="background: var(--accent-gold);" onclick="updateUserDiamonds()"><i class="fa-solid fa-pen-to-square"></i> UPDATE PLAYER DIAMONDS</button>
         </div>
     </div>
 
@@ -113,6 +159,57 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        async function loadGlobalSettings() {
+            try {
+                const doc = await db.collection("settings").doc("global").get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('setting-link-reward').value = data.linkReward || 5;
+                    document.getElementById('setting-ad-reward').value = data.adReward || 2;
+                    document.getElementById('setting-ref-reward').value = data.referralReward || 10;
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function saveGlobalSettings() {
+            const linkR = parseInt(document.getElementById('setting-link-reward').value || '5');
+            const adR = parseInt(document.getElementById('setting-ad-reward').value || '2');
+            const refR = parseInt(document.getElementById('setting-ref-reward').value || '10');
+
+            try {
+                await db.collection("settings").doc("global").set({
+                    linkReward: linkR,
+                    adReward: adR,
+                    referralReward: refR,
+                    updatedAt: new Date().toISOString()
+                });
+                alert("App Reward Settings saved live! Users will see updated amounts.");
+            } catch(e) { alert("Error: " + e.message); }
+        }
+
+        async function updateUserDiamonds() {
+            const inputId = document.getElementById('edit-user-id').value.trim();
+            const newDia = parseInt(document.getElementById('edit-user-diamonds').value || '0');
+
+            if (!inputId) { alert("Please enter User ID!"); return; }
+
+            try {
+                let targetDocId = inputId;
+                if (inputId.startsWith("CF-")) {
+                    const snapshot = await db.collection("users").get();
+                    snapshot.forEach(doc => {
+                        let cfId = "CF-" + doc.id.substring(9, 15);
+                        if (cfId === inputId) targetDocId = doc.id;
+                    });
+                }
+
+                await db.collection("users").doc(targetDocId).update({
+                    coins: newDia
+                });
+                alert(`Successfully updated Diamond balance to ${newDia} for User: ${inputId}`);
+            } catch(e) { alert("Error updating user: " + e.message); }
+        }
+
         function loadLiveRedemptions() {
             db.collection("redemptions").orderBy("timestamp", "desc").onSnapshot(snapshot => {
                 const tbody = document.getElementById('redemptions-table-body');
@@ -128,7 +225,10 @@
                     total++;
                     const data = doc.data();
                     const reqId = doc.id;
-                    const isPending = data.status === 'PENDING';
+                    
+                    // Treat both PENDING and old PENDING_ADMIN_FULFILLMENT as pending
+                    const isPending = (data.status === 'PENDING' || data.status === 'PENDING_ADMIN_FULFILLMENT');
+                    const displayStatus = isPending ? 'PENDING' : 'COMPLETED';
 
                     if (isPending) pending++; else completed++;
 
@@ -137,11 +237,11 @@
                         <td>${data.date || 'Today'}</td>
                         <td style="font-weight: 800; color: var(--accent-gold);">${data.freeFireUid}</td>
                         <td style="font-weight: 800; color: var(--accent-cyan);"><i class="fa-solid fa-gem"></i> ${data.diamondAmount}</td>
-                        <td style="font-family: monospace; font-size: 0.8rem; color: var(--text-muted);">${data.deviceId ? data.deviceId.substring(0, 14) : 'N/A'}</td>
-                        <td><span class="status-badge ${isPending ? 'pending' : 'completed'}">${data.status}</span></td>
+                        <td style="font-family: monospace; font-size: 0.8rem; color: var(--text-muted);">${data.deviceId ? "CF-" + data.deviceId.substring(9,15) : 'N/A'}</td>
+                        <td><span class="status-badge ${isPending ? 'pending' : 'completed'}">${displayStatus}</span></td>
                         <td>
-                            <button class="btn-complete" ${!isPending ? 'disabled' : ''} onclick="markAsCompleted('${reqId}', '${data.deviceId}', '${data.freeFireUid}')">
-                                ${isPending ? '<i class="fa-solid fa-check"></i> MARK COMPLETED' : 'DONE'}
+                            <button class="btn-complete" onclick="toggleStatus('${reqId}', '${data.deviceId}', '${data.freeFireUid}', '${displayStatus}')">
+                                ${isPending ? '<i class="fa-solid fa-check"></i> MARK COMPLETED' : '<i class="fa-solid fa-rotate-left"></i> SET PENDING'}
                             </button>
                         </td>
                     `;
@@ -154,16 +254,17 @@
             });
         }
 
-        async function markAsCompleted(reqId, deviceId, ffUid) {
-            if (!confirm(`Confirm diamond transfer completed for FF UID: ${ffUid}?`)) return;
+        async function toggleStatus(reqId, deviceId, ffUid, currentStatus) {
+            const nextStatus = (currentStatus === 'PENDING') ? 'COMPLETED' : 'PENDING';
+            if (!confirm(`Change redemption status to ${nextStatus} for FF UID: ${ffUid}?`)) return;
 
             try {
-                // 1. Update Redemptions Collection
+                // Update redemptions collection
                 await db.collection("redemptions").doc(reqId).update({
-                    status: "COMPLETED"
+                    status: nextStatus
                 });
 
-                // 2. Update User Profile History Collection
+                // Update user doc history
                 if (deviceId) {
                     const userRef = db.collection("users").doc(deviceId);
                     const userDoc = await userRef.get();
@@ -172,20 +273,20 @@
                         if (userData.redemptionHistory) {
                             userData.redemptionHistory.forEach(item => {
                                 if (item.id === reqId || item.ffUid === ffUid) {
-                                    item.status = "COMPLETED";
+                                    item.status = nextStatus;
                                 }
                             });
                             await userRef.update({ redemptionHistory: userData.redemptionHistory });
                         }
                     }
                 }
-                alert("Status updated to COMPLETED! Player history updated.");
-            } catch(e) {
-                alert("Error updating status: " + e.message);
-            }
+            } catch(e) { alert("Error: " + e.message); }
         }
 
-        window.addEventListener('DOMContentLoaded', loadLiveRedemptions);
+        window.addEventListener('DOMContentLoaded', () => {
+            loadGlobalSettings();
+            loadLiveRedemptions();
+        });
     </script>
 </body>
 </html>
