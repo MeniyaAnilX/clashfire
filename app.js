@@ -236,7 +236,7 @@ class ClashFireApp {
             card.innerHTML = `
                 <div class="link-info">
                     <div class="link-icon-box">
-                        <i class="fa-solid ${isDone ? 'fa-check' : 'fa-gem'}"></i>
+                        ${isDone ? '<i class="fa-solid fa-check"></i>' : '<img src="diamond.png" style="width: 22px; height: 22px;">'}
                     </div>
                     <div class="link-details">
                         <h4>${link.title}</h4>
@@ -278,7 +278,7 @@ class ClashFireApp {
             itemElem.className = 'history-item';
             itemElem.innerHTML = `
                 <div class="history-info">
-                    <div class="history-title"><i class="fa-solid fa-gem"></i> ${item.diamonds} Diamonds</div>
+                    <div class="history-title"><img src="diamond.png" style="width: 18px; height: 18px; vertical-align: middle;"> ${item.diamonds} Diamonds</div>
                     <div class="history-sub">UID: ${item.ffUid} | ${item.date}</div>
                 </div>
                 <span class="history-status ${item.status.toLowerCase()}">${item.status}</span>

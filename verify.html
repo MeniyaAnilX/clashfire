@@ -31,8 +31,8 @@
         </p>
 
         <div id="reward-box" style="background: rgba(0, 242, 254, 0.1); border: 1px solid #00f2fe; border-radius: 14px; padding: 15px; margin-bottom: 20px;">
-            <div style="font-size: 1.5rem; font-weight: 800; color: #ffd700;" id="reward-text">
-                <i class="fa-solid fa-gem"></i> +5 DIAMONDS
+            <div style="font-size: 1.5rem; font-weight: 800; color: #ffd700; display: flex; justify-content: center; align-items: center; gap: 8px;" id="reward-text">
+                <img src="diamond.png" style="width: 30px; height: 30px;"> +5 DIAMONDS
             </div>
             <div style="font-size: 0.8rem; color: #00f2fe; margin-top: 4px;">
                 <span id="verify-uid">Syncing...</span>
@@ -79,12 +79,11 @@
                     firebase.initializeApp(firebaseConfig);
                     const db = firebase.firestore();
 
-                    // Load dynamic settings
                     const settingsDoc = await db.collection("settings").doc("global").get();
                     if (settingsDoc.exists) {
                         rewardAmt = settingsDoc.data().linkReward || 5;
                     }
-                    document.getElementById('reward-text').innerHTML = `<i class="fa-solid fa-gem"></i> +${rewardAmt} DIAMONDS`;
+                    document.getElementById('reward-text').innerHTML = `<img src="diamond.png" style="width: 30px; height: 30px;"> +${rewardAmt} DIAMONDS`;
 
                     if (deviceId) {
                         const userRef = db.collection("users").doc(deviceId);
