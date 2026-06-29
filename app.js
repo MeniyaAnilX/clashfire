@@ -1346,7 +1346,7 @@ class ClashFireApp {
             
             tickerContainer.insertBefore(proofItem, tickerContainer.firstChild);
 
-            while (tickerContainer.children.length > 4) {
+            while (tickerContainer.children.length > 3) {
                 tickerContainer.removeChild(tickerContainer.lastChild);
             }
         };
