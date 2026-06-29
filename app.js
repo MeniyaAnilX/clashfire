@@ -1322,14 +1322,19 @@ class ClashFireApp {
         const tickerContainer = document.getElementById('proofs-ticker');
         if (!tickerContainer) return;
 
-        const packages = ["310 Diamonds", "520 Diamonds", "1060 Diamonds", "2180 Diamonds", "5600 Diamonds", "11,500 Diamonds"];
         const generateProof = () => {
             const userIdNum = Math.floor(1000 + Math.random() * 9000);
             const userDisplayId = `CF-****${userIdNum}`;
             const ffUidPart1 = Math.floor(10 + Math.random() * 90);
             const ffUidPart2 = Math.floor(10 + Math.random() * 90);
             const ffUidDisplay = `${ffUidPart1}****${ffUidPart2}`;
-            const diamondPackage = packages[Math.floor(Math.random() * packages.length)];
+            
+            // 70% probability for 310 Diamonds, 30% for other packages to build trust naturally
+            let diamondPackage = "310 Diamonds";
+            if (Math.random() >= 0.7) {
+                const otherPackages = ["520 Diamonds", "1060 Diamonds", "2180 Diamonds", "5600 Diamonds", "11,500 Diamonds"];
+                diamondPackage = otherPackages[Math.floor(Math.random() * otherPackages.length)];
+            }
             
             const isSent = Math.random() < 0.7; // 70% chance SENT, 30% PENDING
             const badgeStyle = isSent 
