@@ -25,7 +25,8 @@ class ClashFireApp {
             redemptionHistory: [],
             lastResetDate: new Date().toISOString().split('T')[0],
             referredBy: null,
-            referralClaimed: false
+            referralClaimed: false,
+            referredDevices: []
         };
         this.globalSettings = {
             linkReward: 5,
@@ -250,6 +251,7 @@ class ClashFireApp {
                     this.user = { ...this.user, ...doc.data() };
                     if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
                     if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
+                    if (!this.user.referredDevices) this.user.referredDevices = [];
                     if (this.user.lastResetDate !== today) {
                         this.user.dailyLinkCompletedCount = 0;
                         this.user.completedLinks = {};
@@ -275,6 +277,7 @@ class ClashFireApp {
             this.user = { ...this.user, ...JSON.parse(saved) };
             if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
             if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
+            if (!this.user.referredDevices) this.user.referredDevices = [];
             if (this.user.lastResetDate !== today) {
                 this.user.dailyLinkCompletedCount = 0;
                 this.user.completedLinks = {};
@@ -399,6 +402,16 @@ class ClashFireApp {
         document.getElementById('user-coins').innerText = this.user.coins;
         const totalLinks = this.dailyLinks ? this.dailyLinks.length : 0;
         document.getElementById('completed-links-badge').innerText = `${this.user.dailyLinkCompletedCount}/${totalLinks} DONE`;
+
+        // Render Referral Statistics Dynamically
+        const refCount = (this.user.referredDevices || []).length;
+        const refRewardPerUser = (this.globalSettings.referralReward || 10);
+        const refTotalReward = refCount * refRewardPerUser;
+
+        const countElem = document.getElementById('ref-stat-count');
+        const rewardElem = document.getElementById('ref-stat-reward');
+        if (countElem) countElem.innerText = refCount;
+        if (rewardElem) rewardElem.innerText = refTotalReward + " 💎";
 
         const gzLabel = document.getElementById('gamezop-reward-label');
         if (gzLabel) gzLabel.innerText = `Play 3 Mins = +${this.integrations.gamezopReward || 5} Diamonds`;

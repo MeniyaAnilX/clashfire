@@ -365,3 +365,36 @@ body {
         margin-top: 6px;
     }
 }
+
+/* Shimmer Skeleton Loading Animation */
+.skeleton-card {
+    background: rgba(18, 20, 32, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+}
+.skeleton-shimmer {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0; left: -150%;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.05), transparent);
+    animation: loading-shimmer 1.5s infinite;
+}
+@keyframes loading-shimmer {
+    0% { left: -150%; }
+    50% { left: 150%; }
+    100% { left: 150%; }
+}
+.skeleton-line {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+.skeleton-line.title { width: 45%; height: 16px; }
+.skeleton-line.desc { width: 85%; height: 12px; }
+.skeleton-line.btn { width: 100%; height: 38px; border-radius: 8px; margin-top: 10px; }
+
