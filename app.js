@@ -1322,21 +1322,32 @@ class ClashFireApp {
         const tickerContainer = document.getElementById('proofs-ticker');
         if (!tickerContainer) return;
 
-        const generateProof = () => {
-            const userIdNum = Math.floor(1000 + Math.random() * 9000);
+        // Seeded random number generator (Sine LCG)
+        const getSeededRandom = (seed) => {
+            const x = Math.sin(seed) * 10000;
+            return x - Math.floor(x);
+        };
+
+        const generateProofForSeed = (seedVal) => {
+            // Generate deterministic user ID
+            const userIdNum = Math.floor(1000 + getSeededRandom(seedVal + 1) * 9000);
             const userDisplayId = `CF-****${userIdNum}`;
-            const ffUidPart1 = Math.floor(10 + Math.random() * 90);
-            const ffUidPart2 = Math.floor(10 + Math.random() * 90);
+            
+            // Generate deterministic FF UID
+            const ffUidPart1 = Math.floor(10 + getSeededRandom(seedVal + 2) * 90);
+            const ffUidPart2 = Math.floor(10 + getSeededRandom(seedVal + 3) * 90);
             const ffUidDisplay = `${ffUidPart1}****${ffUidPart2}`;
             
-            // 70% probability for 310 Diamonds, 30% for other packages to build trust naturally
+            // 70% probability for 310 Diamonds, 30% for others
             let diamondPackage = "310 Diamonds";
-            if (Math.random() >= 0.7) {
+            if (getSeededRandom(seedVal + 4) >= 0.7) {
                 const otherPackages = ["520 Diamonds", "1060 Diamonds", "2180 Diamonds", "5600 Diamonds", "11,500 Diamonds"];
-                diamondPackage = otherPackages[Math.floor(Math.random() * otherPackages.length)];
+                const idx = Math.floor(getSeededRandom(seedVal + 5) * otherPackages.length);
+                diamondPackage = otherPackages[idx];
             }
-            
-            const isSent = Math.random() < 0.7; // 70% chance SENT, 30% PENDING
+
+            // 70% probability SENT, 30% PENDING
+            const isSent = getSeededRandom(seedVal + 6) < 0.7;
             const badgeStyle = isSent 
                 ? 'background: rgba(0, 230, 118, 0.15); color: #00e676;' 
                 : 'background: rgba(255, 145, 0, 0.15); color: #ff9100;';
@@ -1344,6 +1355,7 @@ class ClashFireApp {
                 ? '<i class="fa-solid fa-circle-check"></i> SENT' 
                 : '<i class="fa-solid fa-clock"></i> PENDING';
 
+            // Create item HTML
             const proofItem = document.createElement('div');
             proofItem.className = 'proof-item';
             proofItem.innerHTML = `
@@ -1356,26 +1368,39 @@ class ClashFireApp {
                     <span class="proof-badge" style="${badgeStyle}">${badgeText}</span>
                 </div>
             `;
-            
-            tickerContainer.insertBefore(proofItem, tickerContainer.firstChild);
+            return proofItem;
+        };
 
-            while (tickerContainer.children.length > 3) {
-                tickerContainer.removeChild(tickerContainer.lastChild);
+        let lastT = 0;
+        const updateTicker = () => {
+            // Determine active time block (changes every 15 seconds globally)
+            const T = Math.floor(Date.now() / 15000);
+            if (T === lastT) return;
+            lastT = T;
+
+            // Seed initial state if empty
+            if (tickerContainer.children.length === 0) {
+                for (let i = 2; i >= 0; i--) {
+                    const item = generateProofForSeed(T - i);
+                    tickerContainer.appendChild(item);
+                }
+            } else {
+                // Add the newest item at the top with slide-in animation
+                const newestItem = generateProofForSeed(T);
+                tickerContainer.insertBefore(newestItem, tickerContainer.firstChild);
+
+                // Remove the oldest item
+                while (tickerContainer.children.length > 3) {
+                    tickerContainer.removeChild(tickerContainer.lastChild);
+                }
             }
         };
 
-        for (let i = 0; i < 3; i++) {
-            generateProof();
-        }
+        // Render immediately
+        updateTicker();
 
-        const triggerNext = () => {
-            const delay = Math.floor(4000 + Math.random() * 3000);
-            setTimeout(() => {
-                generateProof();
-                triggerNext();
-            }, delay);
-        };
-        triggerNext();
+        // Check and sync every second
+        setInterval(updateTicker, 1000);
     }
 }
 
