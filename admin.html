@@ -225,6 +225,28 @@
             </div>
             <button class="btn-action" style="background: #00e676;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE OFFERWALL & GAMEZOP CONFIG</button>
         </div>
+
+        <!-- Card D: CPX Research Survey Wall Integration -->
+        <div class="control-card">
+            <div class="card-title"><i class="fa-solid fa-square-poll-vertical"></i> CPX RESEARCH SURVEY WALL INTEGRATION</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Configure your CPX Research Survey Wall app details. Complete surveys will credit rewards to user balances automatically.</p>
+            <div class="form-group">
+                <label>CPX App ID</label>
+                <input type="text" id="integ-cpx-appid" value="34050" placeholder="e.g. 34050">
+            </div>
+            <div class="form-group">
+                <label>CPX Security Hash (App Secure Hash)</label>
+                <input type="text" id="integ-cpx-hash" value="ucHVQYc5kg6SooA56Z2sQBl12wkU61T4" placeholder="e.g. ucHVQYc5kg6SooA56Z2sQBl12wkU61T4">
+            </div>
+            <div class="form-group">
+                <label>CPX Survey Wall Status</label>
+                <select id="integ-cpx-status">
+                    <option value="false">DISABLE (OFF - HIDDEN)</option>
+                    <option value="true">ENABLE (ACTIVE LIVE)</option>
+                </select>
+            </div>
+            <button class="btn-action" style="background: #00e676;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE CPX SURVEY CONFIG</button>
+        </div>
     </div>
 
     <!-- Tab 4: Dedicated Community & Channels Manager -->
@@ -376,6 +398,9 @@
                     document.getElementById('integ-sponsor-btn').value = iData.sponsorBtnText || 'JOIN NOW';
                     document.getElementById('integ-sponsor-reward').value = iData.sponsorReward || 10;
                     document.getElementById('integ-sponsor-status').value = (iData.sponsorEnabled === true || iData.sponsorEnabled === 'true') ? 'true' : 'false';
+                    document.getElementById('integ-cpx-appid').value = iData.cpxAppId || '34050';
+                    document.getElementById('integ-cpx-hash').value = iData.cpxSecureHash || 'ucHVQYc5kg6SooA56Z2sQBl12wkU61T4';
+                    document.getElementById('integ-cpx-status').value = (iData.cpxEnabled === true || iData.cpxEnabled === 'true') ? 'true' : 'false';
                 }
             } catch(e) { console.error(e); }
         }
@@ -451,6 +476,9 @@
             const sponsorBtnText = document.getElementById('integ-sponsor-btn').value.trim();
             const sponsorReward = parseInt(document.getElementById('integ-sponsor-reward').value || '10');
             const sponsorEnabled = document.getElementById('integ-sponsor-status').value === 'true';
+            const cpxAppId = document.getElementById('integ-cpx-appid').value.trim();
+            const cpxSecureHash = document.getElementById('integ-cpx-hash').value.trim();
+            const cpxEnabled = document.getElementById('integ-cpx-status').value === 'true';
 
             try {
                 await db.collection("settings").doc("integrations").set({
@@ -470,6 +498,9 @@
                     sponsorBtnText: sponsorBtnText,
                     sponsorReward: sponsorReward,
                     sponsorEnabled: sponsorEnabled,
+                    cpxAppId: cpxAppId,
+                    cpxSecureHash: cpxSecureHash,
+                    cpxEnabled: cpxEnabled,
                     updatedAt: new Date().toISOString()
                 });
                 alert("Integrations & Community Settings saved live! User app updated.");
