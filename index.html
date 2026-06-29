@@ -23,99 +23,108 @@
             <div class="loader-title">CLASH <span>FIRE</span></div>
             <div class="loader-sub">SECURE DIAMOND STATION</div>
             <div class="loader-bar-bg">
-                <div id="loader-bar-fill"></div>
+                <div class="loader-bar-fill" id="loader-bar-fill"></div>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notifications Container -->
+    <!-- Toast Notification System Container -->
     <div id="toast-container"></div>
 
-    <!-- Core Global Action Loader Panel -->
+    <!-- Global Fullscreen Loader Overlay -->
     <div id="global-loader" class="hidden">
         <div class="loader-content">
-            <div class="crosshair-spin"><i class="fa-solid fa-crosshairs"></i></div>
-            <p id="loader-message">Processing...</p>
+            <i class="fa-solid fa-crosshairs crosshair-spin"></i>
+            <div id="loader-message">PROCESSING DIAMONDS...</div>
         </div>
     </div>
 
+    <!-- Main Container -->
     <div id="app-container">
 
-        <!-- Top Header Navigation Brand Header -->
+        <!-- Top Dynamic Native Banner Ad Slot -->
+        <div id="banner-ad-top" class="native-banner-slot hidden"></div>
+
+        <!-- Top Header Navigation -->
         <header class="app-header">
             <div class="header-left">
                 <div class="brand-box">
-                    <span class="app-name">CLASH FIRE</span>
+                    <span class="app-name">CLASH <span>FIRE</span></span>
                 </div>
-                <span class="device-tag" id="display-device-id">User ID: Loading...</span>
+                <span class="device-tag" id="display-device-id">User ID: Syncing...</span>
             </div>
             <div class="header-right">
                 <div class="wallet-badge" onclick="app.scrollToRedeem()">
-                    <img src="diamond.png" alt="Gem" class="wallet-gem-img">
+                    <img src="diamond.png" alt="Diamond" class="wallet-gem-img">
                     <span id="user-coins">0</span>
+                    <button class="add-coin-btn"><i class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
         </header>
 
-        <!-- Top Native Banner Ad Slot -->
-        <div id="banner-ad-top" class="native-banner-slot hidden"></div>
-
-        <!-- Home Dynamic Countdown Header Card -->
-        <div class="banner-card">
-            <div class="banner-left">
-                <span class="banner-label">DAILY RESET IN</span>
-                <span class="countdown-timer" id="reset-timer">00:00:00</span>
-            </div>
-            <span class="banner-badge">REFRESHED DAILY</span>
-        </div>
-
         <!-- Main Navigation Bar Tabs -->
         <nav class="main-nav-tabs">
-            <button class="tab-btn active" onclick="app.switchAppTab('tab-home', this)"><i class="fa-solid fa-house"></i> HOME</button>
-            <button class="tab-btn" onclick="app.switchAppTab('tab-tasks', this)"><i class="fa-solid fa-gamepad"></i> STATIONS</button>
-            <button class="tab-btn" onclick="app.switchAppTab('tab-redeem', this)"><i class="fa-solid fa-gem"></i> REDEEM</button>
+            <button class="tab-btn active" onclick="app.switchAppTab('tab-home', this)">
+                <i class="fa-solid fa-house"></i> HOME
+            </button>
+            <button class="tab-btn" onclick="app.switchAppTab('tab-tasks', this)">
+                <i class="fa-solid fa-list-check"></i> MISSIONS
+            </button>
+            <button class="tab-btn" onclick="app.switchAppTab('tab-redeem', this)">
+                <i class="fa-solid fa-gem"></i> REDEEM
+            </button>
         </nav>
 
-        <!-- TAB 1: HOME PANE -->
+        <!-- Dynamic Daily Reset Banner -->
+        <div class="banner-card">
+            <div class="banner-left">
+                <span class="banner-label"><i class="fa-solid fa-clock"></i> RESET IN</span>
+                <span class="countdown-timer" id="reset-timer">24h 00m 00s</span>
+            </div>
+            <span class="banner-badge" id="completed-links-badge">0/5 DONE</span>
+        </div>
+
+        <!-- TAB 1: HOME PANE (DEFAULT ACTIVE WITH DAILY MISSIONS) -->
         <div id="tab-home" class="app-tab-pane active">
-            <!-- Daily Missions Links Section -->
+            <!-- Daily Missions List Section (LOCATED ON HOME PANE) -->
             <section class="dashboard-section">
                 <div class="section-title">
-                    <h2><i class="fa-solid fa-circle-check"></i> DAILY MISSIONS</h2>
-                    <span class="sub-badge" id="completed-links-badge">0/5 DONE</span>
+                    <h2><i class="fa-solid fa-link"></i> DAILY MISSIONS</h2>
                 </div>
-                <p class="section-desc">Verify daily links below to claim free reward diamonds directly!</p>
+                <p class="section-desc">Complete daily shortener links to claim free diamonds!</p>
+                
                 <div class="links-list" id="links-container">
-                    <!-- Links populated dynamically by Javascript -->
+                    <div style="text-align: center; color: var(--text-muted); padding: 15px;">Loading dynamic missions...</div>
                 </div>
             </section>
 
-            <!-- Referral Engine Box Section -->
+            <!-- Refer & Earn Section -->
             <section class="dashboard-section">
                 <div class="section-title">
-                    <h2><i class="fa-solid fa-user-plus"></i> REFER & EARN</h2>
-                    <span class="sub-badge">+10 DIAMONDS</span>
+                    <h2><i class="fa-solid fa-users"></i> REFER & EARN</h2>
                 </div>
-                <p class="section-desc">Invite players using your link. Get +10 Diamonds instantly when they join!</p>
+                <p class="section-desc">Share your link with friends and get bonus diamonds for each join!</p>
+                
                 <div class="referral-box">
                     <div class="referral-input-wrap">
                         <input type="text" id="referral-link-input" readonly value="Generating link...">
                         <button class="btn-primary" onclick="app.copyReferralLink()"><i class="fa-solid fa-copy"></i> COPY</button>
                     </div>
-                    <button class="btn-share" onclick="app.shareNative()"><i class="fa-solid fa-share-nodes"></i> SHARE LINK</button>
+                    <button class="btn-share" onclick="app.shareNative()"><i class="fa-solid fa-share-nodes"></i> SHARE</button>
                 </div>
             </section>
         </div>
 
-        <!-- TAB 2: PLAY & OFFERWALL STATIONS PANE -->
+        <!-- TAB 2: TASKS, OFFERWALLS & COMMUNITY PANE -->
         <div id="tab-tasks" class="app-tab-pane">
-            <!-- Offerwall Integration Station Card -->
+            
+            <!-- Offerwall Station Card -->
             <section class="dashboard-section" id="torox-station">
                 <div class="section-title">
-                    <h2><i class="fa-solid fa-gem"></i> OFFERWALL</h2>
-                    <span class="sub-badge">HIGH PAYING</span>
+                    <h2><i class="fa-solid fa-award"></i> OFFERWALL</h2>
+                    <span class="sub-badge">HIGH PAYOUTS</span>
                 </div>
-                <p class="section-desc">Earn unlimited premium diamonds by playing games, downloading apps & completing simple tasks!</p>
+                <p class="section-desc">Complete premium offers, surveys, and app tasks to earn massive diamonds!</p>
                 <div class="integration-card">
                     <div class="integration-info">
                         <div class="integration-icon" style="background: rgba(0, 242, 254, 0.15); color: var(--accent-cyan);">
