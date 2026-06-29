@@ -1190,8 +1190,9 @@ class ClashFireApp {
             warningText.style.display = 'block';
             overlayTitle.innerText = "WAITING FOR VISIT";
 
-            let secondsLeft = parseInt(item.duration || 15);
-            countdownVal.innerText = secondsLeft + "s";
+            if (this.dvTimerId) clearInterval(this.dvTimerId);
+            this.dvSecondsLeft = parseInt(item.duration || 15);
+            countdownVal.innerText = this.dvSecondsLeft + "s";
 
             // Format target URL to ensure absolute protocol matching
             let targetUrl = item.url || "https://clashfire.vercel.app";
@@ -1202,16 +1203,30 @@ class ClashFireApp {
             window.open(targetUrl, '_blank');
             this.showToast('VISIT STARTED', 'Stay on the visited tab and wait for countdown!', 'info');
 
-            const countdown = setInterval(() => {
-                secondsLeft--;
-                countdownVal.innerText = secondsLeft + "s";
+            this.dvTimerId = setInterval(() => {
+                if (document.hidden) {
+                    // User is actively browsing the target tab - resume countdown
+                    overlayTitle.innerText = "WAITING FOR VISIT";
+                    warningText.innerText = "Please view the opened webpage. Your reward will unlock soon.";
+                    warningText.style.color = "var(--text-muted)";
 
-                if (secondsLeft <= 0) {
-                    clearInterval(countdown);
-                    countdownVal.innerText = "✓ READY";
-                    overlayTitle.innerText = "VISIT COMPLETED!";
-                    warningText.style.display = 'none';
-                    actionBox.style.display = 'block';
+                    this.dvSecondsLeft--;
+                    countdownVal.innerText = this.dvSecondsLeft + "s";
+
+                    if (this.dvSecondsLeft <= 0) {
+                        clearInterval(this.dvTimerId);
+                        this.dvTimerId = null;
+                        countdownVal.innerText = "✓ READY";
+                        overlayTitle.innerText = "VISIT COMPLETED!";
+                        warningText.style.display = 'none';
+                        actionBox.style.display = 'block';
+                    }
+                } else {
+                    // User cheated and returned early to Clash Fire tab - pause timer and warn
+                    overlayTitle.innerText = "⏱️ TIMER PAUSED";
+                    warningText.innerText = "You returned too early! Return to the sponsor page to resume the timer.";
+                    warningText.style.color = "#ff1744";
+                    countdownVal.innerText = `PAUSED (${this.dvSecondsLeft}s)`;
                 }
             }, 1000);
         }
