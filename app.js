@@ -788,7 +788,7 @@ class ClashFireApp {
     }
 
     launchGamezop() {
-        const url = this.integrations.sponsorUrl || "https://www.gamezop.com";
+        const url = this.integrations.gamezopUrl || "https://www.gamezop.com";
         window.open(url, '_blank');
         this.showToast('GAMEZOP LAUNCHED', 'Play games active for 3 mins to claim reward!', 'info');
         
