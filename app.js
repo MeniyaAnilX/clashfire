@@ -1056,21 +1056,20 @@ class ClashFireApp {
             const data = await res.json();
             
             if (data && data.success) {
-                const isVpn = data.security && (data.security.vpn || data.security.proxy || data.security.tor || data.security.hosting);
+                const countryCode = (data.country_code || "").toUpperCase();
                 
-                // Whitelist known Indian ISPs to prevent false positives for mobile data (Jio, Airtel, Vi, BSNL, etc.)
-                const ispName = (data.connection && data.connection.isp || "").toLowerCase();
-                const isIndianCarrier = ispName.includes("reliance jio") || 
-                                        ispName.includes("jio") || 
-                                        ispName.includes("airtel") || 
-                                        ispName.includes("vodafone") || 
-                                        ispName.includes("idea") || 
-                                        ispName.includes("bsnl") || 
-                                        ispName.includes("telecommunication") || 
-                                        ispName.includes("mumbai") || 
-                                        ispName.includes("tata");
-                                        
-                if (isVpn && !isIndianCarrier) {
+                // 1. Geofencing check: If country is not India, block!
+                const isNotIndia = countryCode !== "IN";
+                
+                // 2. Timezone mismatch check: Compare system timezone offset with IP timezone offset
+                // data.timezone.offset is in seconds. Convert to minutes.
+                const ipOffsetMinutes = (data.timezone && data.timezone.offset) ? (data.timezone.offset / 60) : 0;
+                const systemOffsetMinutes = -new Date().getTimezoneOffset(); // returns negative offset in minutes (e.g. -330 for IST -> becomes 330)
+                
+                // If the timezone offset difference is larger than 1 hour (60 mins), block!
+                const isTimezoneMismatch = Math.abs(systemOffsetMinutes - ipOffsetMinutes) > 60;
+                
+                if (isNotIndia || isTimezoneMismatch) {
                     const blocker = document.getElementById('vpn-blocker-overlay');
                     if (blocker) {
                         blocker.style.display = 'flex';
