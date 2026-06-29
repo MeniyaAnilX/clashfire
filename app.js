@@ -25,8 +25,7 @@ class ClashFireApp {
             redemptionHistory: [],
             lastResetDate: new Date().toISOString().split('T')[0],
             referredBy: null,
-            referralClaimed: false,
-            isExistingUser: false
+            referralClaimed: false
         };
         this.globalSettings = {
             linkReward: 5,
@@ -259,7 +258,6 @@ class ClashFireApp {
                     this.user.lastResetDate = today;
                     this.user.redemptionHistory = [];
                     this.user.completedLinks = {};
-                    this.user.isExistingUser = true;
                     await docRef.set(this.user);
                 }
                 return;
@@ -278,7 +276,6 @@ class ClashFireApp {
                 this.saveUserProfile();
             }
         } else {
-            this.user.isExistingUser = true;
             this.saveUserProfile();
         }
     }
@@ -295,10 +292,10 @@ class ClashFireApp {
             const myDocRef = this.db.collection("users").doc(this.deviceId);
             const myDoc = await myDocRef.get();
 
-            // 1. Double-Lock: If my device document already exists in Firestore AND has claimed or is an existing user, BLOCK!
+            // 1. Strictly block if this device has already claimed a referral or has been referred previously
             if (myDoc.exists) {
                 const myData = myDoc.data();
-                if (myData.referralClaimed === true || myData.referredBy || myData.isExistingUser === true) {
+                if (myData.referralClaimed === true || myData.referredBy) {
                     return; // Strictly block repeat referral!
                 }
             }
@@ -333,21 +330,19 @@ class ClashFireApp {
                 const newCoins = (referrerData.coins || 0) + bonus;
                 referredDevices.push(this.deviceId);
 
-                // 4. Update referrer coins and referredDevices array
+                // 4. Update referrer coins and referredDevices array in Firestore
                 await referrerDocRef.update({
                     coins: newCoins,
                     referredDevices: referredDevices
                 });
 
-                // 5. Permanently lock my own device profile in Firestore as referred and existing
+                // 5. Permanently lock my own device profile in Firestore as referred
                 this.user.referralClaimed = true;
                 this.user.referredBy = refCode;
-                this.user.isExistingUser = true;
 
                 await myDocRef.set({
                     referralClaimed: true,
-                    referredBy: refCode,
-                    isExistingUser: true
+                    referredBy: refCode
                 }, { merge: true });
 
                 localStorage.setItem('REFERRAL_PROCESSED_' + this.deviceId, 'true');
