@@ -204,25 +204,20 @@ class ClashFireApp {
         }
 
         let hardwareTokens = [];
-        const screenSpecs = `${window.screen.width}x${window.screen.height}x${window.screen.colorDepth}x${window.devicePixelRatio || 1}`;
-        hardwareTokens.push(screenSpecs);
+        // 1. Physical Screen Pixels (Width & Height scaled by devicePixelRatio)
+        const ratio = window.devicePixelRatio || 1;
+        const physW = Math.round((window.screen.width || 360) * ratio);
+        const physH = Math.round((window.screen.height || 640) * ratio);
+        hardwareTokens.push(`PHYS_DISP:${physW}x${physH}x${ratio}`);
 
-        try {
-            const canvas = document.createElement('canvas');
-            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            if (gl) {
-                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                if (debugInfo) {
-                    const vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
-                    const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-                    hardwareTokens.push(`${vendor}~${renderer}`);
-                }
-            }
-        } catch (e) {}
-
+        // 2. Physical CPU Concurrency Cores
         const cpus = navigator.hardwareConcurrency || 4;
+        hardwareTokens.push(`CPU_CORES:${cpus}`);
+
+        // 3. Physical Timezone Offset & Color Depth
         const tz = new Date().getTimezoneOffset();
-        hardwareTokens.push(`CPU:${cpus}_TZ:${tz}`);
+        const depth = window.screen.colorDepth || 24;
+        hardwareTokens.push(`TZ:${tz}_DEPTH:${depth}`);
 
         const rawString = hardwareTokens.join('||');
         let hash = 0;
