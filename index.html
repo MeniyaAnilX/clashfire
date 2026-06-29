@@ -348,25 +348,22 @@
         </div>
     </div>
 
-    <!-- Same-Tab Dynamic Inline Web Viewer for Daily Visit Tasks -->
-    <div id="inline-visit-viewer" class="hidden" style="display: none; flex-direction: column; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 99999; background: #07070c;">
-        <!-- Top Sticky Header Bar -->
-        <div class="viewer-header-bar" style="background: rgba(18, 20, 32, 0.98); border-bottom: 2.5px solid var(--accent-cyan); padding: 12px 18px; display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <img src="diamond.png" style="width: 25px; height: 25px;">
-                <div>
-                    <h4 style="font-size: 0.9rem; color: #fff;" id="dv-viewer-title">Daily Visit Task</h4>
-                    <span style="font-size: 0.72rem; color: var(--text-muted);" id="dv-viewer-sub">Please stay on this page to claim reward</span>
-                </div>
+    <!-- Daily Visit Counter Floating Overlay -->
+    <div id="daily-visit-timer-overlay" class="modal-overlay hidden" style="z-index: 99998; backdrop-filter: blur(10px); background: rgba(7, 7, 12, 0.85); display: none; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;">
+        <div class="modal-card" style="text-align: center; max-width: 320px; border: 2px solid var(--accent-cyan); box-shadow: 0 0 25px rgba(0, 242, 254, 0.25);">
+            <div class="diamond-pulse-box">
+                <img src="diamond.png" class="loader-diamond-img" style="width: 45px; height: 45px;">
+                <div class="pulse-ring"></div>
             </div>
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div id="dv-viewer-timer" style="font-size: 1.3rem; font-weight: 800; color: var(--accent-cyan);">15s</div>
-                <button id="dv-viewer-claim-btn" class="btn-primary" style="display: none; background: linear-gradient(135deg, #00e676, #00c853); color: #000; font-weight: 800; padding: 6px 14px; font-size: 0.85rem;" onclick="app.claimActiveVisitReward()">CLAIM</button>
+            <h3 style="color: #fff; margin-top: 15px;" id="dv-overlay-title">WAITING FOR VISIT</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px; line-height: 1.4;">
+                Please view the opened webpage. Your reward will unlock in:
+            </p>
+            <div id="daily-visit-countdown" style="font-size: 2.2rem; font-weight: 800; color: var(--accent-cyan); margin: 15px 0;">15s</div>
+            <div id="daily-visit-action-box" style="display: none; margin-top: 15px;">
+                <button class="btn-primary" style="width: 100%; background: linear-gradient(135deg, #00e676, #00c853); color: #000; font-weight: 800;" onclick="app.claimActiveVisitReward()">CLAIM DIAMONDS</button>
             </div>
-        </div>
-        <!-- Embedded Iframe -->
-        <div style="flex-grow: 1; width: 100%; position: relative;">
-            <iframe id="dv-viewer-iframe" style="width: 100%; height: 100%; border: none; background: #fff;" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
+            <p style="color: #ff1744; font-size: 0.75rem; font-weight: bold; margin-top: 10px;" id="dv-warning-text"><i class="fa-solid fa-triangle-exclamation"></i> Do not close this app or tab!</p>
         </div>
     </div>
 

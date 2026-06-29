@@ -1176,32 +1176,42 @@ class ClashFireApp {
 
         this.activeVisitIndex = index;
 
-        const viewer = document.getElementById('inline-visit-viewer');
-        const iframe = document.getElementById('dv-viewer-iframe');
-        const timerElem = document.getElementById('dv-viewer-timer');
-        const claimBtn = document.getElementById('dv-viewer-claim-btn');
-        const titleElem = document.getElementById('dv-viewer-title');
+        const overlay = document.getElementById('daily-visit-timer-overlay');
+        const countdownVal = document.getElementById('daily-visit-countdown');
+        const actionBox = document.getElementById('daily-visit-action-box');
+        const warningText = document.getElementById('dv-warning-text');
+        const overlayTitle = document.getElementById('dv-overlay-title');
 
-        if (viewer && iframe && timerElem && claimBtn && titleElem) {
-            titleElem.innerText = item.title || `Daily Visit Task #${taskId}`;
-            timerElem.style.display = 'block';
-            claimBtn.style.display = 'none';
+        if (overlay && countdownVal && actionBox && warningText && overlayTitle) {
+            overlay.style.display = 'flex';
+            overlay.classList.remove('hidden');
+
+            actionBox.style.display = 'none';
+            warningText.style.display = 'block';
+            overlayTitle.innerText = "WAITING FOR VISIT";
 
             let secondsLeft = parseInt(item.duration || 15);
-            timerElem.innerText = secondsLeft + "s";
+            countdownVal.innerText = secondsLeft + "s";
 
-            iframe.src = item.url;
-            viewer.style.display = 'flex';
-            viewer.classList.remove('hidden');
+            // Format target URL to ensure absolute protocol matching
+            let targetUrl = item.url || "https://clashfire.vercel.app";
+            if (!/^https?:\/\//i.test(targetUrl)) {
+                targetUrl = "https://" + targetUrl;
+            }
+
+            window.open(targetUrl, '_blank');
+            this.showToast('VISIT STARTED', 'Stay on the visited tab and wait for countdown!', 'info');
 
             const countdown = setInterval(() => {
                 secondsLeft--;
-                timerElem.innerText = secondsLeft + "s";
+                countdownVal.innerText = secondsLeft + "s";
 
                 if (secondsLeft <= 0) {
                     clearInterval(countdown);
-                    timerElem.style.display = 'none';
-                    claimBtn.style.display = 'block';
+                    countdownVal.innerText = "✓ READY";
+                    overlayTitle.innerText = "VISIT COMPLETED!";
+                    warningText.style.display = 'none';
+                    actionBox.style.display = 'block';
                 }
             }, 1000);
         }
@@ -1224,13 +1234,15 @@ class ClashFireApp {
         await this.saveUserProfile();
         this.renderDashboard();
 
-        const viewer = document.getElementById('inline-visit-viewer');
-        const iframe = document.getElementById('dv-viewer-iframe');
-        if (viewer) {
-            viewer.style.display = 'none';
-            viewer.classList.add('hidden');
+        const overlay = document.getElementById('daily-visit-timer-overlay');
+        if (overlay) {
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                overlay.classList.add('hidden');
+                overlay.style.opacity = '1';
+            }, 300);
         }
-        if (iframe) iframe.src = 'about:blank';
 
         this.activeVisitIndex = null;
         this.showToast('REWARD CLAIMED!', `+${reward} Diamonds credited successfully!`, 'success');
