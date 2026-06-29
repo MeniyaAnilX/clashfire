@@ -308,17 +308,25 @@ class ClashFireApp {
             const snapshot = await this.db.collection("users").get();
             let referrerDocRef = null;
             let referrerData = null;
+            let referrerDeviceId = null;
 
             for (const doc of snapshot.docs) {
                 const displayId = "CF-" + doc.id.substring(9, 15);
                 if (displayId === refCode && doc.id !== this.deviceId) {
                     referrerDocRef = doc.ref;
                     referrerData = doc.data();
+                    referrerDeviceId = doc.id;
                     break;
                 }
             }
 
             if (referrerDocRef && referrerData) {
+                // Check Cross-Referral / Mutual Loop: If my device has already referred this referrer, BLOCK!
+                const myReferredDevices = (myDoc.exists && myDoc.data().referredDevices) ? myDoc.data().referredDevices : [];
+                if (myReferredDevices.includes(referrerDeviceId) || referrerData.referredBy === this.displayUserId) {
+                    return; // Strictly block mutual cross-referral loop!
+                }
+
                 const referredDevices = referrerData.referredDevices || [];
                 
                 // 3. Check if my device ID is already in referrer's referredDevices array
@@ -658,7 +666,7 @@ class ClashFireApp {
     }
 
     launchGamezop() {
-        const url = this.integrations.gamezopUrl || "https://www.gamezop.com";
+        const url = this.integrations.sponsorUrl || "https://www.gamezop.com";
         window.open(url, '_blank');
         this.showToast('GAMEZOP LAUNCHED', 'Play games active for 3 mins to claim reward!', 'info');
         
