@@ -23,7 +23,9 @@ class ClashFireApp {
             dailyLinkCompletedCount: 0,
             completedLinks: {},
             redemptionHistory: [],
-            lastResetDate: new Date().toISOString().split('T')[0]
+            lastResetDate: new Date().toISOString().split('T')[0],
+            referredBy: null,
+            referralClaimed: false
         };
         this.globalSettings = {
             linkReward: 5,
@@ -74,7 +76,7 @@ class ClashFireApp {
 
         await this.loadGlobalSettings();
         await this.loadUserProfile();
-        this.checkReferralBonus();
+        await this.checkReferralBonus();
 
         this.renderDashboard();
         this.startCountdownTimer();
@@ -244,7 +246,7 @@ class ClashFireApp {
                 const docRef = this.db.collection("users").doc(this.deviceId);
                 const doc = await docRef.get();
                 if (doc.exists) {
-                    this.user = doc.data();
+                    this.user = { ...this.user, ...doc.data() };
                     if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
                     if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
                     if (this.user.lastResetDate !== today) {
@@ -265,7 +267,7 @@ class ClashFireApp {
 
         const saved = localStorage.getItem('CLASH_USER_DATA_' + this.deviceId);
         if (saved) {
-            this.user = JSON.parse(saved);
+            this.user = { ...this.user, ...JSON.parse(saved) };
             if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
             if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
             if (this.user.lastResetDate !== today) {
@@ -283,24 +285,60 @@ class ClashFireApp {
         const urlParams = new URLSearchParams(window.location.search);
         const refCode = urlParams.get('ref');
         
-        if (refCode && refCode !== this.displayUserId && !localStorage.getItem('REFERRAL_PROCESSED')) {
-            localStorage.setItem('REFERRAL_PROCESSED', 'true');
-            const bonus = this.globalSettings.referralReward || 10;
-            
-            if (this.firestoreActive) {
-                try {
-                    const snapshot = await this.db.collection("users").get();
-                    snapshot.forEach(async doc => {
-                        let data = doc.data();
-                        let docRefId = "CF-" + doc.id.substring(9, 15);
-                        if (docRefId === refCode) {
-                            await this.db.collection("users").doc(doc.id).update({
-                                coins: (data.coins || 0) + bonus
-                            });
-                        }
+        if (!refCode || refCode === this.displayUserId) return;
+
+        // Bulletproof Anti-Cheat: Check if this device has ALREADY claimed a referral or been referred in Firestore
+        if (this.user.referralClaimed === true || this.user.referredBy) {
+            return; // Hard-blocked! Already referred previously.
+        }
+
+        if (localStorage.getItem('REFERRAL_PROCESSED_' + this.deviceId)) {
+            return;
+        }
+
+        const bonus = this.globalSettings.referralReward || 10;
+
+        if (this.firestoreActive) {
+            try {
+                const userDocRef = this.db.collection("users").doc(this.deviceId);
+                const userDoc = await userDocRef.get();
+                
+                if (userDoc.exists && (userDoc.data().referralClaimed || userDoc.data().referredBy)) {
+                    return; // Strictly block repeat reward
+                }
+
+                // Award referral bonus to referrer
+                const snapshot = await this.db.collection("users").get();
+                let referrerFound = false;
+
+                snapshot.forEach(async doc => {
+                    let data = doc.data();
+                    let docRefId = "CF-" + doc.id.substring(9, 15);
+                    if (docRefId === refCode && doc.id !== this.deviceId) {
+                        referrerFound = true;
+                        await this.db.collection("users").doc(doc.id).update({
+                            coins: (data.coins || 0) + bonus
+                        });
+                    }
+                });
+
+                if (referrerFound) {
+                    // Mark this user/device as permanently referred in Firestore
+                    this.user.referralClaimed = true;
+                    this.user.referredBy = refCode;
+                    await userDocRef.update({
+                        referralClaimed: true,
+                        referredBy: refCode
                     });
-                } catch(e) { console.error(e); }
-            }
+                    localStorage.setItem('REFERRAL_PROCESSED_' + this.deviceId, 'true');
+                    this.showToast('WELCOME TO CLASH FIRE', `Joined via referral link from ${refCode}!`, 'info');
+                }
+            } catch(e) { console.error(e); }
+        } else {
+            localStorage.setItem('REFERRAL_PROCESSED_' + this.deviceId, 'true');
+            this.user.referralClaimed = true;
+            this.user.referredBy = refCode;
+            this.saveUserProfile();
             this.showToast('WELCOME TO CLASH FIRE', `Joined via referral link from ${refCode}!`, 'info');
         }
     }
@@ -646,8 +684,9 @@ class ClashFireApp {
     async selectPackage(cardElem, diamondAmount, costPoints) {
         const uidInput = document.getElementById('ff-uid').value.trim();
         
-        if (!uidInput || uidInput.length < 8) {
-            this.showToast('VALIDATION ERROR', 'Please enter your valid Player UID!', 'error');
+        // Strict Free Fire UID Validation: Must be between 7 and 13 digits
+        if (!uidInput || uidInput.length < 7 || uidInput.length > 13) {
+            this.showToast('VALIDATION ERROR', 'Player UID must be between 7 and 13 digits!', 'error');
             document.getElementById('ff-uid').focus();
             return;
         }
@@ -771,7 +810,7 @@ class ClashFireApp {
 
         setTimeout(() => {
             toast.style.opacity = '0';
-            toast.style.transform = 'translateX(100%)';
+            toast.style.transform = 'translateY(20px)';
             setTimeout(() => toast.remove(), 300);
         }, 3500);
     }
