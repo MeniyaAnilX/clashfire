@@ -764,7 +764,7 @@
                         let userData = userDoc.data();
                         if (userData.redemptionHistory) {
                             userData.redemptionHistory.forEach(item => {
-                                if (item.id === reqId || item.ffUid === ffUid) {
+                                if (item.id === reqId) {
                                     item.status = nextStatus;
                                 }
                             });
