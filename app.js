@@ -1235,6 +1235,23 @@ class ClashFireApp {
         this.activeVisitIndex = null;
         this.showToast('REWARD CLAIMED!', `+${reward} Diamonds credited successfully!`, 'success');
     }
+
+    executeLinkTask(idx) {
+        const link = this.dailyLinks[idx];
+        if (!link) return;
+
+        const taskId = link.taskId || (idx + 1);
+        const isDone = this.user.completedLinks && this.user.completedLinks[taskId];
+        if (isDone) {
+            this.showToast('ALREADY COMPLETED', 'You have already completed this mission today!', 'info');
+            return;
+        }
+
+        // Open shortener link in a new tab. When finished, it redirects back to verify.html?task=X
+        const targetUrl = link.url;
+        window.open(targetUrl, '_blank');
+        this.showToast('MISSION STARTED', 'Complete verification on shortener page to claim diamonds!', 'info');
+    }
 }
 
 let app;
