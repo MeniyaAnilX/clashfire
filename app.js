@@ -62,6 +62,7 @@ class ClashFireApp {
         };
         this.db = null;
         this.firestoreActive = false;
+        this.dvHasReturned = false;
 
         // Dynamic Mission Tasks Array (1-indexed task IDs)
         this.dailyLinks = [
@@ -1175,18 +1176,21 @@ class ClashFireApp {
         }
 
         this.activeVisitIndex = index;
+        this.dvHasReturned = false; // Reset tab return state
 
         const overlay = document.getElementById('daily-visit-timer-overlay');
         const countdownVal = document.getElementById('daily-visit-countdown');
         const actionBox = document.getElementById('daily-visit-action-box');
         const warningText = document.getElementById('dv-warning-text');
         const overlayTitle = document.getElementById('dv-overlay-title');
+        const resumeBox = document.getElementById('daily-visit-resume-box');
 
         if (overlay && countdownVal && actionBox && warningText && overlayTitle) {
             overlay.style.display = 'flex';
             overlay.classList.remove('hidden');
 
             actionBox.style.display = 'none';
+            if (resumeBox) resumeBox.style.display = 'none';
             warningText.style.display = 'block';
             overlayTitle.innerText = "WAITING FOR VISIT";
 
@@ -1204,32 +1208,65 @@ class ClashFireApp {
             this.showToast('VISIT STARTED', 'Stay on the visited tab and wait for countdown!', 'info');
 
             this.dvTimerId = setInterval(() => {
+                const rBox = document.getElementById('daily-visit-resume-box');
+                
                 if (document.hidden) {
-                    // User is actively browsing the target tab - resume countdown
-                    overlayTitle.innerText = "WAITING FOR VISIT";
-                    warningText.innerText = "Please view the opened webpage. Your reward will unlock soon.";
-                    warningText.style.color = "var(--text-muted)";
+                    if (this.dvHasReturned) {
+                        // User minimized app or is in background but needs to resume explicitly via continue button
+                        overlayTitle.innerText = "⏱️ TIMER PAUSED";
+                        warningText.innerText = "Timer is paused! Click the CONTINUE VISIT button to resume counting down.";
+                        warningText.style.color = "#ff1744";
+                        countdownVal.innerText = `PAUSED (${this.dvSecondsLeft}s)`;
+                        if (rBox) rBox.style.display = 'block';
+                    } else {
+                        // User is actively browsing the target tab - resume countdown
+                        overlayTitle.innerText = "WAITING FOR VISIT";
+                        warningText.innerText = "Please view the opened webpage. Your reward will unlock soon.";
+                        warningText.style.color = "var(--text-muted)";
+                        if (rBox) rBox.style.display = 'none';
 
-                    this.dvSecondsLeft--;
-                    countdownVal.innerText = this.dvSecondsLeft + "s";
+                        this.dvSecondsLeft--;
+                        countdownVal.innerText = this.dvSecondsLeft + "s";
 
-                    if (this.dvSecondsLeft <= 0) {
-                        clearInterval(this.dvTimerId);
-                        this.dvTimerId = null;
-                        countdownVal.innerText = "✓ READY";
-                        overlayTitle.innerText = "VISIT COMPLETED!";
-                        warningText.style.display = 'none';
-                        actionBox.style.display = 'block';
+                        if (this.dvSecondsLeft <= 0) {
+                            clearInterval(this.dvTimerId);
+                            this.dvTimerId = null;
+                            countdownVal.innerText = "✓ READY";
+                            overlayTitle.innerText = "VISIT COMPLETED!";
+                            warningText.style.display = 'none';
+                            actionBox.style.display = 'block';
+                            if (rBox) rBox.style.display = 'none';
+                        }
                     }
                 } else {
-                    // User cheated and returned early to Clash Fire tab - pause timer and warn
+                    // User returned early to Clash Fire tab - pause timer and warn
+                    this.dvHasReturned = true; // Set return lock
                     overlayTitle.innerText = "⏱️ TIMER PAUSED";
-                    warningText.innerText = "You returned too early! Return to the sponsor page to resume the timer.";
+                    warningText.innerText = "You returned too early! Click the CONTINUE VISIT button to resume the timer.";
                     warningText.style.color = "#ff1744";
                     countdownVal.innerText = `PAUSED (${this.dvSecondsLeft}s)`;
+                    if (rBox) rBox.style.display = 'block';
                 }
             }, 1000);
         }
+    }
+
+    resumeDailyVisit() {
+        const index = this.activeVisitIndex;
+        if (index === null || index === undefined) return;
+
+        const item = this.dailyVisit.items[index];
+        if (!item) return;
+
+        this.dvHasReturned = false; // Reset lock to false so it can decrement
+        
+        let targetUrl = item.url || "https://clashfire.vercel.app";
+        if (!/^https?:\/\//i.test(targetUrl)) {
+            targetUrl = "https://" + targetUrl;
+        }
+
+        window.open(targetUrl, '_blank');
+        this.showToast('VISIT RESUMED', 'Timer resumed! Stay on the sponsor page.', 'info');
     }
 
     async claimActiveVisitReward() {
