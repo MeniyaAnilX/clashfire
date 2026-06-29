@@ -25,7 +25,8 @@ class ClashFireApp {
             redemptionHistory: [],
             lastResetDate: new Date().toISOString().split('T')[0],
             referredBy: null,
-            referralClaimed: false
+            referralClaimed: false,
+            isExistingUser: false
         };
         this.globalSettings = {
             linkReward: 5,
@@ -248,12 +249,17 @@ class ClashFireApp {
                         this.user.dailyLinkCompletedCount = 0;
                         this.user.completedLinks = {};
                         this.user.lastResetDate = today;
-                        await docRef.update(this.user);
+                        await docRef.update({
+                            dailyLinkCompletedCount: 0,
+                            completedLinks: {},
+                            lastResetDate: today
+                        });
                     }
                 } else {
                     this.user.lastResetDate = today;
                     this.user.redemptionHistory = [];
                     this.user.completedLinks = {};
+                    this.user.isExistingUser = true;
                     await docRef.set(this.user);
                 }
                 return;
@@ -272,6 +278,7 @@ class ClashFireApp {
                 this.saveUserProfile();
             }
         } else {
+            this.user.isExistingUser = true;
             this.saveUserProfile();
         }
     }
@@ -282,60 +289,71 @@ class ClashFireApp {
         
         if (!refCode || refCode === this.displayUserId) return;
 
-        // Bulletproof Anti-Cheat: Check if this device has ALREADY claimed a referral or been referred in Firestore
-        if (this.user.referralClaimed === true || this.user.referredBy) {
-            return; // Hard-blocked! Already referred previously.
-        }
+        if (!this.firestoreActive) return;
 
-        if (localStorage.getItem('REFERRAL_PROCESSED_' + this.deviceId)) {
-            return;
-        }
+        try {
+            const myDocRef = this.db.collection("users").doc(this.deviceId);
+            const myDoc = await myDocRef.get();
 
-        const bonus = this.globalSettings.referralReward || 10;
+            // 1. Double-Lock: If my device document already exists in Firestore AND has claimed or is an existing user, BLOCK!
+            if (myDoc.exists) {
+                const myData = myDoc.data();
+                if (myData.referralClaimed === true || myData.referredBy || myData.isExistingUser === true) {
+                    return; // Strictly block repeat referral!
+                }
+            }
 
-        if (this.firestoreActive) {
-            try {
-                const userDocRef = this.db.collection("users").doc(this.deviceId);
-                const userDoc = await userDocRef.get();
+            if (localStorage.getItem('REFERRAL_PROCESSED_' + this.deviceId)) {
+                return;
+            }
+
+            // 2. Synchronous iteration over users to find referrer and check array
+            const snapshot = await this.db.collection("users").get();
+            let referrerDocRef = null;
+            let referrerData = null;
+
+            for (const doc of snapshot.docs) {
+                const displayId = "CF-" + doc.id.substring(9, 15);
+                if (displayId === refCode && doc.id !== this.deviceId) {
+                    referrerDocRef = doc.ref;
+                    referrerData = doc.data();
+                    break;
+                }
+            }
+
+            if (referrerDocRef && referrerData) {
+                const referredDevices = referrerData.referredDevices || [];
                 
-                if (userDoc.exists && (userDoc.data().referralClaimed || userDoc.data().referredBy)) {
-                    return; // Strictly block repeat reward
+                // 3. Check if my device ID is already in referrer's referredDevices array
+                if (referredDevices.includes(this.deviceId)) {
+                    return; // Hard-blocked! Already referred by this user.
                 }
 
-                // Award referral bonus to referrer
-                const snapshot = await this.db.collection("users").get();
-                let referrerFound = false;
+                const bonus = this.globalSettings.referralReward || 10;
+                const newCoins = (referrerData.coins || 0) + bonus;
+                referredDevices.push(this.deviceId);
 
-                snapshot.forEach(async doc => {
-                    let data = doc.data();
-                    let docRefId = "CF-" + doc.id.substring(9, 15);
-                    if (docRefId === refCode && doc.id !== this.deviceId) {
-                        referrerFound = true;
-                        await this.db.collection("users").doc(doc.id).update({
-                            coins: (data.coins || 0) + bonus
-                        });
-                    }
+                // 4. Update referrer coins and referredDevices array
+                await referrerDocRef.update({
+                    coins: newCoins,
+                    referredDevices: referredDevices
                 });
 
-                if (referrerFound) {
-                    // Mark this user/device as permanently referred in Firestore
-                    this.user.referralClaimed = true;
-                    this.user.referredBy = refCode;
-                    await userDocRef.update({
-                        referralClaimed: true,
-                        referredBy: refCode
-                    });
-                    localStorage.setItem('REFERRAL_PROCESSED_' + this.deviceId, 'true');
-                    this.showToast('WELCOME TO CLASH FIRE', `Joined via referral link from ${refCode}!`, 'info');
-                }
-            } catch(e) { console.error(e); }
-        } else {
-            localStorage.setItem('REFERRAL_PROCESSED_' + this.deviceId, 'true');
-            this.user.referralClaimed = true;
-            this.user.referredBy = refCode;
-            this.saveUserProfile();
-            this.showToast('WELCOME TO CLASH FIRE', `Joined via referral link from ${refCode}!`, 'info');
-        }
+                // 5. Permanently lock my own device profile in Firestore as referred and existing
+                this.user.referralClaimed = true;
+                this.user.referredBy = refCode;
+                this.user.isExistingUser = true;
+
+                await myDocRef.set({
+                    referralClaimed: true,
+                    referredBy: refCode,
+                    isExistingUser: true
+                }, { merge: true });
+
+                localStorage.setItem('REFERRAL_PROCESSED_' + this.deviceId, 'true');
+                this.showToast('WELCOME TO CLASH FIRE', `Joined via referral link from ${refCode}!`, 'info');
+            }
+        } catch(e) { console.error("Referral Sync Error:", e); }
     }
 
     async saveUserProfile() {
