@@ -1068,25 +1068,15 @@ class ClashFireApp {
             const isVpnShieldOn = (this.integrations.vpnEnabled !== false && this.integrations.vpnEnabled !== 'false');
             if (!isVpnShieldOn) return;
 
-            const res = await fetch("https://ipwho.is/");
+            const res = await fetch("https://freeipapi.com/api/json");
             if (!res.ok) return;
             const data = await res.json();
             
-            if (data && data.success) {
-                const countryCode = (data.country_code || "").toUpperCase();
-                
-                // 1. Geofencing check: If country is not India, block!
-                const isNotIndia = countryCode !== "IN";
-                
-                // 2. Timezone mismatch check: Compare system timezone offset with IP timezone offset
-                // data.timezone.offset is in seconds. Convert to minutes.
-                const ipOffsetMinutes = (data.timezone && data.timezone.offset) ? (data.timezone.offset / 60) : 0;
-                const systemOffsetMinutes = -new Date().getTimezoneOffset(); // returns negative offset in minutes (e.g. -330 for IST -> becomes 330)
-                
-                // If the timezone offset difference is larger than 1 hour (60 mins), block!
-                const isTimezoneMismatch = Math.abs(systemOffsetMinutes - ipOffsetMinutes) > 60;
-                
-                if (isNotIndia || isTimezoneMismatch) {
+            if (data) {
+                const isVpnOrProxy = data.isProxy === true;
+                const isNotIndia = (data.countryCode || "").toUpperCase() !== "IN";
+
+                if (isVpnOrProxy || isNotIndia) {
                     const blocker = document.getElementById('vpn-blocker-overlay');
                     if (blocker) {
                         blocker.style.display = 'flex';
