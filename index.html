@@ -126,24 +126,15 @@
                 </div>
             </section>
 
-            <!-- Official Community Station Card -->
-            <section class="dashboard-section" id="community-station">
+            <!-- Live Auto-Generating Payout Proofs Section -->
+            <section class="dashboard-section" id="live-proofs-section">
                 <div class="section-title">
-                    <h2><i class="fa-solid fa-users-viewfinder"></i> OFFICIAL COMMUNITY</h2>
-                    <span class="sub-badge">LIMITED BONUS</span>
+                    <h2><i class="fa-solid fa-signal" style="color: #00e676; animation: pulse 1.5s infinite;"></i> LIVE REDEMPTIONS</h2>
+                    <span class="sub-badge" style="background: rgba(0, 230, 118, 0.15); color: #00e676; border: 1.5px solid rgba(0, 230, 118, 0.3);">REALTIME</span>
                 </div>
-                <p class="section-desc">Join community channels & official groups to claim instant reward diamonds!</p>
-                <div class="integration-card">
-                    <div class="integration-info">
-                        <div class="integration-icon" id="sponsor-icon-box" style="background: rgba(255, 69, 0, 0.15); color: var(--primary-fire);">
-                            <i class="fa-solid fa-paper-plane" id="sponsor-icon-elem"></i>
-                        </div>
-                        <div>
-                            <h4 id="sponsor-task-title">Join Our Channel</h4>
-                            <p id="sponsor-task-desc">Join to claim +10 Diamonds</p>
-                        </div>
-                    </div>
-                    <button class="btn-primary" id="sponsor-btn-action" style="background: linear-gradient(135deg, var(--primary-fire), #ff1744); color: #fff;" onclick="app.openSponsorChannel()">JOIN NOW</button>
+                <p class="section-desc">Realtime list of diamond packages successfully delivered to player UIDs.</p>
+                <div class="proofs-ticker-container" id="proofs-ticker" style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow: hidden; position: relative;">
+                    <!-- Auto-generated payout items list will slide in here dynamically -->
                 </div>
             </section>
 
@@ -241,6 +232,27 @@
                         </div>
                     </div>
                     <button class="btn-primary" style="background: linear-gradient(135deg, #00e676, #00c853); color: #000;" onclick="app.openCpxSurveys()">START SURVEYS</button>
+                </div>
+            </section>
+
+            <!-- Official Community Station Card -->
+            <section class="dashboard-section" id="community-station">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-users-viewfinder"></i> OFFICIAL COMMUNITY</h2>
+                    <span class="sub-badge">LIMITED BONUS</span>
+                </div>
+                <p class="section-desc">Join community channels & official groups to claim instant reward diamonds!</p>
+                <div class="integration-card">
+                    <div class="integration-info">
+                        <div class="integration-icon" id="sponsor-icon-box" style="background: rgba(255, 69, 0, 0.15); color: var(--primary-fire);">
+                            <i class="fa-solid fa-paper-plane" id="sponsor-icon-elem"></i>
+                        </div>
+                        <div>
+                            <h4 id="sponsor-task-title">Join Our Channel</h4>
+                            <p id="sponsor-task-desc">Join to claim +10 Diamonds</p>
+                        </div>
+                    </div>
+                    <button class="btn-primary" id="sponsor-btn-action" style="background: linear-gradient(135deg, var(--primary-fire), #ff1744); color: #fff;" onclick="app.openSponsorChannel()">JOIN NOW</button>
                 </div>
             </section>
         </div>

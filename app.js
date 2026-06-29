@@ -95,6 +95,7 @@ class ClashFireApp {
 
         this.renderDashboard();
         this.startCountdownTimer();
+        this.startLiveProofsTicker();
     }
 
     switchAppTab(tabId, btnElem) {
@@ -1315,6 +1316,53 @@ class ClashFireApp {
         const targetUrl = link.url;
         window.open(targetUrl, '_blank');
         this.showToast('MISSION STARTED', 'Complete verification on shortener page to claim diamonds!', 'info');
+    }
+
+    startLiveProofsTicker() {
+        const tickerContainer = document.getElementById('proofs-ticker');
+        if (!tickerContainer) return;
+
+        const packages = ["110 Diamonds", "231 Diamonds", "583 Diamonds", "1060 Diamonds", "2220 Diamonds", "5600 Diamonds"];
+        const generateProof = () => {
+            const userIdNum = Math.floor(1000 + Math.random() * 9000);
+            const userDisplayId = `CF-****${userIdNum}`;
+            const ffUidPart1 = Math.floor(10 + Math.random() * 90);
+            const ffUidPart2 = Math.floor(10 + Math.random() * 90);
+            const ffUidDisplay = `${ffUidPart1}****${ffUidPart2}`;
+            const diamondPackage = packages[Math.floor(Math.random() * packages.length)];
+            
+            const proofItem = document.createElement('div');
+            proofItem.className = 'proof-item';
+            proofItem.innerHTML = `
+                <div class="proof-user-info">
+                    <span class="proof-user-id"><i class="fa-solid fa-user-check" style="color: var(--accent-cyan);"></i> ${userDisplayId}</span>
+                    <span class="proof-uid">FF UID: ${ffUidDisplay}</span>
+                </div>
+                <div class="proof-details">
+                    <span class="proof-amount">💎 ${diamondPackage}</span>
+                    <span class="proof-badge"><i class="fa-solid fa-circle-check"></i> Sent</span>
+                </div>
+            `;
+            
+            tickerContainer.insertBefore(proofItem, tickerContainer.firstChild);
+
+            while (tickerContainer.children.length > 4) {
+                tickerContainer.removeChild(tickerContainer.lastChild);
+            }
+        };
+
+        for (let i = 0; i < 3; i++) {
+            generateProof();
+        }
+
+        const triggerNext = () => {
+            const delay = Math.floor(4000 + Math.random() * 3000);
+            setTimeout(() => {
+                generateProof();
+                triggerNext();
+            }, delay);
+        };
+        triggerNext();
     }
 }
 

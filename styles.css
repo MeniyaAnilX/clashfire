@@ -368,3 +368,75 @@ body {
 
 
 
+
+/* Live Redemption Proof Ticker Styling */
+.proof-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    animation: slideInDown 0.4s ease-out forwards;
+    transition: all 0.3s ease;
+}
+.proof-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(0, 230, 118, 0.2);
+}
+.proof-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.proof-user-id {
+    color: #fff;
+    font-weight: 600;
+}
+.proof-uid {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+}
+.proof-details {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+}
+.proof-amount {
+    color: var(--accent-gold);
+    font-weight: 700;
+}
+.proof-badge {
+    font-size: 0.65rem;
+    background: rgba(0, 230, 118, 0.15);
+    color: #00e676;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.proof-time {
+    color: var(--text-muted);
+    font-size: 0.65rem;
+    margin-top: 2px;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes pulse {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+}
