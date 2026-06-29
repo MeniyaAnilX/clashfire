@@ -491,7 +491,7 @@
 
             try {
                 await db.collection("settings").doc("integrations").set({
-                    toroxUrl, toroxEnabled, gzUrl, gzReward, gzEnabled,
+                    toroxUrl, toroxEnabled, gamezopUrl: gzUrl, gamezopReward: gzReward, gamezopEnabled: gzEnabled,
                     bannerHtmlCode: bannerCode, bannerBottomHtmlCode: bannerBotCode, bannerEnabled,
                     popunderHtmlCode: popunderCode, popunderEnabled,
                     sponsorTitle, sponsorUrl, sponsorIcon,
