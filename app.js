@@ -81,6 +81,7 @@ class ClashFireApp {
         await this.loadUserProfile();
         await this.checkReferralBonus();
         await this.checkSurveyReward();
+        await this.checkVpnAndProxy();
 
         this.renderDashboard();
         this.startCountdownTimer();
@@ -1046,6 +1047,40 @@ class ClashFireApp {
 
     hideLoader() {
         document.getElementById('global-loader').classList.add('hidden');
+    }
+
+    async checkVpnAndProxy() {
+        try {
+            const res = await fetch("https://ipwho.is/");
+            if (!res.ok) return;
+            const data = await res.json();
+            
+            if (data && data.success) {
+                const isVpn = data.security && (data.security.vpn || data.security.proxy || data.security.tor || data.security.hosting);
+                
+                // Whitelist known Indian ISPs to prevent false positives for mobile data (Jio, Airtel, Vi, BSNL, etc.)
+                const ispName = (data.connection && data.connection.isp || "").toLowerCase();
+                const isIndianCarrier = ispName.includes("reliance jio") || 
+                                        ispName.includes("jio") || 
+                                        ispName.includes("airtel") || 
+                                        ispName.includes("vodafone") || 
+                                        ispName.includes("idea") || 
+                                        ispName.includes("bsnl") || 
+                                        ispName.includes("telecommunication") || 
+                                        ispName.includes("mumbai") || 
+                                        ispName.includes("tata");
+                                        
+                if (isVpn && !isIndianCarrier) {
+                    const blocker = document.getElementById('vpn-blocker-overlay');
+                    if (blocker) {
+                        blocker.style.display = 'flex';
+                        blocker.classList.remove('hidden');
+                    }
+                }
+            }
+        } catch(e) {
+            console.warn("VPN validation skipped:", e.message);
+        }
     }
 }
 
