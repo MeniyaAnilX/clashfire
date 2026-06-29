@@ -50,7 +50,8 @@ class ClashFireApp {
             sponsorEnabled: true,
             cpxAppId: '34050',
             cpxSecureHash: 'ucHVQYc5kg6SooA56Z2sQBl12wkU61T4',
-            cpxEnabled: false
+            cpxEnabled: false,
+            vpnEnabled: true
         };
         this.db = null;
         this.firestoreActive = false;
@@ -1051,6 +1052,9 @@ class ClashFireApp {
 
     async checkVpnAndProxy() {
         try {
+            const isVpnShieldOn = (this.integrations.vpnEnabled !== false && this.integrations.vpnEnabled !== 'false');
+            if (!isVpnShieldOn) return;
+
             const res = await fetch("https://ipwho.is/");
             if (!res.ok) return;
             const data = await res.json();

@@ -247,6 +247,20 @@
             </div>
             <button class="btn-action" style="background: #00e676;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE CPX SURVEY CONFIG</button>
         </div>
+
+        <!-- Card E: VPN & Proxy Blocker Shield Control -->
+        <div class="control-card">
+            <div class="card-title"><i class="fa-solid fa-shield-halved"></i> VPN & PROXY SHIELD MANAGER</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Toggle dynamic geofencing & timezone detection algorithms to secure rewards against VPN exploits.</p>
+            <div class="form-group">
+                <label>VPN Shield Blocker Status</label>
+                <select id="integ-vpn-status">
+                    <option value="true">ENABLE (ACTIVE SHIELD)</option>
+                    <option value="false">DISABLE (OFF - BYPASSED)</option>
+                </select>
+            </div>
+            <button class="btn-action" style="background: #00e676;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE VPN SHIELD CONFIG</button>
+        </div>
     </div>
 
     <!-- Tab 4: Dedicated Community & Channels Manager -->
@@ -401,6 +415,7 @@
                     document.getElementById('integ-cpx-appid').value = iData.cpxAppId || '34050';
                     document.getElementById('integ-cpx-hash').value = iData.cpxSecureHash || 'ucHVQYc5kg6SooA56Z2sQBl12wkU61T4';
                     document.getElementById('integ-cpx-status').value = (iData.cpxEnabled === true || iData.cpxEnabled === 'true') ? 'true' : 'false';
+                    document.getElementById('integ-vpn-status').value = (iData.vpnEnabled === false || iData.vpnEnabled === 'false') ? 'false' : 'true';
                 }
             } catch(e) { console.error(e); }
         }
@@ -473,34 +488,20 @@
             const sponsorTitle = document.getElementById('integ-sponsor-title').value.trim();
             const sponsorUrl = document.getElementById('integ-sponsor-url').value.trim();
             const sponsorIcon = document.getElementById('integ-sponsor-icon').value;
-            const sponsorBtnText = document.getElementById('integ-sponsor-btn').value.trim();
-            const sponsorReward = parseInt(document.getElementById('integ-sponsor-reward').value || '10');
-            const sponsorEnabled = document.getElementById('integ-sponsor-status').value === 'true';
-            const cpxAppId = document.getElementById('integ-cpx-appid').value.trim();
-            const cpxSecureHash = document.getElementById('integ-cpx-hash').value.trim();
-            const cpxEnabled = document.getElementById('integ-cpx-status').value === 'true';
 
             try {
                 await db.collection("settings").doc("integrations").set({
-                    toroxUrl: toroxUrl,
-                    toroxEnabled: toroxEnabled,
-                    gamezopUrl: gzUrl,
-                    gamezopReward: gzReward,
-                    gamezopEnabled: gzEnabled,
-                    bannerHtmlCode: bannerCode,
-                    bannerBottomHtmlCode: bannerBotCode,
-                    bannerEnabled: bannerEnabled,
-                    popunderHtmlCode: popunderCode,
-                    popunderEnabled: popunderEnabled,
-                    sponsorTitle: sponsorTitle,
-                    sponsorUrl: sponsorUrl,
-                    sponsorIcon: sponsorIcon,
-                    sponsorBtnText: sponsorBtnText,
-                    sponsorReward: sponsorReward,
-                    sponsorEnabled: sponsorEnabled,
-                    cpxAppId: cpxAppId,
-                    cpxSecureHash: cpxSecureHash,
-                    cpxEnabled: cpxEnabled,
+                    toroxUrl, toroxEnabled, gzUrl, gzReward, gzEnabled,
+                    bannerHtmlCode: bannerCode, bannerBottomHtmlCode: bannerBotCode, bannerEnabled,
+                    popunderHtmlCode: popunderCode, popunderEnabled,
+                    sponsorTitle, sponsorUrl, sponsorIcon,
+                    sponsorBtnText: document.getElementById('integ-sponsor-btn').value.trim(),
+                    sponsorReward: parseInt(document.getElementById('integ-sponsor-reward').value || '10'),
+                    sponsorEnabled: document.getElementById('integ-sponsor-status').value === 'true',
+                    cpxAppId: document.getElementById('integ-cpx-appid').value.trim(),
+                    cpxSecureHash: document.getElementById('integ-cpx-hash').value.trim(),
+                    cpxEnabled: document.getElementById('integ-cpx-status').value === 'true',
+                    vpnEnabled: document.getElementById('integ-vpn-status').value === 'true',
                     updatedAt: new Date().toISOString()
                 });
                 alert("Integrations & Community Settings saved live! User app updated.");
