@@ -70,6 +70,7 @@ class ClashFireApp {
     }
 
     async init() {
+        this.renderDashboard(); // Render static constructor links immediately (no spinner lag)
         this.start3SecPageLoader();
         this.initFirebase();
         
@@ -508,7 +509,7 @@ class ClashFireApp {
         }
 
         const refInput = document.getElementById('referral-link-input');
-        if (refInput) {
+        if (refInput && this.displayUserId) {
             refInput.value = `${window.location.origin}${window.location.pathname}?ref=${this.displayUserId}`;
         }
 
