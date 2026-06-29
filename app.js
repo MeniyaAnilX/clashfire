@@ -96,6 +96,7 @@ class ClashFireApp {
         this.renderDashboard();
         this.startCountdownTimer();
         this.startLiveProofsTicker();
+        this.protectAppFromInspect();
     }
 
     switchAppTab(tabId, btnElem) {
@@ -1401,6 +1402,24 @@ class ClashFireApp {
 
         // Check and sync every second
         setInterval(updateTicker, 1000);
+    }
+
+    protectAppFromInspect() {
+        // Disable Right Click
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+        document.addEventListener('keydown', e => {
+            if (
+                e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j')) ||
+                (e.ctrlKey && (e.key === 'U' || e.key === 'u'))
+            ) {
+                e.preventDefault();
+                return false;
+            }
+        });
     }
 }
 
