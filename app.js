@@ -27,7 +27,7 @@ class ClashFireApp {
             referredBy: null,
             referralClaimed: false,
             referredDevices: [],
-            dailyVisitCompleted: false
+            completedDailyVisits: {}
         };
         this.globalSettings = {
             linkReward: 5,
@@ -56,10 +56,9 @@ class ClashFireApp {
             vpnEnabled: true
         };
         this.dailyVisit = {
-            url: 'https://clashfire.vercel.app',
-            duration: 15,
-            reward: 10,
-            enabled: false
+            items: [
+                { id: 0, taskId: 1, title: "Daily Visit Task #1", url: "https://clashfire.vercel.app", duration: 15, reward: 10 }
+            ]
         };
         this.db = null;
         this.firestoreActive = false;
@@ -191,7 +190,12 @@ class ClashFireApp {
                 });
                 this.db.collection("settings").doc("dailyvisit").onSnapshot(doc => {
                     if (doc.exists) {
-                        this.dailyVisit = { ...this.dailyVisit, ...doc.data() };
+                        const data = doc.data();
+                        if (data.items && Array.isArray(data.items)) {
+                            this.dailyVisit.items = data.items;
+                        } else if (data.url) {
+                            this.dailyVisit.items = [{ id: 0, taskId: 1, title: "Daily Visit Task #1", url: data.url, duration: data.duration || 15, reward: data.reward || 10 }];
+                        }
                         this.renderDashboard();
                     }
                 });
@@ -266,15 +270,16 @@ class ClashFireApp {
                     if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
                     if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
                     if (!this.user.referredDevices) this.user.referredDevices = [];
+                    if (!this.user.completedDailyVisits || Array.isArray(this.user.completedDailyVisits)) this.user.completedDailyVisits = {};
                     if (this.user.lastResetDate !== today) {
                         this.user.dailyLinkCompletedCount = 0;
                         this.user.completedLinks = {};
-                        this.user.dailyVisitCompleted = false;
+                        this.user.completedDailyVisits = {};
                         this.user.lastResetDate = today;
                         await docRef.update({
                             dailyLinkCompletedCount: 0,
                             completedLinks: {},
-                            dailyVisitCompleted: false,
+                            completedDailyVisits: {},
                             lastResetDate: today
                         });
                     }
@@ -294,10 +299,11 @@ class ClashFireApp {
             if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
             if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
             if (!this.user.referredDevices) this.user.referredDevices = [];
+            if (!this.user.completedDailyVisits || Array.isArray(this.user.completedDailyVisits)) this.user.completedDailyVisits = {};
             if (this.user.lastResetDate !== today) {
                 this.user.dailyLinkCompletedCount = 0;
                 this.user.completedLinks = {};
-                this.user.dailyVisitCompleted = false;
+                this.user.completedDailyVisits = {};
                 this.user.lastResetDate = today;
                 this.saveUserProfile();
             }
@@ -420,33 +426,53 @@ class ClashFireApp {
         const totalLinks = this.dailyLinks ? this.dailyLinks.length : 0;
         document.getElementById('completed-links-badge').innerText = `${this.user.dailyLinkCompletedCount}/${totalLinks} DONE`;
 
-        // Render Daily Visit Task
+        // Render Dynamic Unlimited Daily Visit Tasks
+        const dvSection = document.getElementById('daily-visit-section');
         const dvContainer = document.getElementById('daily-visit-container');
-        if (dvContainer) {
-            const isDvOn = (this.dailyVisit.enabled === true || this.dailyVisit.enabled === 'true');
-            if (isDvOn) {
-                dvContainer.style.display = 'block';
-                const descElem = document.getElementById('daily-visit-desc');
-                if (descElem) descElem.innerText = `Visit & Wait ${this.dailyVisit.duration || 15}s = +${this.dailyVisit.reward || 10} Diamonds`;
-                
-                const btnElem = document.getElementById('btn-daily-visit');
-                if (btnElem) {
-                    if (this.user.dailyVisitCompleted === true || this.user.dailyVisitCompleted === 'true') {
-                        btnElem.innerText = "COMPLETED";
-                        btnElem.style.background = "linear-gradient(135deg, #1e293b, #0f172a)";
-                        btnElem.style.color = "var(--text-muted)";
-                        btnElem.style.border = "1px solid rgba(255,255,255,0.05)";
-                        btnElem.disabled = true;
+        if (dvContainer && dvSection) {
+            const hasItems = this.dailyVisit && this.dailyVisit.items && this.dailyVisit.items.length > 0;
+            if (hasItems) {
+                dvSection.style.display = 'block';
+                dvContainer.innerHTML = '';
+
+                this.dailyVisit.items.forEach((item, index) => {
+                    const taskId = item.taskId || (index + 1);
+                    const isCompleted = this.user.completedDailyVisits && this.user.completedDailyVisits[taskId] === true;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'link-card';
+                    card.style.marginBottom = '10px';
+                    if (isCompleted) {
+                        card.style.background = 'rgba(255, 255, 255, 0.02)';
+                        card.style.border = '1px solid rgba(255, 255, 255, 0.03)';
                     } else {
-                        btnElem.innerText = "START VISIT";
-                        btnElem.style.background = "linear-gradient(135deg, var(--primary-fire), #ff1744)";
-                        btnElem.style.color = "white";
-                        btnElem.style.border = "none";
-                        btnElem.disabled = false;
+                        card.style.background = 'linear-gradient(135deg, rgba(255, 69, 0, 0.08), rgba(255, 215, 0, 0.08))';
+                        card.style.border = '1.5px solid rgba(255, 69, 0, 0.25)';
                     }
-                }
+
+                    const btnStyle = isCompleted 
+                        ? 'background: linear-gradient(135deg, #1e293b, #0f172a); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.05);' 
+                        : 'background: linear-gradient(135deg, var(--primary-fire), #ff1744); color: white; border: none;';
+                    
+                    const btnText = isCompleted ? 'COMPLETED' : 'START VISIT';
+                    const btnDisabled = isCompleted ? 'disabled' : '';
+
+                    card.innerHTML = `
+                        <div class="link-info">
+                            <div class="link-icon-box" style="background: ${isCompleted ? 'rgba(255,255,255,0.03)' : 'rgba(255, 69, 0, 0.15)'}; color: ${isCompleted ? 'var(--text-muted)' : 'var(--primary-fire)'};">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                            <div class="link-details">
+                                <h4>${item.title || 'Daily Visit Task #' + taskId}</h4>
+                                <p style="color: ${isCompleted ? 'var(--text-muted)' : 'var(--accent-gold)'};">Wait ${item.duration || 15}s = +${item.reward || 10} Diamonds</p>
+                            </div>
+                        </div>
+                        <button class="btn-primary" style="${btnStyle}" ${btnDisabled} onclick="app.startDailyVisit(${index})">${btnText}</button>
+                    `;
+                    dvContainer.appendChild(card);
+                });
             } else {
-                dvContainer.style.display = 'none';
+                dvSection.style.display = 'none';
             }
         }
 
@@ -1136,71 +1162,77 @@ class ClashFireApp {
         }
     }
 
-    startDailyVisit() {
-        if (this.user.dailyVisitCompleted) {
-            this.showToast('ALREADY COMPLETED', 'You have already claimed this reward today!', 'info');
+    startDailyVisit(index) {
+        const item = this.dailyVisit.items[index];
+        if (!item) return;
+
+        const taskId = item.taskId || (index + 1);
+        const isCompleted = this.user.completedDailyVisits && this.user.completedDailyVisits[taskId] === true;
+
+        if (isCompleted) {
+            this.showToast('ALREADY COMPLETED', 'You have already completed this visit task today!', 'info');
             return;
         }
 
-        const url = this.dailyVisit.url || "https://clashfire.vercel.app";
-        window.open(url, '_blank');
-        this.showToast('VISIT STARTED', 'Stay on the visited tab and wait for countdown!', 'info');
+        this.activeVisitIndex = index;
 
-        const overlay = document.getElementById('daily-visit-timer-overlay');
-        const countdownVal = document.getElementById('daily-visit-countdown');
-        const actionBox = document.getElementById('daily-visit-action-box');
-        const warningText = document.getElementById('dv-warning-text');
-        const overlayTitle = document.getElementById('dv-overlay-title');
+        const viewer = document.getElementById('inline-visit-viewer');
+        const iframe = document.getElementById('dv-viewer-iframe');
+        const timerElem = document.getElementById('dv-viewer-timer');
+        const claimBtn = document.getElementById('dv-viewer-claim-btn');
+        const titleElem = document.getElementById('dv-viewer-title');
 
-        if (overlay && countdownVal && actionBox && warningText && overlayTitle) {
-            overlay.style.display = 'flex';
-            overlay.classList.remove('hidden');
+        if (viewer && iframe && timerElem && claimBtn && titleElem) {
+            titleElem.innerText = item.title || `Daily Visit Task #${taskId}`;
+            timerElem.style.display = 'block';
+            claimBtn.style.display = 'none';
 
-            actionBox.style.display = 'none';
-            warningText.style.display = 'block';
-            overlayTitle.innerText = "WAITING FOR VISIT";
+            let secondsLeft = parseInt(item.duration || 15);
+            timerElem.innerText = secondsLeft + "s";
 
-            let secondsLeft = parseInt(this.dailyVisit.duration || 15);
-            countdownVal.innerText = secondsLeft + "s";
+            iframe.src = item.url;
+            viewer.style.display = 'flex';
+            viewer.classList.remove('hidden');
 
-            const timer = setInterval(() => {
+            const countdown = setInterval(() => {
                 secondsLeft--;
-                countdownVal.innerText = secondsLeft + "s";
+                timerElem.innerText = secondsLeft + "s";
 
                 if (secondsLeft <= 0) {
-                    clearInterval(timer);
-                    countdownVal.innerText = "✓ READY";
-                    overlayTitle.innerText = "VISIT COMPLETED!";
-                    warningText.style.display = 'none';
-                    actionBox.style.display = 'block';
+                    clearInterval(countdown);
+                    timerElem.style.display = 'none';
+                    claimBtn.style.display = 'block';
                 }
             }, 1000);
         }
     }
 
-    async claimDailyVisitReward() {
-        if (this.user.dailyVisitCompleted) {
-            this.showToast('ALREADY COMPLETED', 'You have already claimed this reward today!', 'info');
-            return;
-        }
+    async claimActiveVisitReward() {
+        const index = this.activeVisitIndex;
+        if (index === null || index === undefined) return;
 
-        const reward = parseInt(this.dailyVisit.reward || 10);
+        const item = this.dailyVisit.items[index];
+        if (!item) return;
+
+        const taskId = item.taskId || (index + 1);
+        const reward = parseInt(item.reward || 10);
+
+        if (!this.user.completedDailyVisits) this.user.completedDailyVisits = {};
+        this.user.completedDailyVisits[taskId] = true;
         this.user.coins += reward;
-        this.user.dailyVisitCompleted = true;
 
         await this.saveUserProfile();
         this.renderDashboard();
 
-        const overlay = document.getElementById('daily-visit-timer-overlay');
-        if (overlay) {
-            overlay.style.opacity = '0';
-            setTimeout(() => {
-                overlay.style.display = 'none';
-                overlay.classList.add('hidden');
-                overlay.style.opacity = '1';
-            }, 300);
+        const viewer = document.getElementById('inline-visit-viewer');
+        const iframe = document.getElementById('dv-viewer-iframe');
+        if (viewer) {
+            viewer.style.display = 'none';
+            viewer.classList.add('hidden');
         }
+        if (iframe) iframe.src = 'about:blank';
 
+        this.activeVisitIndex = null;
         this.showToast('REWARD CLAIMED!', `+${reward} Diamonds credited successfully!`, 'success');
     }
 }

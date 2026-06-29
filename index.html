@@ -75,45 +75,8 @@
             </button>
         </nav>
 
-        <!-- TAB 1: HOME PANE (DEFAULT ACTIVE WITH DAILY MISSIONS) -->
+        <!-- TAB 1: HOME PANE (REFER & EARN AND COMMUNITY) -->
         <div id="tab-home" class="app-tab-pane active">
-
-            <!-- Dynamic Daily Reset Banner -->
-            <div class="banner-card">
-                <div class="banner-left">
-                    <span class="banner-label"><i class="fa-solid fa-clock"></i> RESET IN</span>
-                    <span class="countdown-timer" id="reset-timer">24h 00m 00s</span>
-                </div>
-                <span class="banner-badge" id="completed-links-badge">0/5 DONE</span>
-            </div>
-
-            <!-- Daily Missions List Section (LOCATED ON HOME PANE) -->
-            <section class="dashboard-section">
-                <div class="section-title">
-                    <h2><i class="fa-solid fa-link"></i> DAILY MISSIONS</h2>
-                </div>
-                <p class="section-desc">Complete daily shortener links to claim free diamonds!</p>
-                
-                <!-- Daily Visit Web Task Card (Top) -->
-                <div id="daily-visit-container" style="display: none; margin-bottom: 15px;">
-                    <div class="link-card" id="daily-visit-card" style="background: linear-gradient(135deg, rgba(255, 69, 0, 0.08), rgba(255, 215, 0, 0.08)); border: 1.5px solid rgba(255, 69, 0, 0.25);">
-                        <div class="link-info">
-                            <div class="link-icon-box" style="background: rgba(255, 69, 0, 0.15); color: var(--primary-fire);">
-                                <i class="fa-solid fa-calendar-check" id="daily-visit-icon"></i>
-                            </div>
-                            <div class="link-details">
-                                <h4 id="daily-visit-title">Daily Visit Premium Web Task</h4>
-                                <p id="daily-visit-desc">Visit & Wait 15s = +10 Diamonds</p>
-                            </div>
-                        </div>
-                        <button class="btn-primary" id="btn-daily-visit" style="background: linear-gradient(135deg, var(--primary-fire), #ff1744); color: white;" onclick="app.startDailyVisit()">START VISIT</button>
-                    </div>
-                </div>
-                
-                <div class="links-list" id="links-container">
-                    <div style="text-align: center; color: var(--text-muted); padding: 15px;">Loading dynamic missions...</div>
-                </div>
-            </section>
 
             <!-- Refer & Earn Section -->
             <section class="dashboard-section">
@@ -142,27 +105,81 @@
                     </div>
                 </div>
             </section>
-        <!-- SEO Rich Content Block (Visible only on Home Tab) -->
-        <section class="dashboard-section seo-info-section" style="background: rgba(18, 20, 32, 0.5); border: 1px solid rgba(255, 255, 255, 0.03); margin-top: 25px; padding: 20px; border-radius: 12px;">
-            <h2 style="font-size: 1.1rem; color: #fff; margin-bottom: 10px;"><i class="fa-solid fa-circle-info"></i> How to Get Free Fire Free Diamonds Safely in 2026?</h2>
-            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px;">
-                Looking for <strong>Free Fire free diamonds 2026</strong> codes and legal ways to claim diamonds in your account? Clash Fire is the ultimate reward platform designed for passionate mobile gamers. By completing daily tasks, quick surveys, and participating in our community programs, you can claim free diamonds directly to your player UID.
-            </p>
-            <h3 style="font-size: 0.9rem; color: var(--accent-cyan); margin-bottom: 6px;">Is Clash Fire safe for Free Fire Player UIDs?</h3>
-            <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
-                Yes! We never ask for your game account passwords, social media logins, or credit card information. You only need to enter your standard numeric <strong>Free Fire Player UID</strong>. All diamond rewards are purchased and distributed using official in-game top-up partners.
-            </p>
-            <h3 style="font-size: 0.9rem; color: var(--accent-gold); margin-bottom: 6px;">Top tips to earn more diamond rewards daily:</h3>
-            <ul style="font-size: 0.75rem; color: var(--text-muted); padding-left: 20px; line-height: 1.5;">
-                <li style="margin-bottom: 4px;">Complete all 5 daily verification missions to unlock maximum rewards.</li>
-                <li style="margin-bottom: 4px;">Share your personalized referral code with friends to get invite bonuses.</li>
-                <li style="margin-bottom: 4px;">Take high-payout surveys in our Survey tab and play mini-games to boost your balance.</li>
-            </ul>
-        </section>
+
+            <!-- Official Community Station Card -->
+            <section class="dashboard-section" id="community-station">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-users-viewfinder"></i> OFFICIAL COMMUNITY</h2>
+                    <span class="sub-badge">LIMITED BONUS</span>
+                </div>
+                <p class="section-desc">Join community channels & official groups to claim instant reward diamonds!</p>
+                <div class="integration-card">
+                    <div class="integration-info">
+                        <div class="integration-icon" id="sponsor-icon-box" style="background: rgba(255, 69, 0, 0.15); color: var(--primary-fire);">
+                            <i class="fa-solid fa-paper-plane" id="sponsor-icon-elem"></i>
+                        </div>
+                        <div>
+                            <h4 id="sponsor-task-title">Join Our Channel</h4>
+                            <p id="sponsor-task-desc">Join to claim +10 Diamonds</p>
+                        </div>
+                    </div>
+                    <button class="btn-primary" id="sponsor-btn-action" style="background: linear-gradient(135deg, var(--primary-fire), #ff1744); color: #fff;" onclick="app.openSponsorChannel()">JOIN NOW</button>
+                </div>
+            </section>
+
+            <!-- SEO Rich Content Block (Visible only on Home Tab) -->
+            <section class="dashboard-section seo-info-section" style="background: rgba(18, 20, 32, 0.5); border: 1px solid rgba(255, 255, 255, 0.03); margin-top: 25px; padding: 20px; border-radius: 12px;">
+                <h2 style="font-size: 1.1rem; color: #fff; margin-bottom: 10px;"><i class="fa-solid fa-circle-info"></i> How to Get Free Fire Free Diamonds Safely in 2026?</h2>
+                <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px;">
+                    Looking for <strong>Free Fire free diamonds 2026</strong> codes and legal ways to claim diamonds in your account? Clash Fire is the ultimate reward platform designed for passionate mobile gamers. By completing daily tasks, quick surveys, and participating in our community programs, you can claim free diamonds directly to your player UID.
+                </p>
+                <h3 style="font-size: 0.9rem; color: var(--accent-cyan); margin-bottom: 6px;">Is Clash Fire safe for Free Fire Player UIDs?</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
+                    Yes! We never ask for your game account passwords, social media logins, or credit card information. You only need to enter your standard numeric <strong>Free Fire Player UID</strong>. All diamond rewards are purchased and distributed using official in-game top-up partners.
+                </p>
+                <h3 style="font-size: 0.9rem; color: var(--accent-gold); margin-bottom: 6px;">Top tips to earn more diamond rewards daily:</h3>
+                <ul style="font-size: 0.75rem; color: var(--text-muted); padding-left: 20px; line-height: 1.5;">
+                    <li style="margin-bottom: 4px;">Complete all daily verification missions to unlock maximum rewards.</li>
+                    <li style="margin-bottom: 4px;">Share your personalized referral code with friends to get invite bonuses.</li>
+                    <li style="margin-bottom: 4px;">Take high-payout surveys in our Survey tab and play mini-games to boost your balance.</li>
+                </ul>
+            </section>
         </div>
 
         <!-- TAB 2: TASKS, OFFERWALLS & COMMUNITY PANE -->
+        <!-- TAB 2: MISSIONS PANE (DAILY RESET, VISITS, SHORTENERS & OFFERWALLS) -->
         <div id="tab-tasks" class="app-tab-pane">
+
+            <!-- Dynamic Daily Reset Banner -->
+            <div class="banner-card">
+                <div class="banner-left">
+                    <span class="banner-label"><i class="fa-solid fa-clock"></i> RESET IN</span>
+                    <span class="countdown-timer" id="reset-timer">24h 00m 00s</span>
+                </div>
+                <span class="banner-badge" id="completed-links-badge">0/5 DONE</span>
+            </div>
+
+            <!-- Daily Visit Tasks Section -->
+            <section class="dashboard-section" id="daily-visit-section" style="display: none;">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-calendar-check"></i> DAILY VISIT TASKS</h2>
+                </div>
+                <p class="section-desc">Visit sponsored web pages for a few seconds to claim quick diamonds!</p>
+                <div class="links-list" id="daily-visit-container">
+                    <!-- Dynamic daily visit tasks render here -->
+                </div>
+            </section>
+
+            <!-- Daily Shortener Missions Section -->
+            <section class="dashboard-section">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-link"></i> DAILY SHORTENER MISSIONS</h2>
+                </div>
+                <p class="section-desc">Complete daily shortener links to claim free diamonds!</p>
+                <div class="links-list" id="links-container">
+                    <div style="text-align: center; color: var(--text-muted); padding: 15px;">Loading dynamic missions...</div>
+                </div>
+            </section>
             
             <!-- Offerwall Station Card -->
             <section class="dashboard-section" id="torox-station">
@@ -226,28 +243,6 @@
                     <button class="btn-primary" style="background: linear-gradient(135deg, #00e676, #00c853); color: #000;" onclick="app.openCpxSurveys()">START SURVEYS</button>
                 </div>
             </section>
-
-            <!-- Official Community Station Card -->
-            <section class="dashboard-section" id="community-station">
-                <div class="section-title">
-                    <h2><i class="fa-solid fa-users-viewfinder"></i> OFFICIAL COMMUNITY</h2>
-                    <span class="sub-badge">LIMITED BONUS</span>
-                </div>
-                <p class="section-desc">Join community channels & official groups to claim instant reward diamonds!</p>
-                <div class="integration-card">
-                    <div class="integration-info">
-                        <div class="integration-icon" id="sponsor-icon-box" style="background: rgba(255, 69, 0, 0.15); color: var(--primary-fire);">
-                            <i class="fa-solid fa-paper-plane" id="sponsor-icon-elem"></i>
-                        </div>
-                        <div>
-                            <h4 id="sponsor-task-title">Join Our Channel</h4>
-                            <p id="sponsor-task-desc">Join to claim +10 Diamonds</p>
-                        </div>
-                    </div>
-                    <button class="btn-primary" id="sponsor-btn-action" style="background: linear-gradient(135deg, var(--primary-fire), #ff1744); color: #fff;" onclick="app.openSponsorChannel()">JOIN NOW</button>
-                </div>
-            </section>
-
         </div>
 
         <!-- TAB 3: REDEEM VAULT PANE -->
@@ -353,22 +348,25 @@
         </div>
     </div>
 
-    <!-- Daily Visit Counter Floating Overlay -->
-    <div id="daily-visit-timer-overlay" class="modal-overlay hidden" style="z-index: 99998; backdrop-filter: blur(10px); background: rgba(7, 7, 12, 0.85); display: none; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;">
-        <div class="modal-card" style="text-align: center; max-width: 320px; border: 2px solid var(--accent-cyan); box-shadow: 0 0 25px rgba(0, 242, 254, 0.25);">
-            <div class="diamond-pulse-box">
-                <img src="diamond.png" class="loader-diamond-img" style="width: 45px; height: 45px;">
-                <div class="pulse-ring"></div>
+    <!-- Same-Tab Dynamic Inline Web Viewer for Daily Visit Tasks -->
+    <div id="inline-visit-viewer" class="hidden" style="display: none; flex-direction: column; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 99999; background: #07070c;">
+        <!-- Top Sticky Header Bar -->
+        <div class="viewer-header-bar" style="background: rgba(18, 20, 32, 0.98); border-bottom: 2.5px solid var(--accent-cyan); padding: 12px 18px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="diamond.png" style="width: 25px; height: 25px;">
+                <div>
+                    <h4 style="font-size: 0.9rem; color: #fff;" id="dv-viewer-title">Daily Visit Task</h4>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);" id="dv-viewer-sub">Please stay on this page to claim reward</span>
+                </div>
             </div>
-            <h3 style="color: #fff; margin-top: 15px;" id="dv-overlay-title">WAITING FOR VISIT</h3>
-            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px; line-height: 1.4;">
-                Please view the opened webpage. Your reward will unlock in:
-            </p>
-            <div id="daily-visit-countdown" style="font-size: 2.2rem; font-weight: 800; color: var(--accent-cyan); margin: 15px 0;">15s</div>
-            <div id="daily-visit-action-box" style="display: none; margin-top: 15px;">
-                <button class="btn-primary" style="width: 100%; background: linear-gradient(135deg, #00e676, #00c853); color: #000; font-weight: 800;" onclick="app.claimDailyVisitReward()">CLAIM DIAMONDS</button>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div id="dv-viewer-timer" style="font-size: 1.3rem; font-weight: 800; color: var(--accent-cyan);">15s</div>
+                <button id="dv-viewer-claim-btn" class="btn-primary" style="display: none; background: linear-gradient(135deg, #00e676, #00c853); color: #000; font-weight: 800; padding: 6px 14px; font-size: 0.85rem;" onclick="app.claimActiveVisitReward()">CLAIM</button>
             </div>
-            <p style="color: #ff1744; font-size: 0.75rem; font-weight: bold; margin-top: 10px;" id="dv-warning-text"><i class="fa-solid fa-triangle-exclamation"></i> Do not close this app or the visit tab!</p>
+        </div>
+        <!-- Embedded Iframe -->
+        <div style="flex-grow: 1; width: 100%; position: relative;">
+            <iframe id="dv-viewer-iframe" style="width: 100%; height: 100%; border: none; background: #fff;" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
         </div>
     </div>
 

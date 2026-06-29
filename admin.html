@@ -107,6 +107,7 @@
         <button class="nav-tab" onclick="switchTab('tab-users', this)"><i class="fa-solid fa-users"></i> PLAYERS DATABASE</button>
         <button class="nav-tab" onclick="switchTab('tab-ads', this)"><i class="fa-solid fa-rectangle-ad"></i> ADS & MONETIZATION</button>
         <button class="nav-tab" onclick="switchTab('tab-promotions', this)"><i class="fa-solid fa-users-viewfinder"></i> COMMUNITY & CHANNELS</button>
+        <button class="nav-tab" onclick="switchTab('tab-dailyvisit', this)"><i class="fa-solid fa-calendar-check"></i> DAILY TASK</button>
         <button class="nav-tab" onclick="switchTab('tab-settings', this)"><i class="fa-solid fa-sliders"></i> REWARD & MISSIONS</button>
     </nav>
 
@@ -306,7 +307,33 @@
         </div>
     </div>
 
-    <!-- Tab 5: Reward & Missions Settings -->
+    <!-- Tab 5: Daily Visit Tasks Manager (DAILY TASK) -->
+    <div id="tab-dailyvisit" class="tab-content">
+        <!-- Card: Unlimited Dynamic Daily Visit Tasks Manager -->
+        <div class="control-card">
+            <div class="card-title"><i class="fa-solid fa-calendar-check"></i> DYNAMIC UNLIMITED DAILY VISIT TASKS MANAGER</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Add as many visit tasks as you want. When added, they are dynamically named automatically and render in the Missions Tab!</p>
+            
+            <div style="display: flex; gap: 10px; font-weight: bold; margin-bottom: 10px; color: var(--text-muted); font-size: 0.8rem; padding-left: 10px;">
+                <div style="min-width: 140px;">Task Auto-Name</div>
+                <div style="flex-grow: 2;">Target URL Destination</div>
+                <div style="width: 90px;">Wait (Secs)</div>
+                <div style="width: 90px;">Diamonds</div>
+                <div style="width: 42px;"></div>
+            </div>
+
+            <div id="dailyvisit-links-list-container">
+                <!-- Dynamically populated visit task rows will load here -->
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 15px;">
+                <button class="btn-action" style="background: var(--accent-cyan); color: #000; font-weight: 800;" onclick="addDailyVisitRow()"><i class="fa-solid fa-plus"></i> ADD NEW VISIT TASK</button>
+                <button class="btn-action" style="background: #00e676; flex-grow: 1;" onclick="saveDailyVisitSettings()"><i class="fa-solid fa-save"></i> SAVE ALL DAILY TASKS CONFIG</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 6: Reward & Missions Settings -->
     <div id="tab-settings" class="tab-content">
         <!-- Card A: Rewards -->
         <div class="control-card">
@@ -322,32 +349,6 @@
                 </div>
             </div>
             <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE REWARD AMOUNTS</button>
-        </div>
-
-        <!-- Card C: Daily Visit Task Manager -->
-        <div class="control-card">
-            <div class="card-title"><i class="fa-solid fa-calendar-check"></i> DAILY VISIT TASK MANAGER</div>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Configure the single daily visit web task that users must complete inside the app to earn diamonds.</p>
-            <div class="form-group">
-                <label>Daily Visit Destination Link (URL)</label>
-                <input type="text" id="dailyvisit-url" placeholder="https://yourwebsite.com/page">
-            </div>
-            <div class="form-group">
-                <label>Required Wait Duration (Seconds)</label>
-                <input type="number" id="dailyvisit-duration" value="15" placeholder="e.g. 15">
-            </div>
-            <div class="form-group">
-                <label>Completion Reward Diamonds</label>
-                <input type="number" id="dailyvisit-reward" value="10" placeholder="e.g. 10">
-            </div>
-            <div class="form-group">
-                <label>Daily Visit Task Status</label>
-                <select id="dailyvisit-status">
-                    <option value="true">ENABLE (ACTIVE)</option>
-                    <option value="false">DISABLE (OFF)</option>
-                </select>
-            </div>
-            <button class="btn-action" style="background: #00e676;" onclick="saveDailyVisitSettings()"><i class="fa-solid fa-save"></i> SAVE DAILY VISIT CONFIG</button>
         </div>
 
         <!-- Card B: Unlimited Dynamic Shortener Links Manager -->
@@ -380,6 +381,7 @@
         const db = firebase.firestore();
 
         let currentMissionLinks = [];
+        let currentDailyVisits = [];
 
         function switchTab(tabId, btnElem) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -447,11 +449,18 @@
                 const visitDoc = await db.collection("settings").doc("dailyvisit").get();
                 if (visitDoc.exists) {
                     const vData = visitDoc.data();
-                    document.getElementById('dailyvisit-url').value = vData.url || '';
-                    document.getElementById('dailyvisit-duration').value = vData.duration || 15;
-                    document.getElementById('dailyvisit-reward').value = vData.reward || 10;
-                    document.getElementById('dailyvisit-status').value = (vData.enabled === false || vData.enabled === 'false') ? 'false' : 'true';
+                    if (vData.items && Array.isArray(vData.items)) {
+                        currentDailyVisits = vData.items;
+                    } else if (vData.url) {
+                        currentDailyVisits = [{ url: vData.url, duration: vData.duration || 15, reward: vData.reward || 10 }];
+                    }
                 }
+                if (!currentDailyVisits || currentDailyVisits.length === 0) {
+                    currentDailyVisits = [
+                        { url: "https://clashfire.vercel.app", duration: 15, reward: 10 }
+                    ];
+                }
+                renderAdminDailyVisitRows();
             } catch(e) { console.error(e); }
         }
 
@@ -495,6 +504,59 @@
             }
         }
 
+        function renderAdminDailyVisitRows() {
+            const container = document.getElementById('dailyvisit-links-list-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            currentDailyVisits.forEach((item, index) => {
+                const taskNum = index + 1;
+                const row = document.createElement('div');
+                row.className = 'mission-row-item';
+                row.innerHTML = `
+                    <button class="btn-del-link" onclick="deleteDailyVisitRow(${index})"><i class="fa-solid fa-trash"></i> DELETE</button>
+                    <div style="font-size: 0.9rem; color: var(--accent-cyan); font-weight: 700; margin-bottom: 8px;">Daily Visit Task #${taskNum}</div>
+                    <div class="form-group" style="margin-bottom: 8px;">
+                        <label>Visit Task Title (Auto-Set)</label>
+                        <input type="text" id="dv-title-${index}" value="${item.title || 'Daily Visit Task #' + taskNum}" placeholder="e.g. Daily Visit Task #${taskNum}" readonly style="background: rgba(255,255,255,0.02); color: var(--text-muted);">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 8px;">
+                        <label>Target URL Destination (Will open inside Same-Tab Viewer)</label>
+                        <input type="text" id="dv-url-${index}" value="${item.url || ''}" placeholder="https://yourwebsite.com/page">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label>Required Wait (Seconds)</label>
+                            <input type="number" id="dv-duration-${index}" value="${item.duration || 15}" placeholder="e.g. 15">
+                        </div>
+                        <div class="form-group">
+                            <label>Reward Diamonds</label>
+                            <input type="number" id="dv-reward-${index}" value="${item.reward || 10}" placeholder="e.g. 10">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function addDailyVisitRow() {
+            const nextNum = currentDailyVisits.length + 1;
+            currentDailyVisits.push({
+                title: `Daily Visit Task #${nextNum}`,
+                url: `https://clashfire.vercel.app`,
+                duration: 15,
+                reward: 10
+            });
+            renderAdminDailyVisitRows();
+        }
+
+        function deleteDailyVisitRow(index) {
+            if (confirm(`Delete Daily Visit Task #${index+1}?`)) {
+                currentDailyVisits.splice(index, 1);
+                renderAdminDailyVisitRows();
+            }
+        }
+
         async function saveGlobalSettings() {
             const linkR = parseInt(document.getElementById('setting-link-reward').value || '5');
             const refR = parseInt(document.getElementById('setting-ref-reward').value || '10');
@@ -510,17 +572,26 @@
         }
 
         async function saveDailyVisitSettings() {
-            const url = document.getElementById('dailyvisit-url').value.trim();
-            const duration = parseInt(document.getElementById('dailyvisit-duration').value || '15');
-            const reward = parseInt(document.getElementById('dailyvisit-reward').value || '10');
-            const enabled = document.getElementById('dailyvisit-status').value === 'true';
+            const items = [];
+            for (let i = 0; i < currentDailyVisits.length; i++) {
+                const title = document.getElementById(`dv-title-${i}`).value.trim();
+                const url = document.getElementById(`dv-url-${i}`).value.trim();
+                const duration = parseInt(document.getElementById(`dv-duration-${i}`).value || '15');
+                const reward = parseInt(document.getElementById(`dv-reward-${i}`).value || '10');
+
+                items.push({
+                    id: i,
+                    taskId: i + 1,
+                    title: title || `Daily Visit Task #${i+1}`,
+                    url: url,
+                    duration: duration,
+                    reward: reward
+                });
+            }
 
             try {
                 await db.collection("settings").doc("dailyvisit").set({
-                    url: url,
-                    duration: duration,
-                    reward: reward,
-                    enabled: enabled,
+                    items: items,
                     updatedAt: new Date().toISOString()
                 });
                 alert("Daily Visit Task Settings saved live!");
