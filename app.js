@@ -1322,7 +1322,7 @@ class ClashFireApp {
         const tickerContainer = document.getElementById('proofs-ticker');
         if (!tickerContainer) return;
 
-        const packages = ["110 Diamonds", "231 Diamonds", "583 Diamonds", "1060 Diamonds", "2220 Diamonds", "5600 Diamonds"];
+        const packages = ["310 Diamonds", "520 Diamonds", "1060 Diamonds", "2180 Diamonds", "5600 Diamonds", "11,500 Diamonds"];
         const generateProof = () => {
             const userIdNum = Math.floor(1000 + Math.random() * 9000);
             const userDisplayId = `CF-****${userIdNum}`;
