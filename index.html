@@ -94,6 +94,22 @@
                 </div>
                 <p class="section-desc">Complete daily shortener links to claim free diamonds!</p>
                 
+                <!-- Daily Visit Web Task Card (Top) -->
+                <div id="daily-visit-container" style="display: none; margin-bottom: 15px;">
+                    <div class="link-card" id="daily-visit-card" style="background: linear-gradient(135deg, rgba(255, 69, 0, 0.08), rgba(255, 215, 0, 0.08)); border: 1.5px solid rgba(255, 69, 0, 0.25);">
+                        <div class="link-info">
+                            <div class="link-icon-box" style="background: rgba(255, 69, 0, 0.15); color: var(--primary-fire);">
+                                <i class="fa-solid fa-calendar-check" id="daily-visit-icon"></i>
+                            </div>
+                            <div class="link-details">
+                                <h4 id="daily-visit-title">Daily Visit Premium Web Task</h4>
+                                <p id="daily-visit-desc">Visit & Wait 15s = +10 Diamonds</p>
+                            </div>
+                        </div>
+                        <button class="btn-primary" id="btn-daily-visit" style="background: linear-gradient(135deg, var(--primary-fire), #ff1744); color: white;" onclick="app.startDailyVisit()">START VISIT</button>
+                    </div>
+                </div>
+                
                 <div class="links-list" id="links-container">
                     <div style="text-align: center; color: var(--text-muted); padding: 15px;">Loading dynamic missions...</div>
                 </div>
@@ -334,6 +350,25 @@
                 <div><span class="modal-label">Status:</span> <span class="modal-val" style="color: var(--accent-gold);">PENDING</span></div>
             </div>
             <button class="btn-primary" style="width: 100%; margin-top: 15px;" onclick="app.closeRedeemModal()">GREAT!</button>
+        </div>
+    </div>
+
+    <!-- Daily Visit Counter Floating Overlay -->
+    <div id="daily-visit-timer-overlay" class="modal-overlay hidden" style="z-index: 99998; backdrop-filter: blur(10px); background: rgba(7, 7, 12, 0.85); display: none; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;">
+        <div class="modal-card" style="text-align: center; max-width: 320px; border: 2px solid var(--accent-cyan); box-shadow: 0 0 25px rgba(0, 242, 254, 0.25);">
+            <div class="diamond-pulse-box">
+                <img src="diamond.png" class="loader-diamond-img" style="width: 45px; height: 45px;">
+                <div class="pulse-ring"></div>
+            </div>
+            <h3 style="color: #fff; margin-top: 15px;" id="dv-overlay-title">WAITING FOR VISIT</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px; line-height: 1.4;">
+                Please view the opened webpage. Your reward will unlock in:
+            </p>
+            <div id="daily-visit-countdown" style="font-size: 2.2rem; font-weight: 800; color: var(--accent-cyan); margin: 15px 0;">15s</div>
+            <div id="daily-visit-action-box" style="display: none; margin-top: 15px;">
+                <button class="btn-primary" style="width: 100%; background: linear-gradient(135deg, #00e676, #00c853); color: #000; font-weight: 800;" onclick="app.claimDailyVisitReward()">CLAIM DIAMONDS</button>
+            </div>
+            <p style="color: #ff1744; font-size: 0.75rem; font-weight: bold; margin-top: 10px;" id="dv-warning-text"><i class="fa-solid fa-triangle-exclamation"></i> Do not close this app or the visit tab!</p>
         </div>
     </div>
 

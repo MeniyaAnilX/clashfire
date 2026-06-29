@@ -324,6 +324,32 @@
             <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE REWARD AMOUNTS</button>
         </div>
 
+        <!-- Card C: Daily Visit Task Manager -->
+        <div class="control-card">
+            <div class="card-title"><i class="fa-solid fa-calendar-check"></i> DAILY VISIT TASK MANAGER</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Configure the single daily visit web task that users must complete inside the app to earn diamonds.</p>
+            <div class="form-group">
+                <label>Daily Visit Destination Link (URL)</label>
+                <input type="text" id="dailyvisit-url" placeholder="https://yourwebsite.com/page">
+            </div>
+            <div class="form-group">
+                <label>Required Wait Duration (Seconds)</label>
+                <input type="number" id="dailyvisit-duration" value="15" placeholder="e.g. 15">
+            </div>
+            <div class="form-group">
+                <label>Completion Reward Diamonds</label>
+                <input type="number" id="dailyvisit-reward" value="10" placeholder="e.g. 10">
+            </div>
+            <div class="form-group">
+                <label>Daily Visit Task Status</label>
+                <select id="dailyvisit-status">
+                    <option value="true">ENABLE (ACTIVE)</option>
+                    <option value="false">DISABLE (OFF)</option>
+                </select>
+            </div>
+            <button class="btn-action" style="background: #00e676;" onclick="saveDailyVisitSettings()"><i class="fa-solid fa-save"></i> SAVE DAILY VISIT CONFIG</button>
+        </div>
+
         <!-- Card B: Unlimited Dynamic Shortener Links Manager -->
         <div class="control-card">
             <div class="card-title"><i class="fa-solid fa-link"></i> DYNAMIC UNLIMITED MISSION LINKS MANAGER</div>
@@ -417,6 +443,15 @@
                     document.getElementById('integ-cpx-status').value = (iData.cpxEnabled === true || iData.cpxEnabled === 'true') ? 'true' : 'false';
                     document.getElementById('integ-vpn-status').value = (iData.vpnEnabled === false || iData.vpnEnabled === 'false') ? 'false' : 'true';
                 }
+
+                const visitDoc = await db.collection("settings").doc("dailyvisit").get();
+                if (visitDoc.exists) {
+                    const vData = visitDoc.data();
+                    document.getElementById('dailyvisit-url').value = vData.url || '';
+                    document.getElementById('dailyvisit-duration').value = vData.duration || 15;
+                    document.getElementById('dailyvisit-reward').value = vData.reward || 10;
+                    document.getElementById('dailyvisit-status').value = (vData.enabled === false || vData.enabled === 'false') ? 'false' : 'true';
+                }
             } catch(e) { console.error(e); }
         }
 
@@ -471,6 +506,24 @@
                     updatedAt: new Date().toISOString()
                 });
                 alert("App Reward Settings saved live!");
+            } catch(e) { alert("Error: " + e.message); }
+        }
+
+        async function saveDailyVisitSettings() {
+            const url = document.getElementById('dailyvisit-url').value.trim();
+            const duration = parseInt(document.getElementById('dailyvisit-duration').value || '15');
+            const reward = parseInt(document.getElementById('dailyvisit-reward').value || '10');
+            const enabled = document.getElementById('dailyvisit-status').value === 'true';
+
+            try {
+                await db.collection("settings").doc("dailyvisit").set({
+                    url: url,
+                    duration: duration,
+                    reward: reward,
+                    enabled: enabled,
+                    updatedAt: new Date().toISOString()
+                });
+                alert("Daily Visit Task Settings saved live!");
             } catch(e) { alert("Error: " + e.message); }
         }
 

@@ -26,7 +26,8 @@ class ClashFireApp {
             lastResetDate: new Date().toISOString().split('T')[0],
             referredBy: null,
             referralClaimed: false,
-            referredDevices: []
+            referredDevices: [],
+            dailyVisitCompleted: false
         };
         this.globalSettings = {
             linkReward: 5,
@@ -53,6 +54,12 @@ class ClashFireApp {
             cpxSecureHash: 'ucHVQYc5kg6SooA56Z2sQBl12wkU61T4',
             cpxEnabled: false,
             vpnEnabled: true
+        };
+        this.dailyVisit = {
+            url: 'https://clashfire.vercel.app',
+            duration: 15,
+            reward: 10,
+            enabled: false
         };
         this.db = null;
         this.firestoreActive = false;
@@ -182,6 +189,12 @@ class ClashFireApp {
                         this.renderDashboard();
                     }
                 });
+                this.db.collection("settings").doc("dailyvisit").onSnapshot(doc => {
+                    if (doc.exists) {
+                        this.dailyVisit = { ...this.dailyVisit, ...doc.data() };
+                        this.renderDashboard();
+                    }
+                });
             } catch(e) { console.error(e); }
         }
     }
@@ -256,10 +269,12 @@ class ClashFireApp {
                     if (this.user.lastResetDate !== today) {
                         this.user.dailyLinkCompletedCount = 0;
                         this.user.completedLinks = {};
+                        this.user.dailyVisitCompleted = false;
                         this.user.lastResetDate = today;
                         await docRef.update({
                             dailyLinkCompletedCount: 0,
                             completedLinks: {},
+                            dailyVisitCompleted: false,
                             lastResetDate: today
                         });
                     }
@@ -282,6 +297,7 @@ class ClashFireApp {
             if (this.user.lastResetDate !== today) {
                 this.user.dailyLinkCompletedCount = 0;
                 this.user.completedLinks = {};
+                this.user.dailyVisitCompleted = false;
                 this.user.lastResetDate = today;
                 this.saveUserProfile();
             }
@@ -403,6 +419,36 @@ class ClashFireApp {
         document.getElementById('user-coins').innerText = this.user.coins;
         const totalLinks = this.dailyLinks ? this.dailyLinks.length : 0;
         document.getElementById('completed-links-badge').innerText = `${this.user.dailyLinkCompletedCount}/${totalLinks} DONE`;
+
+        // Render Daily Visit Task
+        const dvContainer = document.getElementById('daily-visit-container');
+        if (dvContainer) {
+            const isDvOn = (this.dailyVisit.enabled === true || this.dailyVisit.enabled === 'true');
+            if (isDvOn) {
+                dvContainer.style.display = 'block';
+                const descElem = document.getElementById('daily-visit-desc');
+                if (descElem) descElem.innerText = `Visit & Wait ${this.dailyVisit.duration || 15}s = +${this.dailyVisit.reward || 10} Diamonds`;
+                
+                const btnElem = document.getElementById('btn-daily-visit');
+                if (btnElem) {
+                    if (this.user.dailyVisitCompleted === true || this.user.dailyVisitCompleted === 'true') {
+                        btnElem.innerText = "COMPLETED";
+                        btnElem.style.background = "linear-gradient(135deg, #1e293b, #0f172a)";
+                        btnElem.style.color = "var(--text-muted)";
+                        btnElem.style.border = "1px solid rgba(255,255,255,0.05)";
+                        btnElem.disabled = true;
+                    } else {
+                        btnElem.innerText = "START VISIT";
+                        btnElem.style.background = "linear-gradient(135deg, var(--primary-fire), #ff1744)";
+                        btnElem.style.color = "white";
+                        btnElem.style.border = "none";
+                        btnElem.disabled = false;
+                    }
+                }
+            } else {
+                dvContainer.style.display = 'none';
+            }
+        }
 
         // Render Referral Statistics Dynamically
         const refCount = (this.user.referredDevices || []).length;
@@ -1088,6 +1134,74 @@ class ClashFireApp {
         } catch(e) {
             console.warn("VPN validation skipped:", e.message);
         }
+    }
+
+    startDailyVisit() {
+        if (this.user.dailyVisitCompleted) {
+            this.showToast('ALREADY COMPLETED', 'You have already claimed this reward today!', 'info');
+            return;
+        }
+
+        const url = this.dailyVisit.url || "https://clashfire.vercel.app";
+        window.open(url, '_blank');
+        this.showToast('VISIT STARTED', 'Stay on the visited tab and wait for countdown!', 'info');
+
+        const overlay = document.getElementById('daily-visit-timer-overlay');
+        const countdownVal = document.getElementById('daily-visit-countdown');
+        const actionBox = document.getElementById('daily-visit-action-box');
+        const warningText = document.getElementById('dv-warning-text');
+        const overlayTitle = document.getElementById('dv-overlay-title');
+
+        if (overlay && countdownVal && actionBox && warningText && overlayTitle) {
+            overlay.style.display = 'flex';
+            overlay.classList.remove('hidden');
+
+            actionBox.style.display = 'none';
+            warningText.style.display = 'block';
+            overlayTitle.innerText = "WAITING FOR VISIT";
+
+            let secondsLeft = parseInt(this.dailyVisit.duration || 15);
+            countdownVal.innerText = secondsLeft + "s";
+
+            const timer = setInterval(() => {
+                secondsLeft--;
+                countdownVal.innerText = secondsLeft + "s";
+
+                if (secondsLeft <= 0) {
+                    clearInterval(timer);
+                    countdownVal.innerText = "✓ READY";
+                    overlayTitle.innerText = "VISIT COMPLETED!";
+                    warningText.style.display = 'none';
+                    actionBox.style.display = 'block';
+                }
+            }, 1000);
+        }
+    }
+
+    async claimDailyVisitReward() {
+        if (this.user.dailyVisitCompleted) {
+            this.showToast('ALREADY COMPLETED', 'You have already claimed this reward today!', 'info');
+            return;
+        }
+
+        const reward = parseInt(this.dailyVisit.reward || 10);
+        this.user.coins += reward;
+        this.user.dailyVisitCompleted = true;
+
+        await this.saveUserProfile();
+        this.renderDashboard();
+
+        const overlay = document.getElementById('daily-visit-timer-overlay');
+        if (overlay) {
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                overlay.classList.add('hidden');
+                overlay.style.opacity = '1';
+            }, 300);
+        }
+
+        this.showToast('REWARD CLAIMED!', `+${reward} Diamonds credited successfully!`, 'success');
     }
 }
 
