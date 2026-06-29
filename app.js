@@ -1313,6 +1313,13 @@ class ClashFireApp {
             return;
         }
 
+        // Write dynamic verification token
+        const token = {
+            time: Date.now(),
+            authorized: true
+        };
+        localStorage.setItem("CF_ACTIVE_TOKEN_TASK_" + taskId, JSON.stringify(token));
+
         // Open shortener link in a new tab. When finished, it redirects back to verify.html?task=X
         const targetUrl = link.url;
         window.open(targetUrl, '_blank');
