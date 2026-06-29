@@ -1331,6 +1331,14 @@ class ClashFireApp {
             const ffUidDisplay = `${ffUidPart1}****${ffUidPart2}`;
             const diamondPackage = packages[Math.floor(Math.random() * packages.length)];
             
+            const isSent = Math.random() < 0.7; // 70% chance SENT, 30% PENDING
+            const badgeStyle = isSent 
+                ? 'background: rgba(0, 230, 118, 0.15); color: #00e676;' 
+                : 'background: rgba(255, 145, 0, 0.15); color: #ff9100;';
+            const badgeText = isSent 
+                ? '<i class="fa-solid fa-circle-check"></i> SENT' 
+                : '<i class="fa-solid fa-clock"></i> PENDING';
+
             const proofItem = document.createElement('div');
             proofItem.className = 'proof-item';
             proofItem.innerHTML = `
@@ -1340,7 +1348,7 @@ class ClashFireApp {
                 </div>
                 <div class="proof-details">
                     <span class="proof-amount">💎 ${diamondPackage}</span>
-                    <span class="proof-badge"><i class="fa-solid fa-circle-check"></i> Sent</span>
+                    <span class="proof-badge" style="${badgeStyle}">${badgeText}</span>
                 </div>
             `;
             
