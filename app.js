@@ -52,8 +52,7 @@ class ClashFireApp {
             sponsorEnabled: true,
             cpxAppId: '34050',
             cpxSecureHash: 'ucHVQYc5kg6SooA56Z2sQBl12wkU61T4',
-            cpxEnabled: false,
-            vpnEnabled: true
+            cpxEnabled: false
         };
         this.dailyVisit = {
             items: [
@@ -1363,7 +1362,7 @@ class ClashFireApp {
 
             // Seed initial state if empty
             if (tickerContainer.children.length === 0) {
-                for (let i = 2; i >= 0; i--) {
+                for (let i = 1; i >= 0; i--) {
                     const item = generateProofForSeed(T - i);
                     tickerContainer.appendChild(item);
                 }
@@ -1373,7 +1372,7 @@ class ClashFireApp {
                 tickerContainer.insertBefore(newestItem, tickerContainer.firstChild);
 
                 // Remove the oldest item
-                while (tickerContainer.children.length > 3) {
+                while (tickerContainer.children.length > 2) {
                     tickerContainer.removeChild(tickerContainer.lastChild);
                 }
             }
