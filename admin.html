@@ -728,6 +728,31 @@
             if (!secondConfirm) return;
 
             try {
+                // 1. Fetch user data to check if referredBy exists
+                const userSnap = await db.collection("users").doc(docId).get();
+                if (userSnap.exists) {
+                    const uData = userSnap.data();
+                    if (uData.referredBy) {
+                        const refCode = uData.referredBy;
+                        
+                        // Find the referrer user to clean up their referredDevices array
+                        const snapshot = await db.collection("users").get();
+                        for (const rDoc of snapshot.docs) {
+                            const displayId = "CF-" + rDoc.id.substring(9, 15);
+                            if (displayId === refCode && rDoc.id !== docId) {
+                                const rData = rDoc.data();
+                                const updatedDevices = (rData.referredDevices || []).filter(id => id !== docId);
+                                await rDoc.ref.update({
+                                    referredDevices: updatedDevices
+                                });
+                                console.log(`Successfully cleaned up device ID ${docId} from referrer ${displayId} referred list.`);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // 2. Delete user and associated requests
                 await db.collection("users").doc(docId).delete();
 
                 const querySnap = await db.collection("redemptions").where("deviceId", "==", docId).get();
