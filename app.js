@@ -335,9 +335,19 @@ class ClashFireApp {
                     // Write back sync updates to cache
                     localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
                 } else {
-                    this.user.lastResetDate = today;
-                    this.user.redemptionHistory = [];
-                    this.user.completedLinks = {};
+                    this.user = {
+                        coins: 0,
+                        freeFireUid: '',
+                        dailyLinkCompletedCount: 0,
+                        completedLinks: {},
+                        redemptionHistory: [],
+                        lastResetDate: today,
+                        referredBy: null,
+                        referralClaimed: false,
+                        referredDevices: [],
+                        completedDailyVisits: {}
+                    };
+                    localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
                     await docRef.set(this.user);
                 }
                 return;
