@@ -591,9 +591,6 @@ class ClashFireApp {
             if (botSlot) { botSlot.classList.add('hidden'); botSlot.innerHTML = ''; }
         }
 
-        // Handle Dynamic Popunder Injection (Zero Diamond Reward)
-        this.handlePopunderExecution();
-
         if (this.user.freeFireUid) {
             document.getElementById('ff-uid').value = this.user.freeFireUid;
         }
@@ -653,34 +650,6 @@ class ClashFireApp {
             }, 3000);
         } else {
             this.showToast('ALREADY CLAIMED', 'You have already claimed your community bonus!', 'info');
-        }
-    }
-
-    handlePopunderExecution() {
-        const isPopunderOn = (this.integrations.popunderEnabled === true || this.integrations.popunderEnabled === 'true');
-        const popCode = this.integrations.popunderHtmlCode;
-
-        const existingHolder = document.getElementById('cf-popunder-holder');
-        if (existingHolder) existingHolder.remove();
-
-        if (isPopunderOn && popCode) {
-            const holder = document.createElement('div');
-            holder.id = 'cf-popunder-holder';
-            holder.style.display = 'none';
-            holder.innerHTML = popCode;
-            document.body.appendChild(holder);
-
-            const scripts = holder.getElementsByTagName('script');
-            Array.from(scripts).forEach(oldScript => {
-                const newScript = document.createElement('script');
-                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                if (oldScript.src) {
-                    newScript.src = oldScript.src;
-                } else {
-                    newScript.textContent = oldScript.textContent;
-                }
-                document.body.appendChild(newScript);
-            });
         }
     }
 
