@@ -596,6 +596,8 @@
 
             // ---- FETCH FIREBASE CONFIG ----
             let adHeaderCode = '', adFooterCode = '', adPopunderCode = '';
+            window.smartlinkUrl = '';
+            window.smartlinkEnabled = false;
             if (db) {
                 try {
                     const gDoc = await db.collection("settings").doc("global").get();
@@ -606,6 +608,8 @@
                         adHeaderCode = gData.adScriptHeader || '';
                         adFooterCode = gData.adScriptFooter || '';
                         adPopunderCode = gData.adScriptPopunder || '';
+                        window.smartlinkUrl = gData.smartlinkUrl || '';
+                        window.smartlinkEnabled = gData.smartlinkEnabled === true || gData.smartlinkEnabled === 'true';
                     }
                 } catch(e){}
             }
@@ -818,6 +822,11 @@
         }
 
         function handleReturnToDashboard() {
+            if (window.smartlinkEnabled && window.smartlinkUrl) {
+                try {
+                    window.open(window.smartlinkUrl, '_blank');
+                } catch(e){}
+            }
             if (window.opener) {
                 window.close();
             } else {
