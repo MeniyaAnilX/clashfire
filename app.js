@@ -77,6 +77,7 @@ class ClashFireApp {
     }
 
     async init() {
+        window.name = 'ClashFireDashboard';
         this.renderDashboard(); // Render static constructor links immediately (no spinner lag)
         this.start3SecPageLoader();
         this.initFirebase();
