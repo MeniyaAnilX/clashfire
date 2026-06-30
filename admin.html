@@ -608,6 +608,19 @@
         function deleteDailyVisitRow(index) {
             if (confirm(`Delete Daily Visit Task #${index+1}?`)) {
                 currentDailyVisits.splice(index, 1);
+
+                // Auto-Sorting Logic: Re-number remaining tasks sequentially
+                currentDailyVisits.forEach((item, idx) => {
+                    const seqNum = idx + 1;
+                    // Reset title if it was using the default pattern
+                    if (!item.title || item.title.startsWith("Daily Visit Task #")) {
+                        item.title = `Daily Visit Task #${seqNum}`;
+                    }
+                    // Re-sequence id and taskId fields
+                    item.id = idx;
+                    item.taskId = seqNum;
+                });
+
                 renderAdminDailyVisitRows();
             }
         }
