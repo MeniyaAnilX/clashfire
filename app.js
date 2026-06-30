@@ -1091,8 +1091,8 @@ class ClashFireApp {
     shareNative() {
         const refLink = `${window.location.origin}${window.location.pathname}?ref=${this.displayUserId}`;
         const shareData = {
-            title: 'CLASH FIRE - Free Diamonds',
-            text: `🔥 Play Clash Fire & earn FREE Free Fire Diamonds daily! Join using my link:`,
+            title: 'FFire.xyz - Free Diamonds',
+            text: `🔥 Play FFire.xyz & earn FREE Free Fire Diamonds daily! Join using my link:`,
             url: refLink
         };
 
