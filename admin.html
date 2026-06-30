@@ -331,9 +331,9 @@
 
     <!-- Tab 6: Reward & Missions Settings -->
     <div id="tab-settings" class="tab-content">
-        <!-- Card A: Rewards -->
+        <!-- Card A: Rewards & Timer -->
         <div class="control-card">
-            <div class="card-title"><i class="fa-solid fa-sliders"></i> DYNAMIC REWARD AMOUNTS</div>
+            <div class="card-title"><i class="fa-solid fa-sliders"></i> DYNAMIC REWARD & TIMER CONFIG</div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 15px;">
                 <div class="form-group">
                     <label>Diamonds Per Link</label>
@@ -342,6 +342,10 @@
                 <div class="form-group">
                     <label>Referral Mission Commission (%)</label>
                     <input type="number" id="setting-ref-commission" value="10" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label>Verification Timer (Seconds)</label>
+                    <input type="number" id="setting-timer-seconds" value="20" min="5" max="300">
                 </div>
             </div>
             
@@ -363,20 +367,6 @@
             </div>
 
             <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE REWARD & AD SETTINGS</button>
-        </div>
-
-        <!-- Card B: Unlimited Dynamic Shortener Links Manager -->
-        <div class="control-card">
-            <div class="card-title"><i class="fa-solid fa-link"></i> DYNAMIC UNLIMITED MISSION LINKS MANAGER</div>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Add as many shortener links as you want. Customize both Mission Name and Shortener URL!</p>
-            
-            <div id="dynamic-links-list-container">
-                <!-- Dynamically populated links -->
-            </div>
-
-            <button class="btn-action" style="background: rgba(0,242,254,0.15); color: var(--accent-cyan); border: 1.5px dashed var(--accent-cyan); margin-bottom: 15px;" onclick="addNewMissionRow()"><i class="fa-solid fa-plus"></i> ADD NEW MISSION LINK</button>
-
-            <button class="btn-action" style="background: var(--accent-gold);" onclick="saveMissionLinks()"><i class="fa-solid fa-save"></i> SAVE DYNAMIC MISSION LINKS</button>
         </div>
     </div>
 
@@ -412,6 +402,7 @@
                     const data = doc.data();
                     document.getElementById('setting-link-reward').value = data.linkReward || 5;
                     document.getElementById('setting-ref-commission').value = data.referralCommissionPercent || 10;
+                    document.getElementById('setting-timer-seconds').value = data.verifyTimerSeconds || 20;
                     document.getElementById('ad-script-header').value = data.adScriptHeader || '';
                     document.getElementById('ad-script-footer').value = data.adScriptFooter || '';
                     document.getElementById('ad-script-popunder').value = data.adScriptPopunder || '';
@@ -579,6 +570,7 @@
         async function saveGlobalSettings() {
             const linkR = parseInt(document.getElementById('setting-link-reward').value || '5');
             const refPercent = parseInt(document.getElementById('setting-ref-commission').value || '10');
+            const timerSec = parseInt(document.getElementById('setting-timer-seconds').value || '20');
             const adHeader = document.getElementById('ad-script-header').value.trim();
             const adFooter = document.getElementById('ad-script-footer').value.trim();
             const adPopunder = document.getElementById('ad-script-popunder').value.trim();
@@ -587,6 +579,7 @@
                 await db.collection("settings").doc("global").set({
                     linkReward: linkR,
                     referralCommissionPercent: refPercent,
+                    verifyTimerSeconds: timerSec,
                     adScriptHeader: adHeader,
                     adScriptFooter: adFooter,
                     adScriptPopunder: adPopunder,

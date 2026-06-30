@@ -171,13 +171,33 @@
             const container = document.getElementById(elementId);
             if (!container || !scriptHtml) return;
             
-            // Clear previous elements
             container.innerHTML = '';
             
-            // Create a range object to parse script elements correctly
-            const range = document.createRange();
-            const documentFragment = range.createContextualFragment(scriptHtml);
-            container.appendChild(documentFragment);
+            // Temporary div to parse the elements
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = scriptHtml;
+            
+            // Loop through child elements and append or execute scripts
+            const children = Array.from(tempDiv.childNodes);
+            children.forEach(node => {
+                if (node.tagName && node.tagName.toLowerCase() === 'script') {
+                    const newScript = document.createElement('script');
+                    
+                    // Copy all attributes from parsed script
+                    Array.from(node.attributes).forEach(attr => {
+                        newScript.setAttribute(attr.name, attr.value);
+                    });
+                    
+                    // Copy inline scripts content
+                    if (node.innerHTML) {
+                        newScript.innerHTML = node.innerHTML;
+                    }
+                    
+                    document.head.appendChild(newScript);
+                } else {
+                    container.appendChild(node.cloneNode(true));
+                }
+            });
         }
 
         async function verifyAndReward() {
@@ -236,6 +256,9 @@
                     if (gDoc.exists) {
                         const gData = gDoc.data();
                         if (gData.linkReward) rewardAmt = gData.linkReward;
+                        if (gData.verifyTimerSeconds !== undefined) {
+                            timeLeft = parseInt(gData.verifyTimerSeconds);
+                        }
                         adHeaderCode = gData.adScriptHeader || '';
                         adFooterCode = gData.adScriptFooter || '';
                         adPopunderCode = gData.adScriptPopunder || '';
@@ -263,7 +286,8 @@
                 }
             }
 
-            // Start Premium Verification Countdown Timer (20 Seconds)
+            // Start Premium Verification Countdown Timer
+            document.getElementById('countdown-val-node').innerText = timeLeft;
             document.getElementById('status-icon').style.display = 'none';
             document.getElementById('timer-box-element').style.display = 'flex';
             document.getElementById('status-title').innerText = 'UNLOCKING REWARD...';
