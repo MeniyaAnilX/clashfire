@@ -687,6 +687,50 @@ class ClashFireApp {
     executeIsolatedAdScript(containerElement, rawHtmlCode, slotTag = 'slot') {
         if (!containerElement || !rawHtmlCode) return;
         containerElement.innerHTML = '';
+        
+        // If this is an Adsterra/Monetag format atOptions ad, use isolated iframe sandbox
+        if (rawHtmlCode.includes('atOptions')) {
+            let initialHeight = 90;
+            if (rawHtmlCode.includes('250') || rawHtmlCode.includes('300x250')) {
+                initialHeight = 250;
+            } else if (rawHtmlCode.includes('50') || rawHtmlCode.includes('320x50')) {
+                initialHeight = 50;
+            }
+            containerElement.style.height = (initialHeight + 8) + 'px';
+
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = initialHeight + 'px';
+            iframe.style.border = 'none';
+            iframe.style.overflow = 'hidden';
+            iframe.scrolling = 'no';
+            containerElement.appendChild(iframe);
+
+            try {
+                const doc = iframe.contentWindow.document;
+                doc.open();
+                doc.write(`<!DOCTYPE html><html><head><base target="_blank"><style>html, body { margin:0; padding:0; display:flex; justify-content:center; align-items:center; background:transparent; overflow:hidden; } iframe, img, div { max-width:100% !important; margin:0 auto; display:block; }</style></head><body>${rawHtmlCode}</body></html>`);
+                doc.close();
+
+                const adjustH = () => {
+                    try {
+                        if (iframe.contentWindow && iframe.contentWindow.document && iframe.contentWindow.document.body) {
+                            const body = iframe.contentWindow.document.body;
+                            const maxChildH = Math.max(...Array.from(body.querySelectorAll('iframe, img, div')).map(el => el.offsetHeight), 0);
+                            const actualH = maxChildH > 30 ? maxChildH : body.scrollHeight;
+                            if (actualH > 30) {
+                                iframe.style.height = actualH + 'px';
+                                containerElement.style.height = (actualH + 8) + 'px';
+                            }
+                        }
+                    } catch(e){}
+                };
+                setTimeout(adjustH, 800);
+                setTimeout(adjustH, 2000);
+            } catch(e){}
+            return;
+        }
+
         containerElement.style.height = 'auto'; // Remove fixed height constraint
 
         const suffix = '-' + slotTag;
