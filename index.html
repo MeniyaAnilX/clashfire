@@ -37,8 +37,9 @@
     <meta name="apple-mobile-web-app-title" content="FFire.xyz">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -418,7 +419,7 @@
                             <img src="diamond.png" alt="Gem" class="pkg-gem-img">
                         </div>
                         <div class="pkg-cost">310 💎</div>
-                        <button class="btn-redeem">REDEEM</button>
+                        <button class="btn-redeem" aria-label="Redeem 310 Diamonds Package">REDEEM</button>
                     </div>
                     <!-- Package 2: 520 Diamonds -->
                     <div class="package-card" onclick="app.selectPackage(this, 520, 520)">
@@ -426,7 +427,7 @@
                             <img src="diamond.png" alt="Gem" class="pkg-gem-img">
                         </div>
                         <div class="pkg-cost">520 💎</div>
-                        <button class="btn-redeem">REDEEM</button>
+                        <button class="btn-redeem" aria-label="Redeem 520 Diamonds Package">REDEEM</button>
                     </div>
                     <!-- Package 3: 1060 Diamonds -->
                     <div class="package-card" onclick="app.selectPackage(this, 1060, 1060)">
@@ -434,7 +435,7 @@
                             <img src="diamond.png" alt="Gem" class="pkg-gem-img">
                         </div>
                         <div class="pkg-cost">1060 💎</div>
-                        <button class="btn-redeem">REDEEM</button>
+                        <button class="btn-redeem" aria-label="Redeem 1060 Diamonds Package">REDEEM</button>
                     </div>
                     <!-- Package 4: 2180 Diamonds -->
                     <div class="package-card" onclick="app.selectPackage(this, 2180, 2180)">
@@ -442,7 +443,7 @@
                             <img src="diamond.png" alt="Gem" class="pkg-gem-img">
                         </div>
                         <div class="pkg-cost">2180 💎</div>
-                        <button class="btn-redeem">REDEEM</button>
+                        <button class="btn-redeem" aria-label="Redeem 2180 Diamonds Package">REDEEM</button>
                     </div>
                     <!-- Package 5: 5600 Diamonds -->
                     <div class="package-card" onclick="app.selectPackage(this, 5600, 5600)">
@@ -450,7 +451,7 @@
                             <img src="diamond.png" alt="Gem" class="pkg-gem-img">
                         </div>
                         <div class="pkg-cost">5600 💎</div>
-                        <button class="btn-redeem">REDEEM</button>
+                        <button class="btn-redeem" aria-label="Redeem 5600 Diamonds Package">REDEEM</button>
                     </div>
                     <!-- Package 6: 11,500 Diamonds -->
                     <div class="package-card" onclick="app.selectPackage(this, 11500, 11500)">
@@ -458,7 +459,7 @@
                             <img src="diamond.png" alt="Gem" class="pkg-gem-img">
                         </div>
                         <div class="pkg-cost">11,500 💎</div>
-                        <button class="btn-redeem">REDEEM</button>
+                        <button class="btn-redeem" aria-label="Redeem 11500 Diamonds Package">REDEEM</button>
                     </div>
                 </div>
             <!-- Middle Dynamic Native Banner Ad Slot (Above Redemption History) -->
