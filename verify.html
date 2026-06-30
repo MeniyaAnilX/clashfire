@@ -689,6 +689,31 @@
             document.getElementById('return-btn').style.display = 'block';
         }
 
+        async function getSecureServerDate() {
+            try {
+                const res = await fetch('https://worldtimeapi.org/api/timezone/Asia/Kolkata');
+                const data = await res.json();
+                if (data && data.datetime) {
+                    return data.datetime.split('T')[0];
+                }
+            } catch (e) {
+                try {
+                    const res2 = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata');
+                    const data2 = await res2.json();
+                    if (data2 && data2.date) {
+                        const parts = data2.date.split('/');
+                        if (parts.length === 3) {
+                            return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+                        }
+                    }
+                } catch (err) {}
+            }
+            const d = new Date();
+            const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+            const istTime = new Date(utc + (3600000 * 5.5));
+            return istTime.toISOString().split('T')[0];
+        }
+
         // ---- CLAIM REWARD (Step 2 only) ----
         async function executeVerificationAndReward() {
             document.getElementById('btn-verify-action').style.display = 'none';
@@ -718,12 +743,16 @@
                 return;
             }
 
+            // Fetch secure server time
+            const today = await getSecureServerDate();
+
             // Credit reward & burn tokens
             localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
             localStorage.removeItem("CF_STEP1_DONE_TASK_" + taskId);
             userData.completedLinks[taskId] = true;
             userData.coins = (userData.coins || 0) + rewardAmt;
             userData.dailyLinkCompletedCount = (userData.dailyLinkCompletedCount || 0) + 1;
+            userData.lastResetDate = today;
 
             localStorage.setItem('CLASH_USER_DATA_' + deviceId, JSON.stringify(userData));
 

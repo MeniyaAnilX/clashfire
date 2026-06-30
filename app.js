@@ -261,8 +261,34 @@ class ClashFireApp {
         return finalId;
     }
 
+    async getSecureServerDate() {
+        try {
+            const res = await fetch('https://worldtimeapi.org/api/timezone/Asia/Kolkata');
+            const data = await res.json();
+            if (data && data.datetime) {
+                return data.datetime.split('T')[0];
+            }
+        } catch (e) {
+            try {
+                const res2 = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata');
+                const data2 = await res2.json();
+                if (data2 && data2.date) {
+                    const parts = data2.date.split('/');
+                    if (parts.length === 3) {
+                        return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+                    }
+                }
+            } catch (err) {}
+        }
+        // Secure Fallback: Local system UTC offset transformed to IST (+5:30)
+        const d = new Date();
+        const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+        const istTime = new Date(utc + (3600000 * 5.5));
+        return istTime.toISOString().split('T')[0];
+    }
+
     async loadUserProfile() {
-        const today = new Date().toISOString().split('T')[0];
+        const today = await this.getSecureServerDate();
 
         if (this.firestoreActive) {
             try {
