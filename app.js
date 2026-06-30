@@ -621,7 +621,7 @@ class ClashFireApp {
                 topSlot.classList.add('hidden'); topSlot.innerHTML = '';
             }
 
-            const midCode = this.integrations.bannerMiddleHtmlCode || this.integrations.bannerHtmlCode;
+            const midCode = this.integrations.bannerMiddleHtmlCode;
             if (midHomeSlot && midCode) {
                 midHomeSlot.classList.remove('hidden');
                 this.executeIsolatedAdScript(midHomeSlot, midCode, 'mid-home');
@@ -636,7 +636,7 @@ class ClashFireApp {
                 midRedeemSlot.classList.add('hidden'); midRedeemSlot.innerHTML = '';
             }
 
-            const botCode = this.integrations.bannerBottomHtmlCode || this.integrations.bannerHtmlCode;
+            const botCode = this.integrations.bannerBottomHtmlCode;
             if (botSlot && botCode) {
                 botSlot.classList.remove('hidden');
                 this.executeIsolatedAdScript(botSlot, botCode, 'bottom');
