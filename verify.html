@@ -204,7 +204,7 @@
     </button>
 
     <!-- Return to Dashboard (kept outside step sections so it's always available when success/error renders) -->
-    <a href="https://ffire.xyz/index.html" class="btn-return" id="return-btn">RETURN TO DASHBOARD</a>
+    <button class="btn-return" id="return-btn" style="display:none;" onclick="handleReturnToDashboard()">RETURN TO DASHBOARD</button>
 
 
     <!-- ========================================== -->
@@ -815,6 +815,14 @@
             document.getElementById('status-desc').innerText = '';
             document.getElementById('reward-amt').innerText = `+${rewardAmt} Diamonds`;
             document.getElementById('return-btn').style.display = 'block';
+        }
+
+        function handleReturnToDashboard() {
+            if (window.opener) {
+                window.close();
+            } else {
+                window.location.href = "https://ffire.xyz/index.html";
+            }
         }
 
         window.addEventListener('DOMContentLoaded', verifyAndReward);
