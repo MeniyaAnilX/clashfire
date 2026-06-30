@@ -193,12 +193,26 @@
     </div>
 
 
+    <!-- STEP 1: CONTINUE Button (shows after step1 timer ends) -->
+    <button class="btn-continue" id="btn-continue" onclick="goToStep2()">
+        CONTINUE &nbsp;<i class="fa-solid fa-arrow-right"></i>
+    </button>
+
+    <!-- STEP 2: VERIFY Button (shows after step2 timer ends) -->
+    <button class="btn-verify-task" id="btn-verify-action" onclick="executeVerificationAndReward()">
+        <i class="fa-solid fa-circle-check"></i>&nbsp; VERIFY MISSION
+    </button>
+
+    <!-- Return to Dashboard (kept outside step sections so it's always available when success/error renders) -->
+    <a href="https://ffire.xyz/index.html" class="btn-return" id="return-btn">RETURN TO DASHBOARD</a>
+
+
     <!-- ========================================== -->
     <!-- PAGE 1 (STEP 1) STRUCTURE                  -->
     <!-- ========================================== -->
     <div class="content-section" id="content-step1">
         <!-- Content 1: Master the Gloo Wall -->
-        <div class="section-label">🎮 Free Fire Complete Guide 2025</div>
+        <div class="section-label">🎮 Free Fire Complete Guide</div>
         <div class="tip-card">
             <div class="tip-icon">🏆</div>
             <div class="tip-body">
@@ -207,16 +221,11 @@
             </div>
         </div>
 
-        <!-- Continue Button (shown after timer according to timing logic) -->
-        <button class="btn-continue" id="btn-continue" onclick="goToStep2()">
-            CONTINUE &nbsp;<i class="fa-solid fa-arrow-right"></i>
-        </button>
-
         <!-- Ads Slot below Button -->
         <div id="ad-slot-step1-bottom" class="ad-slot" style="margin-top: 15px; margin-bottom: 10px;"></div>
 
         <!-- Other Free Fire Content (Visible after timer ends, or always under the Ads) -->
-        <div class="section-label" style="margin-top: 15px;">🎮 Extra Free Fire Tips & Tricks</div>
+        <div class="section-label" style="margin-top: 15px;">🎮 Extra Free Fire Tips &amp; Tricks</div>
         
         <div class="tip-card">
             <div class="tip-icon">💎</div>
@@ -237,8 +246,8 @@
         <div class="tip-card">
             <div class="tip-icon">🔫</div>
             <div class="tip-body">
-                <h4>Best Weapon Combinations in Free Fire 2025</h4>
-                <p>Choosing the right weapon combo can win or lose a game. The top combinations used by Heroic and Grand Master players in 2025 are: (1) M1014 Shotgun + M14 Rifle — best for aggressive players who like close-range pushes with long-range backup. (2) MP40 + SKS — perfect for fast-paced mid-range combat with high fire rate. (3) FAMAS + SVD Sniper — ideal for zone camping and long-range eliminations. Always attach silencers on SMGs to reduce sound signature. Prioritise Level 3 helmet and vest over weapon attachments in the early game for better survival chances.</p>
+                <h4>Best Weapon Combinations in Free Fire</h4>
+                <p>Choosing the right weapon combo can win or lose a game. The top combinations used by Heroic and Grand Master players are: (1) M1014 Shotgun + M14 Rifle — best for aggressive players who like close-range pushes with long-range backup. (2) MP40 + SKS — perfect for fast-paced mid-range combat with high fire rate. (3) FAMAS + SVD Sniper — ideal for zone camping and long-range eliminations. Always attach silencers on SMGs to reduce sound signature. Prioritise Level 3 helmet and vest over weapon attachments in the early game for better survival chances.</p>
             </div>
         </div>
 
@@ -246,7 +255,7 @@
             <div class="tip-icon">🧠</div>
             <div class="tip-body">
                 <h4>Character Abilities — Best Combinations for Ranked</h4>
-                <p>Free Fire characters have unique active and passive abilities that can completely change your gameplay. The most powerful character combination for ranked mode in 2025 is: Chrono (active — force field shield), Hayato (passive — armor penetration increases as HP drops), Moco (passive — tags enemies on hit), and Joseph (passive — speed boost when taking damage). This combo gives you defensive shield, damage boost when low HP, and escape speed — perfect for 1v4 situations. For aggressive rush players, replace Chrono with Alok for heal-while-moving ability to sustain in long fights.</p>
+                <p>Free Fire characters have unique active and passive abilities that can completely change your gameplay. The most powerful character combination for ranked mode is: Chrono (active — force field shield), Hayato (passive — armor penetration increases as HP drops), Moco (passive — tags enemies on hit), and Joseph (passive — speed boost when taking damage). This combo gives you defensive shield, damage boost when low HP, and escape speed — perfect for 1v4 situations. For aggressive rush players, replace Chrono with Alok for heal-while-moving ability to sustain in long fights.</p>
             </div>
         </div>
 
@@ -298,11 +307,6 @@
             </div>
         </div>
 
-        <!-- Claim Button / Return Button Wrapper -->
-        <button class="btn-verify-task" id="btn-verify-action" onclick="executeVerificationAndReward()">
-            <i class="fa-solid fa-circle-check"></i>&nbsp; VERIFY MISSION
-        </button>
-
         <!-- Ads Slot below Button -->
         <div id="ad-slot-step2-bottom" class="ad-slot" style="margin-top: 15px; margin-bottom: 10px;"></div>
 
@@ -336,8 +340,8 @@
         <div class="tip-card">
             <div class="tip-icon">🌐</div>
             <div class="tip-body">
-                <h4>Passive Income Sources You Can Start in 2025</h4>
-                <p>Passive income means earning money with minimal active effort after initial setup. The most accessible passive income sources for Indian youth in 2025 are: (1) Dividend Stocks — invest in companies paying 4–7% annual dividend yield; (2) YouTube Channel — earn through AdSense once you cross 1,000 subscribers; (3) Affiliate Marketing — earn 4–10% commission through Amazon Associates or Flipkart Affiliate; (4) Digital Products — sell eBooks, templates, or courses on Gumroad or Teachable; (5) REITs listed on NSE — earn real estate rental income with as little as ₹300 per unit without buying physical property.</p>
+                <h4>Passive Income Sources You Can Start</h4>
+                <p>Passive income means earning money with minimal active effort after initial setup. The most accessible passive income sources for Indian youth are: (1) Dividend Stocks — invest in companies paying 4–7% annual dividend yield; (2) YouTube Channel — earn through AdSense once you cross 1,000 subscribers; (3) Affiliate Marketing — earn 4–10% commission through Amazon Associates or Flipkart Affiliate; (4) Digital Products — sell eBooks, templates, or courses on Gumroad or Teachable; (5) REITs listed on NSE — earn real estate rental income with as little as ₹300 per unit without buying physical property.</p>
             </div>
         </div>
 
