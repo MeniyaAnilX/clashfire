@@ -48,17 +48,8 @@
             background-image: radial-gradient(circle at 50% 30%, rgba(0, 242, 254, 0.15) 0%, transparent 70%);
             color: var(--text-main);
             min-height: 100vh;
-            display: flex; justify-content: center; align-items: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
             padding: 20px; text-align: center;
-        }
-        .verify-card {
-            background: var(--bg-card);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            padding: 30px 20px;
-            max-width: 420px; width: 100%;
-            box-shadow: none;
-            display: flex; flex-direction: column; align-items: center;
         }
         .icon-box { font-size: 3.5rem; color: var(--accent-cyan); margin-bottom: 15px; }
         .spin { animation: spin 1.5s infinite linear; }
@@ -90,14 +81,14 @@
         .btn-return {
             background: linear-gradient(135deg, var(--accent-cyan), #00a8ff);
             color: #000; border: none; padding: 14px; border-radius: 12px;
-            font-weight: 800; font-size: 1rem; cursor: pointer; width: 100%;
+            font-weight: 800; font-size: 1rem; cursor: pointer; width: 320px; max-width: 100%;
             display: none; text-decoration: none; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
             text-align: center; margin-top: 15px;
         }
         .btn-verify-task {
             background: linear-gradient(135deg, #00e676, #00c853);
             color: #000; border: none; padding: 14px; border-radius: 12px;
-            font-weight: 800; font-size: 1rem; cursor: pointer; width: 100%;
+            font-weight: 800; font-size: 1rem; cursor: pointer; width: 320px; max-width: 100%;
             display: none; text-decoration: none; box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
             text-align: center; margin-top: 15px;
         }
@@ -105,29 +96,27 @@
 </head>
 <body>
 
-    <div class="verify-card">
-        <!-- Header / Top Banner Ad Inside Card -->
-        <div id="ad-slot-header" style="width: 100%; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; min-height: 50px; overflow: hidden; border-radius: 8px;"></div>
+    <!-- Header / Top Banner Ad Slot -->
+    <div id="ad-slot-header" style="width: 100%; max-width: 728px; margin: 0 auto 20px auto; display: flex; justify-content: center; align-items: center; min-height: 90px; overflow: hidden;"></div>
 
-        <div class="icon-box" id="status-icon"><i class="fa-solid fa-spinner spin"></i></div>
-        <h2 id="status-title">VERIFYING MISSION...</h2>
-        <p id="status-desc">Validating task completion with anti-cheat servers.</p>
-        
-        <!-- Premium Countdown Timer Box -->
-        <div class="timer-box" id="timer-box-element" style="display: none;">
-            <span id="countdown-val-node">20</span>
-        </div>
-
-        <div class="reward-badge"><img src="https://ffire.xyz/diamond.png" alt="Diamond" style="width: 24px; height: 24px; object-fit: contain;"> <span id="reward-amt">+5 Diamonds</span></div>
-        
-        <!-- Verification Action Button -->
-        <button class="btn-verify-task" id="btn-verify-action" onclick="executeVerificationAndReward()">VERIFY MISSION</button>
-        
-        <a href="https://ffire.xyz/index.html" class="btn-return" id="return-btn">RETURN TO DASHBOARD</a>
-
-        <!-- Footer / Bottom Banner Ad Inside Card -->
-        <div id="ad-slot-footer" style="width: 100%; margin-top: 20px; display: flex; justify-content: center; align-items: center; min-height: 50px; overflow: hidden; border-radius: 8px;"></div>
+    <div class="icon-box" id="status-icon"><i class="fa-solid fa-spinner spin"></i></div>
+    <h2 id="status-title">VERIFYING MISSION...</h2>
+    <p id="status-desc">Validating task completion with anti-cheat servers.</p>
+    
+    <!-- Premium Countdown Timer Box -->
+    <div class="timer-box" id="timer-box-element" style="display: none;">
+        <span id="countdown-val-node">20</span>
     </div>
+
+    <div class="reward-badge"><img src="https://ffire.xyz/diamond.png" alt="Diamond" style="width: 24px; height: 24px; object-fit: contain;"> <span id="reward-amt">+5 Diamonds</span></div>
+    
+    <!-- Verification Action Button -->
+    <button class="btn-verify-task" id="btn-verify-action" onclick="executeVerificationAndReward()">VERIFY MISSION</button>
+    
+    <a href="https://ffire.xyz/index.html" class="btn-return" id="return-btn">RETURN TO DASHBOARD</a>
+
+    <!-- Footer / Bottom Banner Ad Slot -->
+    <div id="ad-slot-footer" style="width: 100%; max-width: 728px; margin: 20px auto 0 auto; display: flex; justify-content: center; align-items: center; min-height: 90px; overflow: hidden;"></div>
 
     <script>
         const firebaseConfig = {
