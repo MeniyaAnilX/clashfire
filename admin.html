@@ -501,7 +501,7 @@
                     <button class="btn-del-link" onclick="deleteMissionRow(${index})"><i class="fa-solid fa-trash"></i> DELETE</button>
                     <div class="form-group" style="margin-bottom: 8px;">
                         <label>Mission #${missionNum} Custom Title</label>
-                        <input type="text" id="m-title-${index}" value="${item.title || ('Daily Mission #' + missionNum)}" placeholder="e.g. GPLink Elite Loot #${missionNum}">
+                        <input type="text" id="m-title-${index}" value="${item.title || ('Daily Mission Supply #' + missionNum)}" placeholder="e.g. GPLink Elite Loot #${missionNum}">
                     </div>
                     <div class="form-group" style="margin-bottom: 4px;">
                         <label>Mission #${missionNum} Shortener URL</label>
@@ -514,6 +514,9 @@
         }
 
         function addNewMissionRow() {
+            // Harvest current input states before pushing
+            harvestMissionInputs();
+
             const nextMissionNum = currentMissionLinks.length + 1;
             currentMissionLinks.push({
                 title: `Daily Mission Supply #${nextMissionNum}`,
@@ -522,9 +525,36 @@
             renderAdminMissionRows();
         }
 
+        function harvestMissionInputs() {
+            for (let i = 0; i < currentMissionLinks.length; i++) {
+                const titleElem = document.getElementById(`m-title-${i}`);
+                const urlElem = document.getElementById(`m-url-${i}`);
+                if (titleElem) currentMissionLinks[i].title = titleElem.value.trim();
+                if (urlElem) currentMissionLinks[i].url = urlElem.value.trim();
+            }
+        }
+
         function deleteMissionRow(index) {
             if (confirm(`Delete Mission #${index+1}?`)) {
+                // Harvest inputs to keep edits made so far
+                harvestMissionInputs();
+                
+                // Remove target row
                 currentMissionLinks.splice(index, 1);
+                
+                // Adjust auto-names/tasks sequentially
+                currentMissionLinks.forEach((link, idx) => {
+                    const seqNum = idx + 1;
+                    // If it was using default name, auto-update it sequentially
+                    if (!link.title || link.title.startsWith("Daily Mission Supply #")) {
+                        link.title = `Daily Mission Supply #${seqNum}`;
+                    }
+                    // Auto-fix verify destination url tasks sequentially if using verify.html target redirection
+                    if (link.url && link.url.includes("verify.html?task=")) {
+                        link.url = link.url.replace(/verify\.html\?task=\d+/, `verify.html?task=${seqNum}`);
+                    }
+                });
+
                 renderAdminMissionRows();
             }
         }
