@@ -195,9 +195,23 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* 2-Column Grid Layout */
+        .admin-grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .admin-grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .section-box { 
             background: var(--bg-card); 
-            padding: 28px; 
+            padding: 24px 28px; 
             border-radius: 16px; 
             border: 1px solid var(--border-light); 
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); 
@@ -454,11 +468,9 @@
     <nav class="admin-nav">
         <button class="nav-tab active" onclick="switchTab('tab-redemptions', this)"><i class="fa-solid fa-gem"></i> REDEMPTIONS QUEUE</button>
         <button class="nav-tab" onclick="switchTab('tab-users', this)"><i class="fa-solid fa-users"></i> PLAYERS DATABASE</button>
-        <button class="nav-tab" onclick="switchTab('tab-links', this)"><i class="fa-solid fa-link"></i> MISSION LINKS</button>
-        <button class="nav-tab" onclick="switchTab('tab-dailyvisit', this)"><i class="fa-solid fa-calendar-check"></i> DAILY TASKS</button>
-        <button class="nav-tab" onclick="switchTab('tab-community', this)"><i class="fa-solid fa-bullhorn"></i> COMMUNITY PANE</button>
-        <button class="nav-tab" onclick="switchTab('tab-offerwalls', this)"><i class="fa-solid fa-award"></i> SURVEYS & OFFERWALLS</button>
-        <button class="nav-tab" onclick="switchTab('tab-settings', this)"><i class="fa-solid fa-sliders"></i> GLOBAL ADS & CONFIG</button>
+        <button class="nav-tab" onclick="switchTab('tab-tasks-merged', this)"><i class="fa-solid fa-tasks"></i> MISSIONS & VISITS</button>
+        <button class="nav-tab" onclick="switchTab('tab-integrations-merged', this)"><i class="fa-solid fa-bullhorn"></i> COMMUNITY & STATIONS</button>
+        <button class="nav-tab" onclick="switchTab('tab-settings-merged', this)"><i class="fa-solid fa-sliders"></i> CONFIG & AD CODES</button>
     </nav>
 
     <!-- Tab 1: Redemptions Queue -->
@@ -511,171 +523,156 @@
         </div>
     </div>
 
-    <!-- Tab 3: Dynamic Unlimited Daily Mission Links Manager -->
-    <div id="tab-links" class="tab-content section-box">
-        <div class="section-title">
-            <i class="fa-solid fa-link"></i> DYNAMIC UNLIMITED DAILY MISSION LINKS
-        </div>
-        <p style="font-size: 0.85rem; color: var(--text-muted-light); margin-bottom: 20px; max-width: 750px;">Configure your dynamic mission shortener links (e.g. GPLinks, ShrinkMe). Users will visit these sponsor URLs sequentially before unlocking rewards.</p>
-        
-        <div id="dynamic-links-list-container">
-            <!-- Dynamically populated mission rows will load here -->
-        </div>
+    <!-- Tab 3: Missions & Visits Merged Section -->
+    <div id="tab-tasks-merged" class="tab-content">
+        <div class="admin-grid-2col">
+            
+            <!-- Left Side: Shortener Mission Links -->
+            <div class="section-box" style="margin-bottom: 0;">
+                <div class="section-title">
+                    <i class="fa-solid fa-link"></i> DYNAMIC DAILY MISSIONS (SHORTENERS)
+                </div>
+                <p style="font-size: 0.82rem; color: var(--text-muted-light); margin-bottom: 20px;">Configure your dynamic mission shortener links (e.g. GPLinks, ShrinkMe).</p>
+                
+                <div id="dynamic-links-list-container" style="max-height: 480px; overflow-y: auto; padding-right: 4px;">
+                    <!-- Mission rows populated dynamically -->
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="btn-action" style="padding: 10px 14px;" onclick="addNewMissionRow()"><i class="fa-solid fa-plus"></i> ADD ROW</button>
+                    <button class="btn-action" style="background: var(--green-gradient); color: #020617; flex-grow: 1; padding: 10px 14px;" onclick="saveMissionLinks()"><i class="fa-solid fa-save"></i> SAVE ALL MISSIONS</button>
+                </div>
+            </div>
 
-        <div style="display: flex; gap: 12px; max-width: 750px; margin-top: 15px;">
-            <button class="btn-action" style="background: var(--cyan-gradient); color: #020617;" onclick="addNewMissionRow()"><i class="fa-solid fa-plus"></i> ADD NEW MISSION LINK</button>
-            <button class="btn-action" style="background: var(--green-gradient); color: #020617; flex-grow: 1;" onclick="saveMissionLinks()"><i class="fa-solid fa-save"></i> SAVE ALL MISSION LINKS</button>
+            <!-- Right Side: Daily Visit Tasks -->
+            <div class="section-box" style="margin-bottom: 0;">
+                <div class="section-title">
+                    <i class="fa-solid fa-calendar-check"></i> DYNAMIC DAILY VISIT TASKS (SAME-TAB VIEWER)
+                </div>
+                <p style="font-size: 0.82rem; color: var(--text-muted-light); margin-bottom: 20px;">Configure target website visits with custom time-limit constraints.</p>
+                
+                <div id="dailyvisit-links-list-container" style="max-height: 480px; overflow-y: auto; padding-right: 4px;">
+                    <!-- Visit rows populated dynamically -->
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="btn-action" style="padding: 10px 14px;" onclick="addDailyVisitRow()"><i class="fa-solid fa-plus"></i> ADD ROW</button>
+                    <button class="btn-action" style="background: var(--green-gradient); color: #020617; flex-grow: 1; padding: 10px 14px;" onclick="saveDailyVisitSettings()"><i class="fa-solid fa-save"></i> SAVE ALL TASKS</button>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- Tab 4: Daily Visit Tasks Manager (DAILY TASK) -->
-    <div id="tab-dailyvisit" class="tab-content section-box">
-        <div class="section-title">
-            <i class="fa-solid fa-calendar-check"></i> DYNAMIC UNLIMITED DAILY VISIT TASKS MANAGER
-        </div>
-        <p style="font-size: 0.85rem; color: var(--text-muted-light); margin-bottom: 20px; max-width: 750px;">Add as many visit tasks as you want. When added, they are dynamically named automatically and render in the Missions Tab!</p>
-        
-        <div id="dailyvisit-links-list-container">
-            <!-- Dynamically populated visit task rows will load here -->
-        </div>
-
-        <div style="display: flex; gap: 12px; max-width: 750px; margin-top: 15px;">
-            <button class="btn-action" style="background: var(--cyan-gradient); color: #020617;" onclick="addDailyVisitRow()"><i class="fa-solid fa-plus"></i> ADD NEW VISIT TASK</button>
-            <button class="btn-action" style="background: var(--green-gradient); color: #020617; flex-grow: 1;" onclick="saveDailyVisitSettings()"><i class="fa-solid fa-save"></i> SAVE ALL DAILY TASKS CONFIG</button>
-        </div>
-    </div>
-
-    <!-- Tab 5: Dedicated Community & Channels Manager -->
-    <div id="tab-community" class="tab-content section-box">
-        <div class="section-title">
-            <i class="fa-solid fa-bullhorn"></i> DEDICATED OFFICIAL COMMUNITY MANAGER
-        </div>
-        <p style="font-size: 0.85rem; color: var(--text-muted-light); margin-bottom: 20px; max-width: 750px;">Manage official Telegram channels, YouTube promotion links, or custom app tasks listed in the Official Community station on the main app.</p>
-        
-        <div class="control-card" style="max-width: 750px; background: rgba(0,0,0,0.15);">
-            <div class="form-group">
-                <label>Task Title (e.g. Join Our Channel / Subscribe YouTube)</label>
-                <input type="text" id="integ-sponsor-title" placeholder="e.g. Join Our Channel">
-            </div>
-            <div class="form-group">
-                <label>Platform Destination Link (Telegram / YouTube / Website)</label>
-                <input type="text" id="integ-sponsor-url" placeholder="https://t.me/yourchannel">
-            </div>
-            <div class="form-row-grid">
+    <!-- Tab 4: Community & Integrations Merged Section -->
+    <div id="tab-integrations-merged" class="tab-content">
+        <div class="admin-grid-2col">
+            
+            <!-- Left Side: Community Pane -->
+            <div class="section-box" style="margin-bottom: 0;">
+                <div class="section-title">
+                    <i class="fa-solid fa-bullhorn"></i> COMMUNITY & PROMOTIONS MANAGER
+                </div>
                 <div class="form-group">
-                    <label>Platform Icon Logo</label>
-                    <select id="integ-sponsor-icon">
-                        <option value="youtube">🔴 YouTube (Red Play Logo)</option>
-                        <option value="telegram">✈️ Telegram (Blue Plane Logo)</option>
-                        <option value="globe">🌐 Website (Cyan Globe Logo)</option>
-                        <option value="star">⭐ Custom Task (Fire Star Logo)</option>
+                    <label>Task Title (e.g. Join Our Channel)</label>
+                    <input type="text" id="integ-sponsor-title" placeholder="e.g. Join Our Channel">
+                </div>
+                <div class="form-group">
+                    <label>Destination Link (Telegram / YouTube)</label>
+                    <input type="text" id="integ-sponsor-url" placeholder="https://t.me/yourchannel">
+                </div>
+                <div class="form-row-grid">
+                    <div class="form-group">
+                        <label>Platform Icon Logo</label>
+                        <select id="integ-sponsor-icon">
+                            <option value="youtube">🔴 YouTube</option>
+                            <option value="telegram">✈️ Telegram</option>
+                            <option value="globe">🌐 Website</option>
+                            <option value="star">⭐ Custom Task</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Button Label Text</label>
+                        <input type="text" id="integ-sponsor-btn" placeholder="JOIN NOW">
+                    </div>
+                </div>
+                <div class="form-row-grid">
+                    <div class="form-group">
+                        <label>Reward Diamonds</label>
+                        <input type="number" id="integ-sponsor-reward" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Station Status</label>
+                        <select id="integ-sponsor-status">
+                            <option value="true">ACTIVE</option>
+                            <option value="false">DISABLED</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Offerwalls & Arcade -->
+            <div class="section-box" style="margin-bottom: 0; display: flex; flex-direction: column; gap: 16px;">
+                <div class="section-title" style="margin-bottom: 5px;">
+                    <i class="fa-solid fa-award"></i> SURVEY & GAME INTEGRATIONS
+                </div>
+
+                <!-- Torox Offerwall -->
+                <div class="control-card" style="margin-bottom: 0; background: rgba(0,0,0,0.15); padding: 18px;">
+                    <div class="card-title" style="margin-bottom: 12px; font-size: 0.85rem;"><i class="fa-solid fa-cubes"></i> Torox Settings</div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <input type="text" id="integ-torox-url" placeholder="Torox URL link..." style="margin-bottom: 8px;">
+                        <select id="integ-torox-status">
+                            <option value="true">Torox: ENABLED</option>
+                            <option value="false">Torox: DISABLED</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Gamezop Arcade -->
+                <div class="control-card" style="margin-bottom: 0; background: rgba(0,0,0,0.15); padding: 18px;">
+                    <div class="card-title" style="margin-bottom: 12px; font-size: 0.85rem;"><i class="fa-solid fa-gamepad"></i> Gamezop Arcade Settings</div>
+                    <input type="text" id="integ-gz-url" placeholder="Gamezop Link..." style="margin-bottom: 8px; width: 100%;">
+                    <div class="form-row-grid" style="margin-bottom: 0; gap: 8px;">
+                        <input type="number" id="integ-gz-reward" value="5" placeholder="Diamonds">
+                        <select id="integ-gz-status">
+                            <option value="true">Gamezop: ACTIVE</option>
+                            <option value="false">Gamezop: INACTIVE</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- CPX survey -->
+                <div class="control-card" style="margin-bottom: 0; background: rgba(0,0,0,0.15); padding: 18px;">
+                    <div class="card-title" style="margin-bottom: 12px; font-size: 0.85rem;"><i class="fa-solid fa-square-poll-vertical"></i> CPX Survey Settings</div>
+                    <div class="form-row-grid" style="margin-bottom: 8px; gap: 8px;">
+                        <input type="text" id="integ-cpx-appid" value="34050" placeholder="App ID">
+                        <input type="text" id="integ-cpx-hash" value="ucHVQYc5kg6SooA56Z2sQBl12wkU61T4" placeholder="Secure Hash">
+                    </div>
+                    <select id="integ-cpx-status" style="width: 100%;">
+                        <option value="false">CPX Survey: DISABLED</option>
+                        <option value="true">CPX Survey: ENABLED</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Button Text (e.g. JOIN NOW / SUBSCRIBE)</label>
-                    <input type="text" id="integ-sponsor-btn" placeholder="JOIN NOW">
-                </div>
-            </div>
-            <div class="form-row-grid">
-                <div class="form-group">
-                    <label>Completion Reward Diamonds</label>
-                    <input type="number" id="integ-sponsor-reward" value="10">
-                </div>
-                <div class="form-group">
-                    <label>Community Station Status</label>
-                    <select id="integ-sponsor-status">
-                        <option value="true">ENABLE (ACTIVE LIVE ON SITE)</option>
-                        <option value="false">DISABLE (HIDDEN)</option>
-                    </select>
-                </div>
             </div>
 
-            <button class="btn-action" style="background: var(--primary-gradient); color: #fff; width: 100%;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE COMMUNITY CONFIG</button>
+        </div>
+        <div style="margin-top: 15px; text-align: right;">
+            <button class="btn-action" style="background: var(--green-gradient); color: #020617; width: 100%; max-width: 400px;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE COMMUNITY & STATION INTEGRATIONS</button>
         </div>
     </div>
 
-    <!-- Tab 6: CPX & Torox & Gamezop Integrations -->
-    <div id="tab-offerwalls" class="tab-content section-box">
-        <div class="section-title">
-            <i class="fa-solid fa-award"></i> SURVEYS & OFFERWALLS STATIONS
-        </div>
-        <p style="font-size: 0.85rem; color: var(--text-muted-light); margin-bottom: 20px; max-width: 750px;">Configure third party integrations to allow players to complete surveys or mini-games for points.</p>
-
-        <!-- Torox Section -->
-        <div class="control-card" style="max-width: 750px; background: rgba(0,0,0,0.15); margin-bottom: 20px;">
-            <div class="card-title"><i class="fa-solid fa-cubes"></i> TOROX OFFERWALL CONFIG</div>
-            <div class="form-group">
-                <label>Offerwall Publisher Link / App URL (Torox / CPA)</label>
-                <input type="text" id="integ-torox-url" placeholder="https://offerwalls.com/...">
-            </div>
-            <div class="form-group">
-                <label>Offerwall Status</label>
-                <select id="integ-torox-status">
-                    <option value="true">ENABLE (ACTIVE)</option>
-                    <option value="false">DISABLE (HIDDEN)</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Gamezop Section -->
-        <div class="control-card" style="max-width: 750px; background: rgba(0,0,0,0.15); margin-bottom: 20px;">
-            <div class="card-title"><i class="fa-solid fa-gamepad"></i> GAMEZOP ARCADE CONFIG</div>
-            <div class="form-group">
-                <label>Gamezop Web URL / Publisher Link</label>
-                <input type="text" id="integ-gz-url" placeholder="https://www.gamezop.com/...">
-            </div>
-            <div class="form-row-grid">
-                <div class="form-group">
-                    <label>Reward Diamonds (3 Mins Play)</label>
-                    <input type="number" id="integ-gz-reward" value="5">
+    <!-- Tab 5: Global Config & Ad Codes Merged Section -->
+    <div id="tab-settings-merged" class="tab-content">
+        <div class="admin-grid-2col">
+            
+            <!-- Left Side: Rewards & Timer and Ad Integrations -->
+            <div class="section-box" style="margin-bottom: 0;">
+                <div class="section-title">
+                    <i class="fa-solid fa-sliders"></i> REWARDS & TIMER VALUES
                 </div>
                 <div class="form-group">
-                    <label>Gamezop Station Status</label>
-                    <select id="integ-gz-status">
-                        <option value="true">ENABLE (ACTIVE)</option>
-                        <option value="false">DISABLE (HIDDEN)</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- CPX Research Survey -->
-        <div class="control-card" style="max-width: 750px; background: rgba(0,0,0,0.15);">
-            <div class="card-title"><i class="fa-solid fa-square-poll-vertical"></i> CPX RESEARCH SURVEY CONFIG</div>
-            <div class="form-group">
-                <label>CPX App ID</label>
-                <input type="text" id="integ-cpx-appid" value="34050">
-            </div>
-            <div class="form-group">
-                <label>CPX Security Hash (App Secure Hash)</label>
-                <input type="text" id="integ-cpx-hash" value="ucHVQYc5kg6SooA56Z2sQBl12wkU61T4">
-            </div>
-            <div class="form-group">
-                <label>CPX Survey Wall Status</label>
-                <select id="integ-cpx-status">
-                    <option value="false">DISABLE (OFF - HIDDEN)</option>
-                    <option value="true">ENABLE (ACTIVE LIVE)</option>
-                </select>
-            </div>
-        </div>
-
-        <div style="max-width: 750px; margin-top: 15px;">
-            <button class="btn-action" style="background: var(--green-gradient); color: #020617; width: 100%;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE ALL SURVEY & OFFERWALL SETTINGS</button>
-        </div>
-    </div>
-
-    <!-- Tab 7: Global Settings & Ad Integration -->
-    <div id="tab-settings" class="tab-content section-box">
-        <div class="section-title">
-            <i class="fa-solid fa-sliders"></i> GLOBAL APP VALUES & ADS SETTINGS
-        </div>
-
-        <!-- Card A: Rewards & Timer -->
-        <div class="control-card" style="max-width: 750px; background: rgba(0,0,0,0.15); margin-bottom: 20px;">
-            <div class="card-title"><i class="fa-solid fa-sliders"></i> DYNAMIC REWARD & TIMER CONFIG</div>
-            <div class="form-row-grid">
-                <div class="form-group">
-                    <label>Diamonds Per Link</label>
+                    <label>Diamonds Per Link Visit</label>
                     <input type="number" id="setting-link-reward" value="5">
                 </div>
                 <div class="form-group">
@@ -683,57 +680,60 @@
                     <input type="number" id="setting-ref-commission" value="10" min="0" max="100">
                 </div>
                 <div class="form-group">
-                    <label>Verification Timer (Seconds)</label>
+                    <label>Verification Timer Delay (Seconds)</label>
                     <input type="number" id="setting-timer-seconds" value="20" min="5" max="300">
                 </div>
-            </div>
-        </div>
 
-        <!-- Card B: Dual Ads Slot Settings -->
-        <div class="control-card" style="max-width: 750px; background: rgba(0,0,0,0.15); margin-bottom: 20px;">
-            <div class="card-title"><i class="fa-solid fa-rectangle-ad"></i> NATIVE BANNER ADS MANAGER</div>
-            <div class="form-group">
-                <label>TOP BANNER Ad Code (Monetag / Adsterra Script #1)</label>
-                <textarea id="integ-banner-code" rows="3" placeholder="Paste TOP banner <script> code here..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>MIDDLE BANNER Ad Code (Monetag / Adsterra Script #3)</label>
-                <textarea id="integ-banner-mid-code" rows="3" placeholder="Paste MIDDLE banner <script> code here..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>BOTTOM BANNER Ad Code (Monetag / Adsterra Script #2)</label>
-                <textarea id="integ-banner-bot-code" rows="3" placeholder="Paste BOTTOM banner <script> code here..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>Banner Ads Status</label>
-                <select id="integ-banner-status">
-                    <option value="false">DISABLE (HIDDEN)</option>
-                    <option value="true">ENABLE (ACTIVE LIVE)</option>
-                </select>
-            </div>
-            <button class="btn-action" style="background: var(--green-gradient); color: #020617; width: 100%;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE NATIVE BANNER CONFIG</button>
-        </div>
-
-        <!-- Card C: Global Ads Configuration -->
-        <div class="control-card" style="max-width: 750px; background: rgba(0,0,0,0.15);">
-            <div class="card-title"><i class="fa-solid fa-code"></i> DYNAMIC ADS FOR VERIFICATION PAGE (ADS CONFIGURE)</div>
-            <p style="font-size: 0.8rem; color: var(--text-muted-light); margin-bottom: 15px;">Paste HTML/JavaScript tags from Monetag or Adsterra directly for verify.html page slots.</p>
-            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px;">
+                <div class="section-title" style="margin-top: 25px; margin-bottom: 10px;">
+                    <i class="fa-solid fa-code"></i> VERIFY PAGE ADS SCRIPTS
+                </div>
+                <p style="font-size: 0.78rem; color: var(--text-muted-light); margin-bottom: 12px;">Paste Monetag / Adsterra verification tags.</p>
                 <div class="form-group">
-                    <label>Header Banner Script Code (e.g. 300x250 Native Ads)</label>
-                    <textarea id="ad-script-header" rows="3" placeholder="<!-- Paste Ad Code here -->"></textarea>
+                    <label>Header Ad Script Code (e.g. 300x250 Native)</label>
+                    <textarea id="ad-script-header" rows="3" placeholder="Paste header script here..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Footer Banner Script Code (e.g. Banner Ads)</label>
-                    <textarea id="ad-script-footer" rows="3" placeholder="<!-- Paste Ad Code here -->"></textarea>
+                    <label>Footer Ad Script Code (e.g. Banner)</label>
+                    <textarea id="ad-script-footer" rows="3" placeholder="Paste footer script here..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Popunder / Smartlink Code Script (Pop redirect trigger)</label>
-                    <textarea id="ad-script-popunder" rows="3" placeholder="<!-- Paste Popunder script or Smartlink URL here -->"></textarea>
+                    <label>Popunder Ad Script / Smartlink URL</label>
+                    <textarea id="ad-script-popunder" rows="3" placeholder="Paste popunder script/URL here..."></textarea>
                 </div>
+
+                <button class="btn-action" style="background: var(--primary-gradient); color: white; width: 100%; margin-top: 10px;" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE APP VALUES & VERIFY ADS</button>
             </div>
 
-            <button class="btn-action" style="background: var(--primary-gradient); color: #fff; width: 100%;" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE REWARD & AD SETTINGS</button>
+            <!-- Right Side: Native Banner Ads Manager -->
+            <div class="section-box" style="margin-bottom: 0;">
+                <div class="section-title">
+                    <i class="fa-solid fa-rectangle-ad"></i> NATIVE BANNER ADS MANAGER (MAIN SITE SLOTS)
+                </div>
+                <p style="font-size: 0.82rem; color: var(--text-muted-light); margin-bottom: 16px;">Configure ad units placed within dashboard tabs.</p>
+                
+                <div class="form-group">
+                    <label>TOP BANNER Ad Code (Monetag / Adsterra Script #1)</label>
+                    <textarea id="integ-banner-code" rows="3" placeholder="Paste TOP banner <script> code here..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>MIDDLE BANNER Ad Code (Monetag / Adsterra Script #3)</label>
+                    <textarea id="integ-banner-mid-code" rows="3" placeholder="Paste MIDDLE banner <script> code here..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>BOTTOM BANNER Ad Code (Monetag / Adsterra Script #2)</label>
+                    <textarea id="integ-banner-bot-code" rows="3" placeholder="Paste BOTTOM banner <script> code here..."></textarea>
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Native Banner Status</label>
+                    <select id="integ-banner-status">
+                        <option value="false">DISABLE (HIDDEN)</option>
+                        <option value="true">ENABLE (ACTIVE LIVE)</option>
+                    </select>
+                </div>
+
+                <button class="btn-action" style="background: var(--green-gradient); color: #020617; width: 100%;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE NATIVE BANNER ADS</button>
+            </div>
+
         </div>
     </div>
 
