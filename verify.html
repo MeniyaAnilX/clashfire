@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Primary SEO Tags -->
     <title>FFire.xyz - Mission Reward Verification</title>
     <meta name="description" content="Verifying your FFire.xyz daily mission completion. Diamond reward is being credited to your Free Fire account.">
     <meta name="robots" content="noindex, nofollow">
@@ -18,7 +17,6 @@
     <meta property="og:image" content="https://ffire.xyz/hero_banner.png">
     <meta property="og:site_name" content="FFire.xyz">
 
-    <!-- Theme Color -->
     <meta name="theme-color" content="#0a0a0f">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="FFire.xyz">
@@ -27,11 +25,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    
+
     <style>
         :root {
             --bg-dark: #0a0a0f;
@@ -39,84 +37,239 @@
             --primary-fire: #ff4500;
             --accent-gold: #ffd700;
             --accent-cyan: #00f2fe;
+            --accent-green: #00e676;
             --text-main: #ffffff;
             --text-muted: #94a3b8;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
         body {
             background-color: var(--bg-dark);
-            background-image: radial-gradient(circle at 50% 30%, rgba(0, 242, 254, 0.15) 0%, transparent 70%);
             color: var(--text-main);
             min-height: 100vh;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            padding: 20px; text-align: center;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 16px; text-align: center;
         }
-        .icon-box { font-size: 3.5rem; color: var(--accent-cyan); margin-bottom: 15px; }
+        /* ---- STEP INDICATOR ---- */
+        .step-bar {
+            display: flex; align-items: center; gap: 8px;
+            margin: 16px auto 0 auto; width: 200px;
+        }
+        .step-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 0.85rem;
+            border: 2px solid rgba(255,255,255,0.15);
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.05);
+            transition: all 0.4s;
+        }
+        .step-dot.active {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            background: rgba(0,242,254,0.1);
+            box-shadow: 0 0 10px rgba(0,242,254,0.3);
+        }
+        .step-dot.done {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            background: rgba(0,230,118,0.1);
+        }
+        .step-line {
+            flex: 1; height: 2px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+        }
+        .step-line.done { background: var(--accent-green); }
+
+        /* ---- STATUS ---- */
+        .icon-box { font-size: 3rem; color: var(--accent-cyan); margin: 18px 0 10px; }
         .spin { animation: spin 1.5s infinite linear; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
-        p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px; }
+        h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; }
+        p { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 14px; }
+
+        /* ---- BADGE ---- */
         .reward-badge {
             display: inline-flex; align-items: center; gap: 8px;
             background: rgba(255, 215, 0, 0.15); border: 1px solid var(--accent-gold);
-            color: var(--accent-gold); padding: 8px 16px; border-radius: 20px;
-            font-weight: 800; font-size: 1.1rem; margin-bottom: 20px;
+            color: var(--accent-gold); padding: 7px 16px; border-radius: 20px;
+            font-weight: 800; font-size: 1rem; margin-bottom: 14px;
         }
+
+        /* ---- TIMER ---- */
         .timer-box {
-            width: 90px; height: 90px; border-radius: 50%;
+            width: 85px; height: 85px; border-radius: 50%;
             border: 4px solid rgba(255,255,255,0.05);
             border-top: 4px solid var(--accent-cyan);
             display: flex; justify-content: center; align-items: center;
-            font-size: 1.8rem; font-weight: 800; color: var(--accent-cyan);
-            margin: 20px 0; animation: spin 2s infinite linear;
+            font-size: 1.7rem; font-weight: 800; color: var(--accent-cyan);
+            margin: 14px auto; animation: spin 2s infinite linear;
         }
         .timer-box span {
             animation: keep-upright 2s infinite linear;
             display: inline-block;
         }
-        @keyframes keep-upright {
-            0% { transform: rotate(360deg); }
-            100% { transform: rotate(0deg); }
-        }
-        .btn-return {
+        @keyframes keep-upright { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
+
+        /* ---- BUTTONS ---- */
+        .btn-continue {
             background: linear-gradient(135deg, var(--accent-cyan), #00a8ff);
-            color: #000; border: none; padding: 14px; border-radius: 12px;
+            color: #000; border: none; padding: 14px 20px; border-radius: 12px;
             font-weight: 800; font-size: 1rem; cursor: pointer; width: 320px; max-width: 100%;
             display: none; text-decoration: none; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
-            text-align: center; margin-top: 15px;
+            text-align: center; margin-top: 14px;
         }
         .btn-verify-task {
             background: linear-gradient(135deg, #00e676, #00c853);
-            color: #000; border: none; padding: 14px; border-radius: 12px;
+            color: #000; border: none; padding: 14px 20px; border-radius: 12px;
             font-weight: 800; font-size: 1rem; cursor: pointer; width: 320px; max-width: 100%;
             display: none; text-decoration: none; box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
-            text-align: center; margin-top: 15px;
+            text-align: center; margin-top: 14px;
         }
+        .btn-return {
+            background: linear-gradient(135deg, var(--accent-cyan), #00a8ff);
+            color: #000; border: none; padding: 14px 20px; border-radius: 12px;
+            font-weight: 800; font-size: 1rem; cursor: pointer; width: 320px; max-width: 100%;
+            display: none; text-decoration: none; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+            text-align: center; margin-top: 14px;
+        }
+
+        /* ---- CONTENT CARDS ---- */
+        .content-section {
+            width: 100%; max-width: 480px; margin: 18px auto 0 auto;
+            display: none; flex-direction: column; gap: 10px; text-align: left;
+        }
+        .content-section.visible { display: flex; }
+        .section-label {
+            font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px;
+            color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px;
+            padding: 0 4px;
+        }
+        .tip-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px; padding: 12px 14px;
+            display: flex; align-items: flex-start; gap: 12px;
+        }
+        .tip-icon {
+            font-size: 1.3rem; min-width: 28px; margin-top: 2px;
+        }
+        .tip-body h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 3px; color: var(--text-main); }
+        .tip-body p { font-size: 0.78rem; color: var(--text-muted); margin: 0; line-height: 1.45; }
+
+        /* ad slots */
+        .ad-slot { width: 100%; max-width: 728px; margin: 0 auto; display: flex; justify-content: center; align-items: center; min-height: 90px; overflow: hidden; }
     </style>
 </head>
 <body>
 
-    <!-- Header / Top Banner Ad Slot -->
-    <div id="ad-slot-header" style="width: 100%; max-width: 728px; margin: 0 auto 20px auto; display: flex; justify-content: center; align-items: center; min-height: 90px; overflow: hidden;"></div>
+    <!-- Header Ad Slot -->
+    <div id="ad-slot-header" class="ad-slot" style="margin-bottom: 8px;"></div>
 
+    <!-- Step Indicator Bar -->
+    <div class="step-bar">
+        <div class="step-dot active" id="dot-1">1</div>
+        <div class="step-line" id="line-1"></div>
+        <div class="step-dot" id="dot-2">2</div>
+    </div>
+
+    <!-- Status Icon -->
     <div class="icon-box" id="status-icon"><i class="fa-solid fa-spinner spin"></i></div>
     <h2 id="status-title">VERIFYING MISSION...</h2>
-    <p id="status-desc">Validating task completion with anti-cheat servers.</p>
-    
-    <!-- Premium Countdown Timer Box -->
-    <div class="timer-box" id="timer-box-element" style="display: none;">
+    <p id="status-desc"></p>
+
+    <!-- Timer -->
+    <div class="timer-box" id="timer-box-element" style="display:none;">
         <span id="countdown-val-node">20</span>
     </div>
 
-    <div class="reward-badge"><img src="https://ffire.xyz/diamond.png" alt="Diamond" style="width: 24px; height: 24px; object-fit: contain;"> <span id="reward-amt">+5 Diamonds</span></div>
-    
-    <!-- Verification Action Button -->
-    <button class="btn-verify-task" id="btn-verify-action" onclick="executeVerificationAndReward()">VERIFY MISSION</button>
-    
+    <!-- Reward Badge -->
+    <div class="reward-badge">
+        <img src="https://ffire.xyz/diamond.png" alt="Diamond" style="width:22px;height:22px;object-fit:contain;">
+        <span id="reward-amt">+5 Diamonds</span>
+    </div>
+
+    <!-- STEP 1 Content: Free Fire Tips -->
+    <div class="content-section" id="content-step1">
+        <div class="section-label">🎮 Free Fire Pro Tips</div>
+        <div class="tip-card">
+            <div class="tip-icon">🏆</div>
+            <div class="tip-body">
+                <h4>Master the Gloo Wall</h4>
+                <p>Place Gloo Walls in a triangle formation for maximum 360° cover during endgame fights. Always keep 2 in reserve.</p>
+            </div>
+        </div>
+        <div class="tip-card">
+            <div class="tip-icon">💎</div>
+            <div class="tip-body">
+                <h4>Spend Diamonds Wisely</h4>
+                <p>Use diamonds for Elite Pass first — it gives 2x value in rewards compared to individual skin purchases.</p>
+            </div>
+        </div>
+        <div class="tip-card">
+            <div class="tip-icon">🎯</div>
+            <div class="tip-body">
+                <h4>Best Sensitivity Settings</h4>
+                <p>Set General: 80, Red Dot: 75, 2x Scope: 65 for a balanced aim between close and mid-range fights.</p>
+            </div>
+        </div>
+        <div class="tip-card">
+            <div class="tip-icon">🔫</div>
+            <div class="tip-body">
+                <h4>Top Weapon Combo 2025</h4>
+                <p>M1014 + M14 is the deadliest combo — shotgun for close range and M14 for long range precision shots.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 2 Content: Earning & Trade Tips -->
+    <div class="content-section" id="content-step2">
+        <div class="section-label">💰 Earning & Smart Money Tips</div>
+        <div class="tip-card">
+            <div class="tip-icon">📈</div>
+            <div class="tip-body">
+                <h4>Start Small, Think Big</h4>
+                <p>Begin with micro-investments in index funds. Even ₹500/month via SIP can grow to ₹5 lakh+ in 10 years.</p>
+            </div>
+        </div>
+        <div class="tip-card">
+            <div class="tip-icon">💡</div>
+            <div class="tip-body">
+                <h4>The 50-30-20 Money Rule</h4>
+                <p>Spend 50% on needs, 30% on wants, and save/invest 20% of every income. This rule builds real wealth.</p>
+            </div>
+        </div>
+        <div class="tip-card">
+            <div class="tip-icon">🛡️</div>
+            <div class="tip-body">
+                <h4>Emergency Fund First</h4>
+                <p>Before investing, save 3-6 months of expenses in a liquid fund. This protects you from financial shocks.</p>
+            </div>
+        </div>
+        <div class="tip-card">
+            <div class="tip-icon">🎮</div>
+            <div class="tip-body">
+                <h4>Gaming Rewards = Real Value</h4>
+                <p>Earning diamonds through FFire.xyz tasks is a smart way to enjoy Free Fire without spending real money daily.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 1: Continue Button -->
+    <button class="btn-continue" id="btn-continue" onclick="goToStep2()">
+        CONTINUE &nbsp;<i class="fa-solid fa-arrow-right"></i>
+    </button>
+
+    <!-- Step 2: Verify Button -->
+    <button class="btn-verify-task" id="btn-verify-action" onclick="executeVerificationAndReward()">
+        <i class="fa-solid fa-circle-check"></i>&nbsp; VERIFY MISSION
+    </button>
+
+    <!-- Return to Dashboard -->
     <a href="https://ffire.xyz/index.html" class="btn-return" id="return-btn">RETURN TO DASHBOARD</a>
 
-    <!-- Footer / Bottom Banner Ad Slot -->
-    <div id="ad-slot-footer" style="width: 100%; max-width: 728px; margin: 20px auto 0 auto; display: flex; justify-content: center; align-items: center; min-height: 90px; overflow: hidden;"></div>
+    <!-- Footer Ad Slot -->
+    <div id="ad-slot-footer" class="ad-slot" style="margin-top: 18px; margin-bottom: 10px;"></div>
 
     <script>
         const firebaseConfig = {
@@ -140,7 +293,7 @@
         function getCookie(name) {
             const nameEQ = name + "=";
             const ca = document.cookie.split(';');
-            for(let i=0;i < ca.length;i++) {
+            for(let i=0; i<ca.length; i++) {
                 let c = ca[i];
                 while (c.charAt(0)==' ') c = c.substring(1,c.length);
                 if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
@@ -148,146 +301,56 @@
             return null;
         }
 
-        let rewardAmt = 5;
-        let taskId = 1;
-        let deviceId = "";
-        let userData = null;
-        let countdownInterval = null;
-        let timeLeft = 20;
-
-        // Dynamic helper to inject raw script codes safely
-        // Dynamic helper to inject raw script codes inside a clean dynamic iframe context
+        // Inject ad scripts safely inside iframe
         function injectAdScript(elementId, scriptHtml) {
             const container = document.getElementById(elementId);
             if (!container || !scriptHtml) return;
-            
             container.innerHTML = '';
-            
-            // Create a borderless, transparent styled iframe
             const iframe = document.createElement('iframe');
             iframe.style.width = '100%';
-            iframe.style.height = '270px'; // Supports standard sizes like 300x250 native banner easily
+            iframe.style.height = '270px';
             iframe.style.border = 'none';
             iframe.style.margin = '0 auto';
             iframe.style.display = 'block';
             iframe.style.overflow = 'hidden';
             iframe.setAttribute('scrolling', 'no');
-            
             container.appendChild(iframe);
-            
             try {
                 const doc = iframe.contentDocument || iframe.contentWindow.document;
                 doc.open();
-                doc.write(`
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <style>
-                            body { 
-                                margin: 0; padding: 0; 
-                                display: flex; justify-content: center; align-items: center; 
-                                background: transparent; overflow: hidden; 
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        ${scriptHtml}
-                    </body>
-                    </html>
-                `);
+                doc.write(`<!DOCTYPE html><html><head><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;}</style></head><body>${scriptHtml}</body></html>`);
                 doc.close();
-            } catch (err) {
-                console.error("Ad slot injection failed: ", err);
+            } catch(err) { console.error("Ad slot injection failed:", err); }
+        }
+
+        // Global state
+        let rewardAmt = 5;
+        let taskId = 1;
+        let currentStep = 1;
+        let deviceId = "";
+        let countdownInterval = null;
+        let totalTimerSeconds = 40; // Default, overridden by Firebase
+
+        // ---- STEP INDICATOR HELPERS ----
+        function setStepUI(step) {
+            const dot1 = document.getElementById('dot-1');
+            const dot2 = document.getElementById('dot-2');
+            const line1 = document.getElementById('line-1');
+            if (step === 1) {
+                dot1.className = 'step-dot active';
+                dot2.className = 'step-dot';
+                line1.className = 'step-line';
+            } else {
+                dot1.className = 'step-dot done';
+                dot1.innerHTML = '<i class="fa-solid fa-check" style="font-size:0.75rem;"></i>';
+                line1.className = 'step-line done';
+                dot2.className = 'step-dot active';
             }
         }
 
-        async function verifyAndReward() {
-            const urlParams = new URLSearchParams(window.location.search);
-            taskId = parseInt(urlParams.get('task') || '1'); // 1-based task ID
-
-            deviceId = getCookie('CLASH_PERMANENT_HW_ID') || localStorage.getItem('CLASH_FIRE_HW_ID');
-            if (!deviceId) {
-                document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-xmark" style="color:#ff1744;"></i>';
-                document.getElementById('status-title').innerText = 'SESSION EXPIRED';
-                document.getElementById('status-desc').innerText = 'Please open FFire.xyz dashboard first!';
-                document.getElementById('return-btn').style.display = 'block';
-                return;
-            }
-
-            // 🛡️ STRICT SECURITY CHECK: Validate One-Time Active Token
-            const tokenRaw = localStorage.getItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
-            if (!tokenRaw) {
-                document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ff1744;"></i>';
-                document.getElementById('status-title').innerText = 'SECURITY VIOLATION!';
-                document.getElementById('status-desc').innerText = 'Direct URL opening or link sharing detected! Task was not launched from FFire.xyz app.';
-                document.getElementById('reward-amt').innerText = '0 Diamonds';
-                document.getElementById('return-btn').style.display = 'block';
-                return;
-            }
-
-            try {
-                const tokenData = JSON.parse(tokenRaw);
-                const elapsedMins = (Date.now() - tokenData.time) / (1000 * 60);
-                if (elapsedMins > 15) { // Expire token after 15 mins
-                    localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
-                    document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-clock" style="color:#ff1744;"></i>';
-                    document.getElementById('status-title').innerText = 'SESSION TIMEOUT!';
-                    document.getElementById('status-desc').innerText = 'Mission verification session expired (15 mins limit). Please relaunch from app.';
-                    document.getElementById('reward-amt').innerText = '0 Diamonds';
-                    document.getElementById('return-btn').style.display = 'block';
-                    return;
-                }
-            } catch(e) {
-                localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
-                document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-shield-cat" style="color:#ff1744;"></i>';
-                document.getElementById('status-title').innerText = 'INVALID TOKEN!';
-                document.getElementById('status-desc').innerText = 'Security token tampered or corrupted.';
-                document.getElementById('return-btn').style.display = 'block';
-                return;
-            }
-
-            // Fetch dynamic configurations & Ad codes from settings/global
-            let adHeaderCode = '';
-            let adFooterCode = '';
-            let adPopunderCode = '';
-
-            if (db) {
-                try {
-                    const gDoc = await db.collection("settings").doc("global").get();
-                    if (gDoc.exists) {
-                        const gData = gDoc.data();
-                        if (gData.linkReward) rewardAmt = gData.linkReward;
-                        if (gData.verifyTimerSeconds !== undefined) {
-                            timeLeft = parseInt(gData.verifyTimerSeconds);
-                        }
-                        adHeaderCode = gData.adScriptHeader || '';
-                        adFooterCode = gData.adScriptFooter || '';
-                        adPopunderCode = gData.adScriptPopunder || '';
-                    }
-                } catch(e){}
-            }
-
-            document.getElementById('reward-amt').innerText = `+${rewardAmt} Diamonds`;
-
-            // Inject Ads dynamically
-            if (adHeaderCode) injectAdScript('ad-slot-header', adHeaderCode);
-            if (adFooterCode) injectAdScript('ad-slot-footer', adFooterCode);
-            if (adPopunderCode) {
-                // If it is a smartlink url, open it or inject as script block
-                if (adPopunderCode.startsWith('http')) {
-                    // Try to trigger popunder safely on first click or countdown
-                    window.addEventListener('click', () => {
-                        if (!window.popunderTriggered) {
-                            window.open(adPopunderCode, '_blank');
-                            window.popunderTriggered = true;
-                        }
-                    }, { once: true });
-                } else {
-                    injectAdScript('ad-slot-header', adPopunderCode); // Embed code script inline
-                }
-            }
-
-            // Start Premium Verification Countdown Timer
+        // ---- START TIMER ----
+        function startTimer(seconds, onDone) {
+            let timeLeft = seconds;
             document.getElementById('countdown-val-node').innerText = timeLeft;
             document.getElementById('status-icon').style.display = 'none';
             document.getElementById('timer-box-element').style.display = 'flex';
@@ -297,26 +360,139 @@
             countdownInterval = setInterval(() => {
                 timeLeft--;
                 document.getElementById('countdown-val-node').innerText = timeLeft;
-
                 if (timeLeft <= 0) {
                     clearInterval(countdownInterval);
                     countdownInterval = null;
-
-                    // Enable claim/verify step state
                     document.getElementById('timer-box-element').style.display = 'none';
                     document.getElementById('status-icon').style.display = 'block';
-                    document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-check" style="color:#00e676;"></i>';
-                    document.getElementById('status-title').innerText = 'VERIFICATION READY!';
-                    document.getElementById('status-desc').innerText = '';
-                    document.getElementById('btn-verify-action').style.display = 'block';
+                    onDone();
                 }
             }, 1000);
         }
 
+        // ---- MAIN ENTRY ----
+        async function verifyAndReward() {
+            const urlParams = new URLSearchParams(window.location.search);
+            taskId = parseInt(urlParams.get('task') || '1');
+            currentStep = parseInt(urlParams.get('step') || '1');
+
+            deviceId = getCookie('CLASH_PERMANENT_HW_ID') || localStorage.getItem('CLASH_FIRE_HW_ID');
+            if (!deviceId) {
+                showError('<i class="fa-solid fa-circle-xmark" style="color:#ff1744;"></i>', 'SESSION EXPIRED', 'Please open FFire.xyz dashboard first!');
+                return;
+            }
+
+            // ---- TOKEN VALIDATION ----
+            const tokenRaw = localStorage.getItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
+            if (!tokenRaw) {
+                showError('<i class="fa-solid fa-triangle-exclamation" style="color:#ff1744;"></i>', 'SECURITY VIOLATION!', 'Direct URL opening detected! Task was not launched from FFire.xyz app.');
+                return;
+            }
+            try {
+                const tokenData = JSON.parse(tokenRaw);
+                const elapsedMins = (Date.now() - tokenData.time) / (1000 * 60);
+                if (elapsedMins > 15) {
+                    localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
+                    showError('<i class="fa-solid fa-clock" style="color:#ff1744;"></i>', 'SESSION TIMEOUT!', 'Verification session expired (15 min limit). Please relaunch from app.');
+                    return;
+                }
+            } catch(e) {
+                localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
+                showError('<i class="fa-solid fa-shield-cat" style="color:#ff1744;"></i>', 'INVALID TOKEN!', 'Security token tampered or corrupted.');
+                return;
+            }
+
+            // ---- STEP 2 SECURITY: Must come from step 1 ----
+            if (currentStep === 2) {
+                const step1Done = localStorage.getItem("CF_STEP1_DONE_TASK_" + taskId);
+                if (!step1Done) {
+                    showError('<i class="fa-solid fa-triangle-exclamation" style="color:#ff1744;"></i>', 'STEP 1 REQUIRED!', 'Please complete Step 1 first before accessing Step 2.');
+                    return;
+                }
+            }
+
+            // ---- FETCH FIREBASE CONFIG ----
+            let adHeaderCode = '', adFooterCode = '', adPopunderCode = '';
+            if (db) {
+                try {
+                    const gDoc = await db.collection("settings").doc("global").get();
+                    if (gDoc.exists) {
+                        const gData = gDoc.data();
+                        if (gData.linkReward) rewardAmt = gData.linkReward;
+                        if (gData.verifyTimerSeconds !== undefined) totalTimerSeconds = parseInt(gData.verifyTimerSeconds);
+                        adHeaderCode = gData.adScriptHeader || '';
+                        adFooterCode = gData.adScriptFooter || '';
+                        adPopunderCode = gData.adScriptPopunder || '';
+                    }
+                } catch(e){}
+            }
+
+            document.getElementById('reward-amt').innerText = `+${rewardAmt} Diamonds`;
+
+            // Inject Ads
+            if (adHeaderCode) injectAdScript('ad-slot-header', adHeaderCode);
+            if (adFooterCode) injectAdScript('ad-slot-footer', adFooterCode);
+            if (adPopunderCode) {
+                if (adPopunderCode.startsWith('http')) {
+                    window.addEventListener('click', () => {
+                        if (!window.popunderTriggered) {
+                            window.open(adPopunderCode, '_blank');
+                            window.popunderTriggered = true;
+                        }
+                    }, { once: true });
+                } else {
+                    injectAdScript('ad-slot-header', adPopunderCode);
+                }
+            }
+
+            // ---- SPLIT TIMER ----
+            const halfTime = Math.ceil(totalTimerSeconds / 2);
+
+            if (currentStep === 1) {
+                setStepUI(1);
+                document.getElementById('content-step1').classList.add('visible');
+                startTimer(halfTime, () => {
+                    // Step 1 done - show continue button
+                    document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-check" style="color:#00e676;"></i>';
+                    document.getElementById('status-title').innerText = 'STEP 1 COMPLETE!';
+                    document.getElementById('status-desc').innerText = '';
+                    document.getElementById('btn-continue').style.display = 'block';
+                    // Mark step 1 done in localStorage
+                    localStorage.setItem("CF_STEP1_DONE_TASK_" + taskId, "1");
+                });
+            } else {
+                // Step 2
+                setStepUI(2);
+                document.getElementById('content-step2').classList.add('visible');
+                startTimer(halfTime, () => {
+                    // Step 2 done - show verify button
+                    document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-check" style="color:#00e676;"></i>';
+                    document.getElementById('status-title').innerText = 'VERIFICATION READY!';
+                    document.getElementById('status-desc').innerText = '';
+                    document.getElementById('btn-verify-action').style.display = 'block';
+                });
+            }
+        }
+
+        // ---- CONTINUE TO STEP 2 ----
+        function goToStep2() {
+            window.location.href = `verify.html?task=${taskId}&step=2`;
+        }
+
+        // ---- ERROR HELPER ----
+        function showError(iconHtml, title, desc) {
+            document.getElementById('status-icon').innerHTML = iconHtml;
+            document.getElementById('status-title').innerText = title;
+            document.getElementById('status-desc').innerText = desc;
+            document.getElementById('return-btn').style.display = 'block';
+        }
+
+        // ---- CLAIM REWARD (Step 2 only) ----
         async function executeVerificationAndReward() {
-            // Hide the button to prevent double claim click spamming
             document.getElementById('btn-verify-action').style.display = 'none';
+            document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-spinner spin" style="color:var(--accent-cyan);"></i>';
             document.getElementById('status-title').innerText = 'CREDITING WALLET...';
+            document.getElementById('status-desc').innerText = '';
 
             let userData = null;
             const saved = localStorage.getItem('CLASH_USER_DATA_' + deviceId);
@@ -326,32 +502,23 @@
                 try {
                     const docRef = db.collection("users").doc(deviceId);
                     const doc = await docRef.get();
-                    if (doc.exists) {
-                        userData = doc.data();
-                    }
+                    if (doc.exists) userData = doc.data();
                 } catch(e){}
             }
 
-            if (!userData) {
-                userData = { coins: 0, completedLinks: {}, dailyLinkCompletedCount: 0 };
-            }
-
-            if (!userData.completedLinks || Array.isArray(userData.completedLinks)) {
-                userData.completedLinks = {};
-            }
+            if (!userData) userData = { coins: 0, completedLinks: {}, dailyLinkCompletedCount: 0 };
+            if (!userData.completedLinks || Array.isArray(userData.completedLinks)) userData.completedLinks = {};
 
             if (userData.completedLinks[taskId]) {
-                // Burn token
                 localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
-                document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color:#ffd700;"></i>';
-                document.getElementById('status-title').innerText = 'ALREADY CLAIMED!';
-                document.getElementById('status-desc').innerText = 'You have already claimed reward for this mission today.';
-                document.getElementById('return-btn').style.display = 'block';
+                localStorage.removeItem("CF_STEP1_DONE_TASK_" + taskId);
+                showError('<i class="fa-solid fa-circle-exclamation" style="color:#ffd700;"></i>', 'ALREADY CLAIMED!', 'You have already claimed reward for this mission today.');
                 return;
             }
 
-            // Credit Reward & Burn One-Time Token!
+            // Credit reward & burn tokens
             localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
+            localStorage.removeItem("CF_STEP1_DONE_TASK_" + taskId);
             userData.completedLinks[taskId] = true;
             userData.coins = (userData.coins || 0) + rewardAmt;
             userData.dailyLinkCompletedCount = (userData.dailyLinkCompletedCount || 0) + 1;
@@ -360,14 +527,11 @@
 
             if (db) {
                 try {
-                    // 1. Save user profile updates
                     await db.collection("users").doc(deviceId).set(userData, { merge: true });
 
-                    // 2. Process Referral Daily Mission Commission (Triggered ONLY when ALL tasks are completed)
+                    // Referral Commission (only when ALL missions done)
                     if (userData.referredBy) {
                         const refCode = userData.referredBy;
-                        
-                        // Fetch dynamic database links configuration to check count limits
                         let totalRequiredMissions = 5;
                         try {
                             const linksDoc = await db.collection("settings").doc("links").get();
@@ -376,15 +540,10 @@
                             }
                         } catch(le){}
 
-                        // Count successfully completed missions for today
                         const completedCount = Object.keys(userData.completedLinks || {}).length;
-
                         if (completedCount >= totalRequiredMissions) {
-                            // Anti-Double Commission Check: Check if commission was already processed for today's reset
                             const todayResetKey = new Date().toISOString().split('T')[0];
                             if (userData.lastReferralCommissionDate !== todayResetKey) {
-                                
-                                // Fetch settings/global to get the current referralCommissionPercent
                                 let commPercent = 10;
                                 try {
                                     const gSettingsDoc = await db.collection("settings").doc("global").get();
@@ -393,28 +552,19 @@
                                     }
                                 } catch(se){}
 
-                                // Calculate overall mission rewards summation (e.g. 5 tasks * 5 coins = 25 total reward)
                                 const totalDailyMissionsReward = totalRequiredMissions * rewardAmt;
                                 const commissionCoins = parseFloat((totalDailyMissionsReward * (commPercent / 100)).toFixed(2));
 
                                 if (commissionCoins > 0) {
-                                    // Fetch all users to find the referrer matching this display ID
                                     const snapshot = await db.collection("users").get();
                                     for (const doc of snapshot.docs) {
                                         const displayId = "CF-" + doc.id.substring(9, 15);
                                         if (displayId === refCode && doc.id !== deviceId) {
                                             const refData = doc.data();
                                             const newCoins = parseFloat(((refData.coins || 0) + commissionCoins).toFixed(2));
-                                            
-                                            await doc.ref.update({
-                                                coins: newCoins
-                                            });
-
-                                            // Log commission date to prevent repeat triggers today
-                                            await db.collection("users").doc(deviceId).update({
-                                                lastReferralCommissionDate: todayResetKey
-                                            });
-                                            console.log(`Referral commission of +${commissionCoins} credited to referrer ${displayId} (All ${completedCount}/${totalRequiredMissions} missions completed today).`);
+                                            await doc.ref.update({ coins: newCoins });
+                                            await db.collection("users").doc(deviceId).update({ lastReferralCommissionDate: todayResetKey });
+                                            console.log(`Referral commission +${commissionCoins} credited to ${displayId}`);
                                             break;
                                         }
                                     }
@@ -425,9 +575,14 @@
                 } catch(e){ console.error("Verify save err:", e); }
             }
 
+            // Step indicator - both done
+            document.getElementById('dot-2').className = 'step-dot done';
+            document.getElementById('dot-2').innerHTML = '<i class="fa-solid fa-check" style="font-size:0.75rem;"></i>';
+
             document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-check" style="color:#00e676;"></i>';
             document.getElementById('status-title').innerText = 'MISSION COMPLETED!';
-            document.getElementById('status-desc').innerText = `Congratulations! +${rewardAmt} Diamonds credited to your account.`;
+            document.getElementById('status-desc').innerText = '';
+            document.getElementById('reward-amt').innerText = `+${rewardAmt} Diamonds`;
             document.getElementById('return-btn').style.display = 'block';
         }
 
