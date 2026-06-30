@@ -1,0 +1,12 @@
+{
+  "name": "clashfire-diamond-reward-app",
+  "version": "1.0.0",
+  "description": "Clash Fire Earning App Frontend and Serverless Postback Integrations",
+  "main": "index.html",
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
