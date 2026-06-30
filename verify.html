@@ -163,12 +163,10 @@
 </head>
 <body>
 
-    <!-- ============================================================ -->
-    <!-- STEP 1 PAGE LAYOUT: Header Ad → Timer → 1 Card → Continue   -->
-    <!-- STEP 2 PAGE LAYOUT: Header Ad → Timer → Buttons → Ads → All Cards -->
-    <!-- ============================================================ -->
-
-    <!-- Header Ad Slot (Both Steps) -->
+    <!-- ========================================== -->
+    <!-- COMMON TOP: Header Ad & Indicator Info     -->
+    <!-- ========================================== -->
+    <!-- Header Ad Slot (Always Top) -->
     <div id="ad-slot-header" class="ad-slot" style="margin-bottom: 8px;"></div>
 
     <!-- Step Indicator Bar -->
@@ -178,12 +176,12 @@
         <div class="step-dot" id="dot-2">2</div>
     </div>
 
-    <!-- Status Icon -->
+    <!-- Status Icon & Message -->
     <div class="icon-box" id="status-icon"><i class="fa-solid fa-spinner spin"></i></div>
     <h2 id="status-title">VERIFYING MISSION...</h2>
     <p id="status-desc"></p>
 
-    <!-- Timer -->
+    <!-- Timer (Our Timing Logic) -->
     <div class="timer-box" id="timer-box-element" style="display:none;">
         <span id="countdown-val-node">20</span>
     </div>
@@ -194,23 +192,12 @@
         <span id="reward-amt">+5 Diamonds</span>
     </div>
 
-    <!-- STEP 1: CONTINUE Button (shows after step1 timer ends) -->
-    <button class="btn-continue" id="btn-continue" onclick="goToStep2()">
-        CONTINUE &nbsp;<i class="fa-solid fa-arrow-right"></i>
-    </button>
 
-    <!-- STEP 2: VERIFY Button (shows after step2 timer ends) -->
-    <button class="btn-verify-task" id="btn-verify-action" onclick="executeVerificationAndReward()">
-        <i class="fa-solid fa-circle-check"></i>&nbsp; VERIFY MISSION
-    </button>
-
-    <!-- Return to Dashboard -->
-    <a href="https://ffire.xyz/index.html" class="btn-return" id="return-btn">RETURN TO DASHBOARD</a>
-
-    <!-- ===================== -->
-    <!-- STEP 1 CONTENT: 1 Card only (Gloo Wall) shown during step1 timer -->
-    <!-- ===================== -->
+    <!-- ========================================== -->
+    <!-- PAGE 1 (STEP 1) STRUCTURE                  -->
+    <!-- ========================================== -->
     <div class="content-section" id="content-step1">
+        <!-- Content 1: Master the Gloo Wall -->
         <div class="section-label">🎮 Free Fire Complete Guide 2025</div>
         <div class="tip-card">
             <div class="tip-icon">🏆</div>
@@ -219,19 +206,18 @@
                 <p>The Gloo Wall is the most important item in Free Fire. To survive endgame circles, always deploy Gloo Walls in a triangle formation giving you full 360° protection. Professional players carry at least 3 Gloo Walls at all times. During final circles, throw a Gloo Wall forward before pushing enemies, and place one behind you as an emergency escape. Practise quick Gloo Wall placements in training mode daily for at least 15 minutes — this single skill separates Diamond players from Heroic players.</p>
             </div>
         </div>
-    </div>
 
-    <!-- ===================== -->
-    <!-- STEP 2 CONTENT: Ad slot → then ALL remaining content cards -->
-    <!-- ===================== -->
-    <div class="content-section" id="content-step2">
+        <!-- Continue Button (shown after timer according to timing logic) -->
+        <button class="btn-continue" id="btn-continue" onclick="goToStep2()">
+            CONTINUE &nbsp;<i class="fa-solid fa-arrow-right"></i>
+        </button>
 
-        <!-- Mid-page Ad slot (shown after buttons, before content) -->
-        <div id="ad-slot-midpage" style="width:100%;max-width:728px;margin:12px auto 16px auto;display:flex;justify-content:center;align-items:center;min-height:90px;overflow:hidden;"></div>
+        <!-- Ads Slot below Button -->
+        <div id="ad-slot-step1-bottom" class="ad-slot" style="margin-top: 15px; margin-bottom: 10px;"></div>
 
-        <!-- === FREE FIRE CONTENT === -->
-        <div class="section-label">🎮 Free Fire Pro Guide — Tips & Strategies</div>
-
+        <!-- Other Free Fire Content (Visible after timer ends, or always under the Ads) -->
+        <div class="section-label" style="margin-top: 15px;">🎮 Extra Free Fire Tips & Tricks</div>
+        
         <div class="tip-card">
             <div class="tip-icon">💎</div>
             <div class="tip-body">
@@ -295,17 +281,33 @@
                 <p>Game performance on your mobile device directly affects your reaction time and aiming accuracy. Always set graphics to the lowest settings in ranked matches — high graphics reduce FPS which makes the game feel laggy during fights. Enable 60 FPS mode in game settings if your device supports it. Before playing ranked, close all background apps to free RAM. Keep your phone charged between 30–80% during gaming sessions as extreme battery levels affect CPU performance. Use a cooling fan if you play for more than 2 hours — overheating reduces FPS dramatically on budget Android phones.</p>
             </div>
         </div>
+    </div>
 
-        <!-- === FINANCE CONTENT === -->
-        <div class="section-label" style="margin-top:10px;">💰 Smart Earning, Investing &amp; Financial Freedom Guide</div>
 
+    <!-- ========================================== -->
+    <!-- PAGE 2 (STEP 2) STRUCTURE                  -->
+    <!-- ========================================== -->
+    <div class="content-section" id="content-step2">
+        <!-- Content 1: SIP Investment -->
+        <div class="section-label">💰 Smart Earning &amp; Wealth Guide</div>
         <div class="tip-card">
             <div class="tip-icon">📈</div>
             <div class="tip-body">
                 <h4>SIP Investment — The Most Powerful Wealth Building Tool in India</h4>
-                <p>Systematic Investment Plan (SIP) is the smartest way for beginners to start investing in mutual funds without market timing risk. With SIP, you invest a fixed amount every month — even as little as ₹500 — into a mutual fund. Over time, this creates a habit of saving and takes advantage of rupee cost averaging, meaning you buy more units when markets are down and fewer when markets are up. For example, investing ₹2,000 per month in a Nifty 50 index fund at 12% annual returns gives you approximately ₹20 lakh in 20 years from just ₹4.8 lakh invested. Start your SIP today on platforms like Zerodha Coin, Groww, or Paytm Money — all are free to use with zero commission.</p>
+                <p>Systematic Investment Plan (SIP) is the smartest way for beginners to start investing in mutual funds without market timing risk. With SIP, you invest a fixed amount every month — even as little as ₹500 — into a mutual fund. Over time, this creates a habit of saving and takes advantage of rupee cost averaging, meaning you buy more units when markets are down and fewer when markets are up. For example, investing ₹2,000 per month in a Nifty 50 index fund at 12% annual returns gives you approximately ₹20 lakh in 20 years from just ₹4.8 lakh invested. Start your SIP today on platforms like Zerodha Coin, Groww, or Paytm Money — all offer direct investing with zero commission.</p>
             </div>
         </div>
+
+        <!-- Claim Button / Return Button Wrapper -->
+        <button class="btn-verify-task" id="btn-verify-action" onclick="executeVerificationAndReward()">
+            <i class="fa-solid fa-circle-check"></i>&nbsp; VERIFY MISSION
+        </button>
+
+        <!-- Ads Slot below Button -->
+        <div id="ad-slot-step2-bottom" class="ad-slot" style="margin-top: 15px; margin-bottom: 10px;"></div>
+
+        <!-- Other Finance and Trading Content -->
+        <div class="section-label" style="margin-top: 15px;">💰 Extra Finance &amp; Smart Trading Content</div>
 
         <div class="tip-card">
             <div class="tip-icon">💡</div>
@@ -370,10 +372,6 @@
                 <p>Many Free Fire players spend ₹500–₹2,000 every month buying diamonds to purchase Elite Pass, weapon skins, and character bundles. Over one year, this adds up to ₹6,000–₹24,000 of real money spent on in-game items. FFire.xyz offers a smarter alternative — earn Free Fire diamonds completely free by completing simple daily missions like watching videos and completing tasks. By earning diamonds through FFire.xyz instead of purchasing them, you effectively save real money that can be redirected into your SIP, emergency fund, or investment portfolio.</p>
             </div>
         </div>
-
-        <!-- Footer Ad Slot -->
-        <div id="ad-slot-footer" class="ad-slot" style="margin-top:18px;margin-bottom:10px;"></div>
-
     </div>
 
 
@@ -537,7 +535,11 @@
 
             // Inject Ads
             if (adHeaderCode) injectAdScript('ad-slot-header', adHeaderCode);
-            if (adFooterCode) injectAdScript('ad-slot-footer', adFooterCode);
+            if (adFooterCode) {
+                // Render footer ads in step-specific bottom slots
+                injectAdScript('ad-slot-step1-bottom', adFooterCode);
+                injectAdScript('ad-slot-step2-bottom', adFooterCode);
+            }
             if (adPopunderCode) {
                 if (adPopunderCode.startsWith('http')) {
                     window.addEventListener('click', () => {
