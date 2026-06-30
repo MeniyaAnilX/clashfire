@@ -429,17 +429,17 @@
                     if (lData.items && Array.isArray(lData.items)) {
                         currentMissionLinks = lData.items;
                     } else if (lData.urls && Array.isArray(lData.urls)) {
-                        currentMissionLinks = lData.urls.map((u, i) => ({ title: `Daily Mission Supply #${i+1}`, url: u }));
+                        currentMissionLinks = lData.urls.map((u, i) => ({ title: `Daily Mission #${i+1}`, url: u }));
                     }
                 }
 
                 if (!currentMissionLinks || currentMissionLinks.length === 0) {
                     currentMissionLinks = [
-                        { title: "Daily Mission Supply #1", url: "https://clashfire.vercel.app/verify.html?task=1" },
-                        { title: "Daily Mission Elite #2", url: "https://clashfire.vercel.app/verify.html?task=2" },
-                        { title: "Daily Mission Vault #3", url: "https://clashfire.vercel.app/verify.html?task=3" },
-                        { title: "Daily Mission Armor #4", url: "https://clashfire.vercel.app/verify.html?task=4" },
-                        { title: "Daily Mission Heroic #5", url: "https://clashfire.vercel.app/verify.html?task=5" }
+                        { title: "Daily Mission #1", url: "https://clashfire.vercel.app/verify.html?task=1" },
+                        { title: "Daily Mission #2", url: "https://clashfire.vercel.app/verify.html?task=2" },
+                        { title: "Daily Mission #3", url: "https://clashfire.vercel.app/verify.html?task=3" },
+                        { title: "Daily Mission #4", url: "https://clashfire.vercel.app/verify.html?task=4" },
+                        { title: "Daily Mission #5", url: "https://clashfire.vercel.app/verify.html?task=5" }
                     ];
                 }
 
@@ -519,7 +519,7 @@
 
             const nextMissionNum = currentMissionLinks.length + 1;
             currentMissionLinks.push({
-                title: `Daily Mission Supply #${nextMissionNum}`,
+                title: `Daily Mission #${nextMissionNum}`,
                 url: `https://ffire.xyz/verify.html?task=${nextMissionNum}`
             });
             renderAdminMissionRows();
@@ -546,8 +546,8 @@
                 currentMissionLinks.forEach((link, idx) => {
                     const seqNum = idx + 1;
                     // If it was using default name, auto-update it sequentially
-                    if (!link.title || link.title.startsWith("Daily Mission Supply #")) {
-                        link.title = `Daily Mission Supply #${seqNum}`;
+                    if (!link.title || link.title.startsWith("Daily Mission Supply #") || link.title.startsWith("Daily Mission #")) {
+                        link.title = `Daily Mission #${seqNum}`;
                     }
                     // Auto-fix verify destination url tasks sequentially if using verify.html target redirection
                     if (link.url && link.url.includes("verify.html?task=")) {
