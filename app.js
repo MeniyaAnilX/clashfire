@@ -40,6 +40,7 @@ class ClashFireApp {
             gamezopReward: 5,
             gamezopEnabled: true,
             bannerHtmlCode: '',
+            bannerMiddleHtmlCode: '',
             bannerBottomHtmlCode: '',
             bannerEnabled: false,
             popunderHtmlCode: '',
@@ -550,8 +551,10 @@ class ClashFireApp {
             }
         }
 
-        // Render Independent Top and Bottom Native Banner Ad Slots with Dynamic Zero-Space Auto-Height
+        // Render Independent Top, Middle and Bottom Native Banner Ad Slots with Dynamic Zero-Space Auto-Height
         const topSlot = document.getElementById('banner-ad-top');
+        const midHomeSlot = document.getElementById('banner-ad-middle');
+        const midRedeemSlot = document.getElementById('banner-ad-redeem-middle');
         const botSlot = document.getElementById('banner-ad-bottom');
         const isBannerOn = (this.integrations.bannerEnabled === true || this.integrations.bannerEnabled === 'true');
 
@@ -563,6 +566,21 @@ class ClashFireApp {
                 topSlot.classList.add('hidden'); topSlot.innerHTML = '';
             }
 
+            const midCode = this.integrations.bannerMiddleHtmlCode || this.integrations.bannerHtmlCode;
+            if (midHomeSlot && midCode) {
+                midHomeSlot.classList.remove('hidden');
+                this.executeIsolatedAdScript(midHomeSlot, midCode, 'mid-home');
+            } else if (midHomeSlot) {
+                midHomeSlot.classList.add('hidden'); midHomeSlot.innerHTML = '';
+            }
+
+            if (midRedeemSlot && midCode) {
+                midRedeemSlot.classList.remove('hidden');
+                this.executeIsolatedAdScript(midRedeemSlot, midCode, 'mid-redeem');
+            } else if (midRedeemSlot) {
+                midRedeemSlot.classList.add('hidden'); midRedeemSlot.innerHTML = '';
+            }
+
             const botCode = this.integrations.bannerBottomHtmlCode || this.integrations.bannerHtmlCode;
             if (botSlot && botCode) {
                 botSlot.classList.remove('hidden');
@@ -572,6 +590,8 @@ class ClashFireApp {
             }
         } else {
             if (topSlot) { topSlot.classList.add('hidden'); topSlot.innerHTML = ''; }
+            if (midHomeSlot) { midHomeSlot.classList.add('hidden'); midHomeSlot.innerHTML = ''; }
+            if (midRedeemSlot) { midRedeemSlot.classList.add('hidden'); midRedeemSlot.innerHTML = ''; }
             if (botSlot) { botSlot.classList.add('hidden'); botSlot.innerHTML = ''; }
         }
 

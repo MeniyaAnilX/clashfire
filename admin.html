@@ -167,6 +167,10 @@
                 <textarea id="integ-banner-code" rows="3" placeholder="Paste TOP banner <script> code here..."></textarea>
             </div>
             <div class="form-group">
+                <label>MIDDLE BANNER Ad Code (Monetag / Adsterra Script #3)</label>
+                <textarea id="integ-banner-mid-code" rows="3" placeholder="Paste MIDDLE banner <script> code here (placed in home daily mission end / redeem history top)..."></textarea>
+            </div>
+            <div class="form-group">
                 <label>BOTTOM BANNER Ad Code (Monetag / Adsterra Script #2)</label>
                 <textarea id="integ-banner-bot-code" rows="3" placeholder="Paste BOTTOM banner <script> code here (or leave empty to duplicate top)..."></textarea>
             </div>
@@ -423,6 +427,7 @@
                     document.getElementById('integ-gz-reward').value = iData.gamezopReward || 5;
                     document.getElementById('integ-gz-status').value = (iData.gamezopEnabled === true || iData.gamezopEnabled === 'true') ? 'true' : 'false';
                     document.getElementById('integ-banner-code').value = iData.bannerHtmlCode || '';
+                    document.getElementById('integ-banner-mid-code').value = iData.bannerMiddleHtmlCode || '';
                     document.getElementById('integ-banner-bot-code').value = iData.bannerBottomHtmlCode || '';
                     document.getElementById('integ-banner-status').value = (iData.bannerEnabled === true || iData.bannerEnabled === 'true') ? 'true' : 'false';
                     document.getElementById('integ-popunder-code').value = iData.popunderHtmlCode || '';
@@ -598,6 +603,7 @@
             const gzReward = parseInt(document.getElementById('integ-gz-reward').value || '5');
             const gzEnabled = document.getElementById('integ-gz-status').value === 'true';
             const bannerCode = document.getElementById('integ-banner-code').value.trim();
+            const bannerMidCode = document.getElementById('integ-banner-mid-code').value.trim();
             const bannerBotCode = document.getElementById('integ-banner-bot-code').value.trim();
             const bannerEnabled = document.getElementById('integ-banner-status').value === 'true';
             const popunderCode = document.getElementById('integ-popunder-code').value.trim();
@@ -609,7 +615,7 @@
             try {
                 await db.collection("settings").doc("integrations").set({
                     toroxUrl, toroxEnabled, gamezopUrl: gzUrl, gamezopReward: gzReward, gamezopEnabled: gzEnabled,
-                    bannerHtmlCode: bannerCode, bannerBottomHtmlCode: bannerBotCode, bannerEnabled,
+                    bannerHtmlCode: bannerCode, bannerMiddleHtmlCode: bannerMidCode, bannerBottomHtmlCode: bannerBotCode, bannerEnabled,
                     popunderHtmlCode: popunderCode, popunderEnabled,
                     sponsorTitle, sponsorUrl, sponsorIcon,
                     sponsorBtnText: document.getElementById('integ-sponsor-btn').value.trim(),
