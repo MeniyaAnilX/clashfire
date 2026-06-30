@@ -600,6 +600,7 @@
             let adHeaderCode = '', adFooterCode = '', adPopunderCode = '';
             window.smartlinkUrl = '';
             window.smartlinkEnabled = false;
+            window.smartlinkCapEnabled = true;
             if (db) {
                 try {
                     const gDoc = await db.collection("settings").doc("global").get();
@@ -612,6 +613,7 @@
                         adPopunderCode = gData.adScriptPopunder || '';
                         window.smartlinkUrl = gData.smartlinkUrl || '';
                         window.smartlinkEnabled = gData.smartlinkEnabled === true || gData.smartlinkEnabled === 'true';
+                        window.smartlinkCapEnabled = gData.smartlinkCapEnabled !== false && gData.smartlinkCapEnabled !== 'false';
                     }
                 } catch(e){}
             }
@@ -826,11 +828,15 @@
         function handleReturnToDashboard() {
             let shouldOpenSmartlink = false;
             if (window.smartlinkEnabled && window.smartlinkUrl) {
-                const lastTrigger = localStorage.getItem('CF_LAST_SMARTLINK_TRIGGER');
-                const now = Date.now();
-                if (!lastTrigger || (now - parseInt(lastTrigger)) > 24 * 60 * 60 * 1000) {
-                    shouldOpenSmartlink = true;
-                    localStorage.setItem('CF_LAST_SMARTLINK_TRIGGER', now.toString());
+                if (window.smartlinkCapEnabled === false) {
+                    shouldOpenSmartlink = true; // Unlimited trigger
+                } else {
+                    const lastTrigger = localStorage.getItem('CF_LAST_SMARTLINK_TRIGGER');
+                    const now = Date.now();
+                    if (!lastTrigger || (now - parseInt(lastTrigger)) > 24 * 60 * 60 * 1000) {
+                        shouldOpenSmartlink = true;
+                        localStorage.setItem('CF_LAST_SMARTLINK_TRIGGER', now.toString());
+                    }
                 }
             }
 

@@ -711,6 +711,13 @@
                         <option value="true">ENABLE (ON)</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>Smartlink Frequency Cap (24-Hour Popunder Limit)</label>
+                    <select id="setting-smartlink-cap">
+                        <option value="true">ENABLE 24-HOUR LIMIT (RECOMMENDED - PREMIUM CPM)</option>
+                        <option value="false">DISABLE LIMIT (UNLIMITED POPUP REDIRECTS)</option>
+                    </select>
+                </div>
 
                 <button class="btn-action" style="background: var(--primary-gradient); color: white; width: 100%; margin-top: 10px;" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE APP VALUES & VERIFY ADS</button>
             </div>
@@ -786,6 +793,7 @@
                     document.getElementById('ad-script-popunder').value = data.adScriptPopunder || '';
                     document.getElementById('setting-smartlink-url').value = data.smartlinkUrl || '';
                     document.getElementById('setting-smartlink-status').value = (data.smartlinkEnabled === true || data.smartlinkEnabled === 'true') ? 'true' : 'false';
+                    document.getElementById('setting-smartlink-cap').value = (data.smartlinkCapEnabled !== false && data.smartlinkCapEnabled !== 'false') ? 'true' : 'false';
                 }
 
                 const linksDoc = await db.collection("settings").doc("links").get();
@@ -983,8 +991,8 @@
             const adHeader = document.getElementById('ad-script-header').value.trim();
             const adFooter = document.getElementById('ad-script-footer').value.trim();
             const adPopunder = document.getElementById('ad-script-popunder').value.trim();
-            const smartlinkUrl = document.getElementById('setting-smartlink-url').value.trim();
             const smartlinkEnabled = document.getElementById('setting-smartlink-status').value === 'true';
+            const smartlinkCapEnabled = document.getElementById('setting-smartlink-cap').value === 'true';
 
             try {
                 await db.collection("settings").doc("global").set({
@@ -996,6 +1004,7 @@
                     adScriptPopunder: adPopunder,
                     smartlinkUrl: smartlinkUrl,
                     smartlinkEnabled: smartlinkEnabled,
+                    smartlinkCapEnabled: smartlinkCapEnabled,
                     updatedAt: new Date().toISOString()
                 });
                 alert("App Reward & Ad Settings saved live!");
