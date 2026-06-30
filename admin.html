@@ -3,72 +3,406 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CLASH FIRE - Admin Control Center</title>
+    <title>CLASH FIRE - Premium Admin Panel</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-dark: #07070c;
-            --bg-card: #0e101c;
-            --primary-fire: #ff4500;
-            --accent-gold: #ffd700;
+            --bg-dark: #090b11;
+            --bg-card: #121625;
+            --bg-input: #1a1f35;
+            --primary: #ff4500;
+            --primary-gradient: linear-gradient(135deg, #ff4500, #ff7b00);
             --accent-cyan: #00f2fe;
-            --text-main: #ffffff;
-            --text-muted: #94a3b8;
+            --cyan-gradient: linear-gradient(135deg, #00f2fe, #4facfe);
+            --accent-gold: #ffd700;
+            --gold-gradient: linear-gradient(135deg, #ffd700, #ffa500);
+            --accent-green: #00e676;
+            --green-gradient: linear-gradient(135deg, #00e676, #00b0ff);
+            --text-main: #f8fafc;
+            --text-muted: #64748b;
+            --text-muted-light: #94a3b8;
+            --border-glow: rgba(0, 242, 254, 0.15);
+            --border-light: rgba(255, 255, 255, 0.05);
         }
+
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-main); padding: 20px; min-height: 100vh; }
         
-        header { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid rgba(0, 242, 254, 0.2); margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .brand { font-size: 1.6rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
-        .badge-live { background: rgba(0, 230, 118, 0.15); color: #00e676; border: 1px solid #00e676; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; }
+        body { 
+            background-color: var(--bg-dark); 
+            color: var(--text-main); 
+            padding: 24px; 
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 10% 20%, rgba(0, 242, 254, 0.05) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(255, 69, 0, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
 
-        .admin-nav { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; }
-        .nav-tab { background: var(--bg-card); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); padding: 12px 20px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; white-space: nowrap; }
-        .nav-tab.active { background: linear-gradient(135deg, var(--accent-cyan), #00a8ff); color: #000; border-color: var(--accent-cyan); box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3); }
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-input); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: var(--bg-card); padding: 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); }
-        .stat-val { font-size: 1.8rem; font-weight: 800; color: var(--accent-gold); margin-top: 5px; }
-        .stat-label { font-size: 0.85rem; color: var(--text-muted); }
+        header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: var(--bg-card); 
+            padding: 20px 28px; 
+            border-radius: 16px; 
+            border: 1px solid var(--border-glow); 
+            margin-bottom: 24px; 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+        }
+        
+        .brand { 
+            font-size: 1.5rem; 
+            font-weight: 800; 
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #fff 30%, var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
 
+        .brand i {
+            color: var(--accent-cyan);
+            filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.6));
+        }
+        
+        .badge-live { 
+            background: rgba(0, 230, 118, 0.08); 
+            color: var(--accent-green); 
+            border: 1px solid rgba(0, 230, 118, 0.25); 
+            padding: 6px 14px; 
+            border-radius: 20px; 
+            font-size: 0.8rem; 
+            font-weight: 700; 
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-live i {
+            font-size: 0.65rem;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { transform: scale(0.9); opacity: 0.6; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+
+        /* Stats Grid */
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 28px; 
+        }
+        
+        .stat-card { 
+            background: var(--bg-card); 
+            padding: 24px; 
+            border-radius: 16px; 
+            border: 1px solid var(--border-light); 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--card-accent, var(--accent-cyan));
+        }
+
+        .stat-info { display: flex; flex-direction: column; gap: 4px; }
+        .stat-val { font-size: 2rem; font-weight: 800; color: var(--text-main); line-height: 1.2; }
+        .stat-label { font-size: 0.85rem; color: var(--text-muted-light); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .stat-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--card-accent, var(--accent-cyan));
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Navigation Menu */
+        .admin-nav { 
+            display: flex; 
+            gap: 8px; 
+            margin-bottom: 28px; 
+            overflow-x: auto; 
+            padding-bottom: 8px; 
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .nav-tab { 
+            background: var(--bg-card); 
+            color: var(--text-muted-light); 
+            border: 1px solid var(--border-light); 
+            padding: 12px 20px; 
+            border-radius: 12px; 
+            font-weight: 600; 
+            font-size: 0.9rem; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            transition: all 0.2s ease; 
+            white-space: nowrap; 
+        }
+        
+        .nav-tab:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            color: var(--text-main);
+        }
+
+        .nav-tab.active { 
+            background: var(--cyan-gradient); 
+            color: #020617; 
+            border-color: var(--accent-cyan); 
+            font-weight: 700;
+            box-shadow: 0 4px 20px rgba(0, 242, 254, 0.25); 
+        }
+
+        /* Layout Cards */
         .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
 
-        .control-card { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); max-width: 750px; margin-bottom: 20px; }
-        .card-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 15px; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-        .form-group label { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); }
-        .form-group input, .form-group select, .form-group textarea { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 0.95rem; outline: none; font-family: inherit; }
-        .form-group input:focus, .form-group textarea:focus { border-color: var(--accent-cyan); }
+        .section-box { 
+            background: var(--bg-card); 
+            padding: 28px; 
+            border-radius: 16px; 
+            border: 1px solid var(--border-light); 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); 
+            margin-bottom: 24px;
+        }
+
+        .section-title { 
+            font-size: 1.25rem; 
+            font-weight: 800; 
+            margin-bottom: 20px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            color: var(--text-main); 
+            border-bottom: 1.5px solid var(--border-light);
+            padding-bottom: 12px;
+        }
+
+        .section-title i {
+            color: var(--accent-cyan);
+        }
+
+        .control-card { 
+            background: var(--bg-card); 
+            padding: 24px; 
+            border-radius: 16px; 
+            border: 1px solid var(--border-light); 
+            margin-bottom: 20px; 
+        }
         
-        .btn-action { background: linear-gradient(135deg, var(--accent-cyan), #00a8ff); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 10px; }
+        .card-title { 
+            font-size: 1.05rem; 
+            font-weight: 800; 
+            margin-bottom: 18px; 
+            color: var(--accent-cyan); 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-        .mission-row-item { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; margin-bottom: 12px; position: relative; }
-        .target-hint { font-size: 0.75rem; color: var(--accent-gold); font-weight: 700; margin-top: 4px; font-family: monospace; }
-        .btn-del-link { background: #ff1744; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; cursor: pointer; float: right; margin-top: -32px; }
+        /* Forms Styling */
+        .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted-light); }
+        
+        .form-group input, .form-group select, .form-group textarea { 
+            background: var(--bg-input); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 10px; 
+            padding: 12px 14px; 
+            color: var(--text-main); 
+            font-size: 0.9rem; 
+            outline: none; 
+            font-family: inherit; 
+            transition: all 0.2s ease;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { 
+            border-color: var(--accent-cyan); 
+            box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.1);
+        }
 
-        .section-box { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); overflow-x: auto; margin-bottom: 25px; }
-        .section-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; color: var(--accent-cyan); }
+        .form-row-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        /* Buttons */
+        .btn-action { 
+            background: var(--cyan-gradient); 
+            color: #020617; 
+            border: none; 
+            padding: 14px 20px; 
+            border-radius: 10px; 
+            font-weight: 700; 
+            font-size: 0.95rem;
+            cursor: pointer; 
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease; 
+            box-shadow: 0 4px 12px rgba(0, 242, 254, 0.15);
+        }
 
-        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 650px; }
-        th, td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.95rem; }
-        th { color: var(--text-muted); font-weight: 700; background: rgba(0,0,0,0.4); }
-        tr:hover { background: rgba(255,255,255,0.02); }
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 242, 254, 0.25);
+        }
 
-        .status-badge { padding: 4px 10px; border-radius: 10px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
-        .status-badge.pending { background: rgba(255, 215, 0, 0.15); color: var(--accent-gold); border: 1px solid rgba(255, 215, 0, 0.3); }
-        .status-badge.completed { background: rgba(0, 230, 118, 0.15); color: #00e676; border: 1px solid rgba(0, 230, 118, 0.3); }
+        .btn-action:active {
+            transform: translateY(0);
+        }
 
-        .btn-complete { background: #00e676; color: #000; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 0.85rem; cursor: pointer; transition: 0.2s ease; }
-        .btn-complete:hover { background: #00c853; }
+        /* Lists & Row Items */
+        .mission-row-item { 
+            background: var(--bg-input); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            border-radius: 12px; 
+            padding: 18px; 
+            margin-bottom: 14px; 
+            position: relative; 
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .target-hint { 
+            font-size: 0.75rem; 
+            color: var(--accent-gold); 
+            font-weight: 600; 
+            font-family: monospace; 
+            background: rgba(255, 215, 0, 0.06);
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            align-self: flex-start;
+        }
+        
+        .btn-del-link { 
+            background: rgba(255, 23, 68, 0.1); 
+            color: #ff1744; 
+            border: 1px solid rgba(255, 23, 68, 0.2); 
+            padding: 8px 14px; 
+            border-radius: 8px; 
+            font-weight: 700; 
+            font-size: 0.8rem; 
+            cursor: pointer; 
+            align-self: flex-end;
+            transition: all 0.2s ease;
+        }
 
-        .dia-input { background: rgba(0,0,0,0.6); border: 1px solid var(--accent-gold); border-radius: 6px; padding: 6px 10px; color: var(--accent-gold); font-weight: 800; width: 110px; font-size: 0.95rem; outline: none; }
-        .btn-save-dia { background: var(--accent-gold); color: #000; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 0.8rem; cursor: pointer; margin-left: 6px; }
-        .btn-save-dia:hover { opacity: 0.9; }
+        .btn-del-link:hover {
+            background: #ff1744;
+            color: #fff;
+            border-color: #ff1744;
+        }
+
+        /* Tables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+        }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.9rem; }
+        th { color: var(--text-muted-light); font-weight: 600; background: rgba(0,0,0,0.25); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
+        tr:hover td { background: rgba(255, 255, 255, 0.015); }
+        tr:last-child td { border-bottom: none; }
+
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+        .status-badge.pending { background: rgba(255, 215, 0, 0.08); color: var(--accent-gold); border: 1px solid rgba(255, 215, 0, 0.2); }
+        .status-badge.completed { background: rgba(0, 230, 118, 0.08); color: var(--accent-green); border: 1px solid rgba(0, 230, 118, 0.2); }
+
+        .btn-complete { 
+            background: var(--green-gradient); 
+            color: #020617; 
+            border: none; 
+            padding: 8px 16px; 
+            border-radius: 8px; 
+            font-weight: 700; 
+            font-size: 0.8rem; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-complete:hover { opacity: 0.95; }
+
+        .dia-input { 
+            background: var(--bg-input); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 8px; 
+            padding: 8px 12px; 
+            color: var(--accent-gold); 
+            font-weight: 700; 
+            width: 100px; 
+            font-size: 0.9rem; 
+            outline: none; 
+            transition: all 0.2s ease;
+        }
+
+        .dia-input:focus {
+            border-color: var(--accent-gold);
+        }
+
+        .btn-save-dia { 
+            background: var(--gold-gradient); 
+            color: #020617; 
+            border: none; 
+            padding: 8px 14px; 
+            border-radius: 8px; 
+            font-weight: 700; 
+            font-size: 0.8rem; 
+            cursor: pointer; 
+            margin-left: 6px; 
+            transition: all 0.2s ease;
+        }
+        .btn-save-dia:hover { opacity: 0.95; }
     </style>
 
     <!-- Firebase SDK -->
@@ -79,25 +413,40 @@
 
     <header>
         <div class="brand">
-            CLASH FIRE CONTROL CENTER
+            <i class="fa-solid fa-fire"></i> CLASH FIRE CONTROL CENTER
         </div>
         <div class="badge-live">
-            <i class="fa-solid fa-circle"></i> FIRESTORE LIVE CONNECTED
+            <i class="fa-solid fa-circle"></i> LIVE RUNTIME SYNCHRONIZED
         </div>
     </header>
 
     <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-label">Pending Fulfillments</div>
-            <div class="stat-val" id="stat-pending" style="color: #ff4500;">0</div>
+        <div class="stat-card" style="--card-accent: var(--primary);">
+            <div class="stat-info">
+                <div class="stat-val" id="stat-pending">0</div>
+                <div class="stat-label">Pending Transfers</div>
+            </div>
+            <div class="stat-icon-wrapper">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-label">Completed Transfers</div>
-            <div class="stat-val" id="stat-completed" style="color: #00e676;">0</div>
+        <div class="stat-card" style="--card-accent: var(--accent-green);">
+            <div class="stat-info">
+                <div class="stat-val" id="stat-completed">0</div>
+                <div class="stat-label">Completed Transfers</div>
+            </div>
+            <div class="stat-icon-wrapper">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-label">Total Users Registered</div>
-            <div class="stat-val" id="stat-users" style="color: var(--accent-cyan);">0</div>
+        <div class="stat-card" style="--card-accent: var(--accent-cyan);">
+            <div class="stat-info">
+                <div class="stat-val" id="stat-users">0</div>
+                <div class="stat-label">Registered Players</div>
+            </div>
+            <div class="stat-icon-wrapper">
+                <i class="fa-solid fa-users"></i>
+            </div>
         </div>
     </div>
 
@@ -105,89 +454,156 @@
     <nav class="admin-nav">
         <button class="nav-tab active" onclick="switchTab('tab-redemptions', this)"><i class="fa-solid fa-gem"></i> REDEMPTIONS QUEUE</button>
         <button class="nav-tab" onclick="switchTab('tab-users', this)"><i class="fa-solid fa-users"></i> PLAYERS DATABASE</button>
-        <button class="nav-tab" onclick="switchTab('tab-ads', this)"><i class="fa-solid fa-rectangle-ad"></i> ADS & MONETIZATION</button>
-        <button class="nav-tab" onclick="switchTab('tab-promotions', this)"><i class="fa-solid fa-users-viewfinder"></i> COMMUNITY & CHANNELS</button>
-        <button class="nav-tab" onclick="switchTab('tab-dailyvisit', this)"><i class="fa-solid fa-calendar-check"></i> DAILY TASK</button>
-        <button class="nav-tab" onclick="switchTab('tab-settings', this)"><i class="fa-solid fa-sliders"></i> REWARD & MISSIONS</button>
+        <button class="nav-tab" onclick="switchTab('tab-links', this)"><i class="fa-solid fa-link"></i> MISSION LINKS</button>
+        <button class="nav-tab" onclick="switchTab('tab-dailyvisit', this)"><i class="fa-solid fa-calendar-check"></i> DAILY TASKS</button>
+        <button class="nav-tab" onclick="switchTab('tab-community', this)"><i class="fa-solid fa-bullhorn"></i> COMMUNITY PANE</button>
+        <button class="nav-tab" onclick="switchTab('tab-offerwalls', this)"><i class="fa-solid fa-award"></i> SURVEYS & OFFERWALLS</button>
+        <button class="nav-tab" onclick="switchTab('tab-settings', this)"><i class="fa-solid fa-sliders"></i> GLOBAL ADS & CONFIG</button>
     </nav>
 
-    <!-- Tab 1: Redemptions Queue (DEFAULT VIEW) -->
+    <!-- Tab 1: Redemptions Queue -->
     <div id="tab-redemptions" class="tab-content active section-box">
         <div class="section-title">
             <i class="fa-solid fa-gem"></i> DIAMOND REDEMPTIONS QUEUE
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Player FF UID</th>
-                    <th>Diamonds</th>
-                    <th>User ID</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="redemptions-table-body">
-                <tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Loading live requests...</td></tr>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Player FF UID</th>
+                        <th>Diamonds</th>
+                        <th>User ID</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="redemptions-table-body">
+                    <tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Loading live requests...</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Tab 2: All Players Database -->
     <div id="tab-users" class="tab-content section-box">
         <div class="section-title">
-            <i class="fa-solid fa-users"></i> ALL PLAYERS DATABASE (EDIT DIAMONDS)
+            <i class="fa-solid fa-users"></i> ALL PLAYERS DATABASE
         </div>
-        <div class="form-group" style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
-            <label style="margin: 0; min-width: 120px; font-weight: bold; color: var(--text-muted);"><i class="fa-solid fa-search"></i> Search Players:</label>
-            <input type="text" id="player-search-input" placeholder="Search by Player UID, User ID (e.g. CF-123456), or Device ID..." oninput="filterPlayersTable()" style="background: rgba(255,255,255,0.03); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px 12px; color: #fff; width: 100%;">
+        <div class="form-group" style="margin-bottom: 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <label style="margin: 0; font-weight: 600; color: var(--text-muted-light);"><i class="fa-solid fa-search"></i> Search Players:</label>
+            <input type="text" id="player-search-input" placeholder="Search by Player UID, User ID (e.g. CF-123456), or Device ID..." oninput="filterPlayersTable()" style="flex-grow: 1;">
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>User ID</th>
-                    <th>Player FF UID</th>
-                    <th>Current Diamond Balance</th>
-                    <th style="width: 320px; text-align: center;">Action</th>
-                </tr>
-            </thead>
-            <tbody id="users-table-body">
-                <tr><td colspan="4" style="text-align:center; color: var(--text-muted);">Loading registered players...</td></tr>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Player FF UID</th>
+                        <th>Current Diamond Balance</th>
+                        <th style="text-align: center;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body">
+                    <tr><td colspan="4" style="text-align:center; color: var(--text-muted);">Loading registered players...</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- Tab 3: Dedicated Ads & Monetization Center -->
-    <div id="tab-ads" class="tab-content">
-        <!-- Card A: Dynamic Native Banner Ads Manager -->
-        <div class="control-card">
-            <div class="card-title"><i class="fa-solid fa-rectangle-ad"></i> NATIVE BANNER ADS MANAGER (DUAL SLOTS)</div>
-            <div class="form-group">
-                <label>TOP BANNER Ad Code (Monetag / Adsterra Script #1)</label>
-                <textarea id="integ-banner-code" rows="3" placeholder="Paste TOP banner <script> code here..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>MIDDLE BANNER Ad Code (Monetag / Adsterra Script #3)</label>
-                <textarea id="integ-banner-mid-code" rows="3" placeholder="Paste MIDDLE banner <script> code here (placed in home daily mission end / redeem history top)..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>BOTTOM BANNER Ad Code (Monetag / Adsterra Script #2)</label>
-                <textarea id="integ-banner-bot-code" rows="3" placeholder="Paste BOTTOM banner <script> code here (or leave empty to duplicate top)..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>Banner Ads Status</label>
-                <select id="integ-banner-status">
-                    <option value="false">DISABLE (HIDDEN)</option>
-                    <option value="true">ENABLE (ACTIVE LIVE)</option>
-                </select>
-            </div>
-            <button class="btn-action" style="background: #00e676;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE NATIVE BANNER CONFIG</button>
+    <!-- Tab 3: Dynamic Unlimited Daily Mission Links Manager -->
+    <div id="tab-links" class="tab-content section-box">
+        <div class="section-title">
+            <i class="fa-solid fa-link"></i> DYNAMIC UNLIMITED DAILY MISSION LINKS
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted-light); margin-bottom: 20px; max-width: 750px;">Configure your dynamic mission shortener links (e.g. GPLinks, ShrinkMe). Users will visit these sponsor URLs sequentially before unlocking rewards.</p>
+        
+        <div id="dynamic-links-list-container">
+            <!-- Dynamically populated mission rows will load here -->
         </div>
 
+        <div style="display: flex; gap: 12px; max-width: 750px; margin-top: 15px;">
+            <button class="btn-action" style="background: var(--cyan-gradient); color: #020617;" onclick="addNewMissionRow()"><i class="fa-solid fa-plus"></i> ADD NEW MISSION LINK</button>
+            <button class="btn-action" style="background: var(--green-gradient); color: #020617; flex-grow: 1;" onclick="saveMissionLinks()"><i class="fa-solid fa-save"></i> SAVE ALL MISSION LINKS</button>
+        </div>
+    </div>
 
-        <!-- Card C: Torox & Gamezop Integrations -->
-        <div class="control-card">
-            <div class="card-title"><i class="fa-solid fa-gamepad"></i> OFFERWALL & GAMEZOP INTEGRATIONS</div>
+    <!-- Tab 4: Daily Visit Tasks Manager (DAILY TASK) -->
+    <div id="tab-dailyvisit" class="tab-content section-box">
+        <div class="section-title">
+            <i class="fa-solid fa-calendar-check"></i> DYNAMIC UNLIMITED DAILY VISIT TASKS MANAGER
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted-light); margin-bottom: 20px; max-width: 750px;">Add as many visit tasks as you want. When added, they are dynamically named automatically and render in the Missions Tab!</p>
+        
+        <div id="dailyvisit-links-list-container">
+            <!-- Dynamically populated visit task rows will load here -->
+        </div>
+
+        <div style="display: flex; gap: 12px; max-width: 750px; margin-top: 15px;">
+            <button class="btn-action" style="background: var(--cyan-gradient); color: #020617;" onclick="addDailyVisitRow()"><i class="fa-solid fa-plus"></i> ADD NEW VISIT TASK</button>
+            <button class="btn-action" style="background: var(--green-gradient); color: #020617; flex-grow: 1;" onclick="saveDailyVisitSettings()"><i class="fa-solid fa-save"></i> SAVE ALL DAILY TASKS CONFIG</button>
+        </div>
+    </div>
+
+    <!-- Tab 5: Dedicated Community & Channels Manager -->
+    <div id="tab-community" class="tab-content section-box">
+        <div class="section-title">
+            <i class="fa-solid fa-bullhorn"></i> DEDICATED OFFICIAL COMMUNITY MANAGER
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted-light); margin-bottom: 20px; max-width: 750px;">Manage official Telegram channels, YouTube promotion links, or custom app tasks listed in the Official Community station on the main app.</p>
+        
+        <div class="control-card" style="max-width: 750px; background: rgba(0,0,0,0.15);">
+            <div class="form-group">
+                <label>Task Title (e.g. Join Our Channel / Subscribe YouTube)</label>
+                <input type="text" id="integ-sponsor-title" placeholder="e.g. Join Our Channel">
+            </div>
+            <div class="form-group">
+                <label>Platform Destination Link (Telegram / YouTube / Website)</label>
+                <input type="text" id="integ-sponsor-url" placeholder="https://t.me/yourchannel">
+            </div>
+            <div class="form-row-grid">
+                <div class="form-group">
+                    <label>Platform Icon Logo</label>
+                    <select id="integ-sponsor-icon">
+                        <option value="youtube">🔴 YouTube (Red Play Logo)</option>
+                        <option value="telegram">✈️ Telegram (Blue Plane Logo)</option>
+                        <option value="globe">🌐 Website (Cyan Globe Logo)</option>
+                        <option value="star">⭐ Custom Task (Fire Star Logo)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Button Text (e.g. JOIN NOW / SUBSCRIBE)</label>
+                    <input type="text" id="integ-sponsor-btn" placeholder="JOIN NOW">
+                </div>
+            </div>
+            <div class="form-row-grid">
+                <div class="form-group">
+                    <label>Completion Reward Diamonds</label>
+                    <input type="number" id="integ-sponsor-reward" value="10">
+                </div>
+                <div class="form-group">
+                    <label>Community Station Status</label>
+                    <select id="integ-sponsor-status">
+                        <option value="true">ENABLE (ACTIVE LIVE ON SITE)</option>
+                        <option value="false">DISABLE (HIDDEN)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-action" style="background: var(--primary-gradient); color: #fff; width: 100%;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE COMMUNITY CONFIG</button>
+        </div>
+    </div>
+
+    <!-- Tab 6: CPX & Torox & Gamezop Integrations -->
+    <div id="tab-offerwalls" class="tab-content section-box">
+        <div class="section-title">
+            <i class="fa-solid fa-award"></i> SURVEYS & OFFERWALLS STATIONS
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted-light); margin-bottom: 20px; max-width: 750px;">Configure third party integrations to allow players to complete surveys or mini-games for points.</p>
+
+        <!-- Torox Section -->
+        <div class="control-card" style="max-width: 750px; background: rgba(0,0,0,0.15); margin-bottom: 20px;">
+            <div class="card-title"><i class="fa-solid fa-cubes"></i> TOROX OFFERWALL CONFIG</div>
             <div class="form-group">
                 <label>Offerwall Publisher Link / App URL (Torox / CPA)</label>
                 <input type="text" id="integ-torox-url" placeholder="https://offerwalls.com/...">
@@ -199,36 +615,40 @@
                     <option value="false">DISABLE (HIDDEN)</option>
                 </select>
             </div>
-            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.08); margin: 15px 0;">
+        </div>
+
+        <!-- Gamezop Section -->
+        <div class="control-card" style="max-width: 750px; background: rgba(0,0,0,0.15); margin-bottom: 20px;">
+            <div class="card-title"><i class="fa-solid fa-gamepad"></i> GAMEZOP ARCADE CONFIG</div>
             <div class="form-group">
                 <label>Gamezop Web URL / Publisher Link</label>
                 <input type="text" id="integ-gz-url" placeholder="https://www.gamezop.com/...">
             </div>
-            <div class="form-group">
-                <label>Gamezop Playtime Reward Diamonds (3 Mins Play)</label>
-                <input type="number" id="integ-gz-reward" value="5">
+            <div class="form-row-grid">
+                <div class="form-group">
+                    <label>Reward Diamonds (3 Mins Play)</label>
+                    <input type="number" id="integ-gz-reward" value="5">
+                </div>
+                <div class="form-group">
+                    <label>Gamezop Station Status</label>
+                    <select id="integ-gz-status">
+                        <option value="true">ENABLE (ACTIVE)</option>
+                        <option value="false">DISABLE (HIDDEN)</option>
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Gamezop Station Status</label>
-                <select id="integ-gz-status">
-                    <option value="true">ENABLE (ACTIVE)</option>
-                    <option value="false">DISABLE (HIDDEN)</option>
-                </select>
-            </div>
-            <button class="btn-action" style="background: #00e676;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE OFFERWALL & GAMEZOP CONFIG</button>
         </div>
 
-        <!-- Card D: CPX Research Survey Wall Integration -->
-        <div class="control-card">
-            <div class="card-title"><i class="fa-solid fa-square-poll-vertical"></i> CPX RESEARCH SURVEY WALL INTEGRATION</div>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Configure your CPX Research Survey Wall app details. Complete surveys will credit rewards to user balances automatically.</p>
+        <!-- CPX Research Survey -->
+        <div class="control-card" style="max-width: 750px; background: rgba(0,0,0,0.15);">
+            <div class="card-title"><i class="fa-solid fa-square-poll-vertical"></i> CPX RESEARCH SURVEY CONFIG</div>
             <div class="form-group">
                 <label>CPX App ID</label>
-                <input type="text" id="integ-cpx-appid" value="34050" placeholder="e.g. 34050">
+                <input type="text" id="integ-cpx-appid" value="34050">
             </div>
             <div class="form-group">
                 <label>CPX Security Hash (App Secure Hash)</label>
-                <input type="text" id="integ-cpx-hash" value="ucHVQYc5kg6SooA56Z2sQBl12wkU61T4" placeholder="e.g. ucHVQYc5kg6SooA56Z2sQBl12wkU61T4">
+                <input type="text" id="integ-cpx-hash" value="ucHVQYc5kg6SooA56Z2sQBl12wkU61T4">
             </div>
             <div class="form-group">
                 <label>CPX Survey Wall Status</label>
@@ -237,87 +657,23 @@
                     <option value="true">ENABLE (ACTIVE LIVE)</option>
                 </select>
             </div>
-            <button class="btn-action" style="background: #00e676;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE CPX SURVEY CONFIG</button>
         </div>
 
-
-    </div>
-
-    <!-- Tab 4: Dedicated Community & Channels Manager -->
-    <div id="tab-promotions" class="tab-content">
-        <div class="control-card">
-            <div class="card-title"><i class="fa-solid fa-users-viewfinder"></i> DEDICATED OFFICIAL COMMUNITY MANAGER</div>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Manage official Telegram channels, YouTube promotion links, or custom app tasks listed in the Official Community station on the main app.</p>
-            
-            <div class="form-group">
-                <label>Task Title (e.g. Join Our Channel / Subscribe YouTube)</label>
-                <input type="text" id="integ-sponsor-title" placeholder="e.g. Join Our Channel">
-            </div>
-            <div class="form-group">
-                <label>Platform Destination Link (Telegram / YouTube / Website)</label>
-                <input type="text" id="integ-sponsor-url" placeholder="https://t.me/yourchannel">
-            </div>
-            <div class="form-group">
-                <label>Platform Icon Logo</label>
-                <select id="integ-sponsor-icon">
-                    <option value="youtube">🔴 YouTube (Red Play Logo)</option>
-                    <option value="telegram">✈️ Telegram (Blue Plane Logo)</option>
-                    <option value="globe">🌐 Website (Cyan Globe Logo)</option>
-                    <option value="star">⭐ Custom Task (Fire Star Logo)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Button Text (e.g. JOIN NOW / SUBSCRIBE / VISIT)</label>
-                <input type="text" id="integ-sponsor-btn" placeholder="JOIN NOW">
-            </div>
-            <div class="form-group">
-                <label>Completion Reward Diamonds</label>
-                <input type="number" id="integ-sponsor-reward" value="10">
-            </div>
-            <div class="form-group">
-                <label>Community Station Status</label>
-                <select id="integ-sponsor-status">
-                    <option value="true">ENABLE (ACTIVE LIVE ON SITE)</option>
-                    <option value="false">DISABLE (HIDDEN)</option>
-                </select>
-            </div>
-
-            <button class="btn-action" style="background: var(--primary-fire); color: white;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE COMMUNITY CONFIG</button>
+        <div style="max-width: 750px; margin-top: 15px;">
+            <button class="btn-action" style="background: var(--green-gradient); color: #020617; width: 100%;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE ALL SURVEY & OFFERWALL SETTINGS</button>
         </div>
     </div>
 
-    <!-- Tab 5: Daily Visit Tasks Manager (DAILY TASK) -->
-    <div id="tab-dailyvisit" class="tab-content">
-        <!-- Card: Unlimited Dynamic Daily Visit Tasks Manager -->
-        <div class="control-card">
-            <div class="card-title"><i class="fa-solid fa-calendar-check"></i> DYNAMIC UNLIMITED DAILY VISIT TASKS MANAGER</div>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Add as many visit tasks as you want. When added, they are dynamically named automatically and render in the Missions Tab!</p>
-            
-            <div style="display: flex; gap: 10px; font-weight: bold; margin-bottom: 10px; color: var(--text-muted); font-size: 0.8rem; padding-left: 10px;">
-                <div style="min-width: 140px;">Task Auto-Name</div>
-                <div style="flex-grow: 2;">Target URL Destination</div>
-                <div style="width: 90px;">Wait (Secs)</div>
-                <div style="width: 90px;">Diamonds</div>
-                <div style="width: 42px;"></div>
-            </div>
-
-            <div id="dailyvisit-links-list-container">
-                <!-- Dynamically populated visit task rows will load here -->
-            </div>
-
-            <div style="display: flex; gap: 12px; margin-top: 15px;">
-                <button class="btn-action" style="background: var(--accent-cyan); color: #000; font-weight: 800;" onclick="addDailyVisitRow()"><i class="fa-solid fa-plus"></i> ADD NEW VISIT TASK</button>
-                <button class="btn-action" style="background: #00e676; flex-grow: 1;" onclick="saveDailyVisitSettings()"><i class="fa-solid fa-save"></i> SAVE ALL DAILY TASKS CONFIG</button>
-            </div>
+    <!-- Tab 7: Global Settings & Ad Integration -->
+    <div id="tab-settings" class="tab-content section-box">
+        <div class="section-title">
+            <i class="fa-solid fa-sliders"></i> GLOBAL APP VALUES & ADS SETTINGS
         </div>
-    </div>
 
-    <!-- Tab 6: Reward & Missions Settings -->
-    <div id="tab-settings" class="tab-content">
         <!-- Card A: Rewards & Timer -->
-        <div class="control-card">
+        <div class="control-card" style="max-width: 750px; background: rgba(0,0,0,0.15); margin-bottom: 20px;">
             <div class="card-title"><i class="fa-solid fa-sliders"></i> DYNAMIC REWARD & TIMER CONFIG</div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 15px;">
+            <div class="form-row-grid">
                 <div class="form-group">
                     <label>Diamonds Per Link</label>
                     <input type="number" id="setting-link-reward" value="5">
@@ -331,40 +687,53 @@
                     <input type="number" id="setting-timer-seconds" value="20" min="5" max="300">
                 </div>
             </div>
-            
-            <div class="card-title" style="margin-top: 20px; font-size: 0.95rem;"><i class="fa-solid fa-code"></i> DYNAMIC AD CODE INTEGRATION (ADS CONFIGURE)</div>
-            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;">Paste HTML/JavaScript tags from Monetag or Adsterra directly. Clean banner spaces will auto-inject these.</p>
+        </div>
+
+        <!-- Card B: Dual Ads Slot Settings -->
+        <div class="control-card" style="max-width: 750px; background: rgba(0,0,0,0.15); margin-bottom: 20px;">
+            <div class="card-title"><i class="fa-solid fa-rectangle-ad"></i> NATIVE BANNER ADS MANAGER</div>
+            <div class="form-group">
+                <label>TOP BANNER Ad Code (Monetag / Adsterra Script #1)</label>
+                <textarea id="integ-banner-code" rows="3" placeholder="Paste TOP banner <script> code here..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>MIDDLE BANNER Ad Code (Monetag / Adsterra Script #3)</label>
+                <textarea id="integ-banner-mid-code" rows="3" placeholder="Paste MIDDLE banner <script> code here..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>BOTTOM BANNER Ad Code (Monetag / Adsterra Script #2)</label>
+                <textarea id="integ-banner-bot-code" rows="3" placeholder="Paste BOTTOM banner <script> code here..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Banner Ads Status</label>
+                <select id="integ-banner-status">
+                    <option value="false">DISABLE (HIDDEN)</option>
+                    <option value="true">ENABLE (ACTIVE LIVE)</option>
+                </select>
+            </div>
+            <button class="btn-action" style="background: var(--green-gradient); color: #020617; width: 100%;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE NATIVE BANNER CONFIG</button>
+        </div>
+
+        <!-- Card C: Global Ads Configuration -->
+        <div class="control-card" style="max-width: 750px; background: rgba(0,0,0,0.15);">
+            <div class="card-title"><i class="fa-solid fa-code"></i> DYNAMIC ADS FOR VERIFICATION PAGE (ADS CONFIGURE)</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted-light); margin-bottom: 15px;">Paste HTML/JavaScript tags from Monetag or Adsterra directly for verify.html page slots.</p>
             <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px;">
                 <div class="form-group">
                     <label>Header Banner Script Code (e.g. 300x250 Native Ads)</label>
-                    <textarea id="ad-script-header" rows="4" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; padding:8px; font-family:monospace; font-size:0.75rem;" placeholder="<!-- Paste Ad Code here -->"></textarea>
+                    <textarea id="ad-script-header" rows="3" placeholder="<!-- Paste Ad Code here -->"></textarea>
                 </div>
                 <div class="form-group">
                     <label>Footer Banner Script Code (e.g. Banner Ads)</label>
-                    <textarea id="ad-script-footer" rows="4" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; padding:8px; font-family:monospace; font-size:0.75rem;" placeholder="<!-- Paste Ad Code here -->"></textarea>
+                    <textarea id="ad-script-footer" rows="3" placeholder="<!-- Paste Ad Code here -->"></textarea>
                 </div>
                 <div class="form-group">
                     <label>Popunder / Smartlink Code Script (Pop redirect trigger)</label>
-                    <textarea id="ad-script-popunder" rows="4" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; padding:8px; font-family:monospace; font-size:0.75rem;" placeholder="<!-- Paste Popunder script or Smartlink URL here -->"></textarea>
+                    <textarea id="ad-script-popunder" rows="3" placeholder="<!-- Paste Popunder script or Smartlink URL here -->"></textarea>
                 </div>
             </div>
 
-            <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE REWARD & AD SETTINGS</button>
-        </div>
-
-        <!-- Card B: Dynamic Unlimited Daily Mission Links Manager -->
-        <div class="control-card" style="margin-top: 20px;">
-            <div class="card-title"><i class="fa-solid fa-link"></i> DYNAMIC UNLIMITED DAILY MISSION LINKS</div>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Configure your dynamic mission shortener links (e.g. GPLinks, ShrinkMe). Users will visit these sponsor URLs sequentially before unlocking rewards.</p>
-            
-            <div id="dynamic-links-list-container">
-                <!-- Dynamically populated mission rows will load here -->
-            </div>
-
-            <div style="display: flex; gap: 12px; margin-top: 15px;">
-                <button class="btn-action" style="background: var(--accent-cyan); color: #000; font-weight: 800;" onclick="addNewMissionRow()"><i class="fa-solid fa-plus"></i> ADD NEW MISSION LINK</button>
-                <button class="btn-action" style="background: #00e676; flex-grow: 1;" onclick="saveMissionLinks()"><i class="fa-solid fa-save"></i> SAVE ALL MISSION LINKS</button>
-            </div>
+            <button class="btn-action" style="background: var(--primary-gradient); color: #fff; width: 100%;" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE REWARD & AD SETTINGS</button>
         </div>
     </div>
 
@@ -449,7 +818,6 @@
                     document.getElementById('integ-cpx-appid').value = iData.cpxAppId || '34050';
                     document.getElementById('integ-cpx-hash').value = iData.cpxSecureHash || 'ucHVQYc5kg6SooA56Z2sQBl12wkU61T4';
                     document.getElementById('integ-cpx-status').value = (iData.cpxEnabled === true || iData.cpxEnabled === 'true') ? 'true' : 'false';
-
                 }
 
                 const visitDoc = await db.collection("settings").doc("dailyvisit").get();
@@ -475,7 +843,7 @@
             container.innerHTML = '';
 
             currentMissionLinks.forEach((item, index) => {
-                const missionNum = index + 1; // 1-based indexing for task
+                const missionNum = index + 1;
                 const row = document.createElement('div');
                 row.className = 'mission-row-item';
                 row.innerHTML = `
@@ -495,9 +863,7 @@
         }
 
         function addNewMissionRow() {
-            // Harvest current input states before pushing
             harvestMissionInputs();
-
             const nextMissionNum = currentMissionLinks.length + 1;
             currentMissionLinks.push({
                 title: `Daily Mission #${nextMissionNum}`,
@@ -517,20 +883,14 @@
 
         function deleteMissionRow(index) {
             if (confirm(`Delete Mission #${index+1}?`)) {
-                // Harvest inputs to keep edits made so far
                 harvestMissionInputs();
-                
-                // Remove target row
                 currentMissionLinks.splice(index, 1);
                 
-                // Adjust auto-names/tasks sequentially
                 currentMissionLinks.forEach((link, idx) => {
                     const seqNum = idx + 1;
-                    // If it was using default name, auto-update it sequentially
                     if (!link.title || link.title.startsWith("Daily Mission Supply #") || link.title.startsWith("Daily Mission #")) {
                         link.title = `Daily Mission #${seqNum}`;
                     }
-                    // Auto-fix verify destination url tasks sequentially if using verify.html target redirection
                     if (link.url && link.url.includes("verify.html?task=")) {
                         link.url = link.url.replace(/verify\.html\?task=\d+/, `verify.html?task=${seqNum}`);
                     }
@@ -554,7 +914,7 @@
                     <div style="font-size: 0.9rem; color: var(--accent-cyan); font-weight: 700; margin-bottom: 8px;">Daily Visit Task #${taskNum}</div>
                     <div class="form-group" style="margin-bottom: 8px;">
                         <label>Visit Task Title (Auto-Set)</label>
-                        <input type="text" id="dv-title-${index}" value="${item.title || 'Daily Visit Task #' + taskNum}" placeholder="e.g. Daily Visit Task #${taskNum}" readonly style="background: rgba(255,255,255,0.02); color: var(--text-muted);">
+                        <input type="text" id="dv-title-${index}" value="${item.title || 'Daily Visit Task #' + taskNum}" placeholder="e.g. Daily Visit Task #${taskNum}" readonly style="background: rgba(255,255,255,0.02); color: var(--text-muted-light);">
                     </div>
                     <div class="form-group" style="margin-bottom: 8px;">
                         <label>Target URL Destination (Will open inside Same-Tab Viewer)</label>
@@ -590,14 +950,11 @@
             if (confirm(`Delete Daily Visit Task #${index+1}?`)) {
                 currentDailyVisits.splice(index, 1);
 
-                // Auto-Sorting Logic: Re-number remaining tasks sequentially
                 currentDailyVisits.forEach((item, idx) => {
                     const seqNum = idx + 1;
-                    // Reset title if it was using the default pattern
                     if (!item.title || item.title.startsWith("Daily Visit Task #")) {
                         item.title = `Daily Visit Task #${seqNum}`;
                     }
-                    // Re-sequence id and taskId fields
                     item.id = idx;
                     item.taskId = seqNum;
                 });
@@ -784,30 +1141,24 @@
             if (!secondConfirm) return;
 
             try {
-                // 1. Fetch user data to check if referredBy exists
                 const userSnap = await db.collection("users").doc(docId).get();
                 if (userSnap.exists) {
                     const uData = userSnap.data();
                     if (uData.referredBy) {
                         const refCode = uData.referredBy;
-                        
-                        // Find the referrer user using displayId or search references
                         const snapshot = await db.collection("users").get();
                         for (const rDoc of snapshot.docs) {
-                            // Safer extraction check: format code validation
                             const displayId = "CF-" + rDoc.id.substring(rDoc.id.indexOf('_HW_') !== -1 ? rDoc.id.indexOf('_HW_') + 4 : 9, rDoc.id.indexOf('_HW_') !== -1 ? rDoc.id.indexOf('_HW_') + 10 : 15);
                             if (displayId === refCode || rDoc.id.includes(refCode.replace('CF-', ''))) {
                                 await rDoc.ref.update({
                                     referredDevices: firebase.firestore.FieldValue.arrayRemove(docId)
                                 });
-                                console.log(`Successfully cleaned up device ID ${docId} from referrer profile using arrayRemove.`);
                                 break;
                             }
                         }
                     }
                 }
 
-                // Also run a global backup sweep: remove this docId from ANY user's referredDevices array to guarantee clean state
                 const allUsers = await db.collection("users").get();
                 const batchRemove = db.batch();
                 let batchRun = false;
@@ -822,10 +1173,8 @@
                 }
                 if (batchRun) {
                     await batchRemove.commit();
-                    console.log("Global sweep removed deleted device ID from all referral tables.");
                 }
 
-                // 2. Delete user and associated requests
                 await db.collection("users").doc(docId).delete();
 
                 const querySnap = await db.collection("redemptions").where("deviceId", "==", docId).get();
