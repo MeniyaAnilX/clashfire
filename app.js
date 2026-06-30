@@ -526,7 +526,7 @@ class ClashFireApp {
                                 <p style="color: ${isCompleted ? 'var(--text-muted)' : 'var(--accent-gold)'};">Wait ${item.duration || 15}s = +${item.reward || 10} Diamonds</p>
                             </div>
                         </div>
-                        <button class="btn-primary" style="${btnStyle}" ${btnDisabled} onclick="app.startDailyVisit(${index})">${btnText}</button>
+                        <button class="btn-primary" style="${btnStyle}" ${btnDisabled} onclick="app.startDailyVisit(${index})" aria-label="Start ${item.title || 'Daily Visit Task #' + taskId}">${btnText}</button>
                     `;
                     dvContainer.appendChild(card);
                 });
@@ -673,14 +673,14 @@ class ClashFireApp {
                 card.innerHTML = `
                     <div class="link-info">
                         <div class="link-icon-box">
-                            ${isDone ? '<i class="fa-solid fa-check"></i>' : '<img src="diamond.png" style="width: 22px; height: 22px;">'}
+                            ${isDone ? '<i class="fa-solid fa-check"></i>' : '<img src="diamond.png" alt="Diamond Icon" style="width: 22px; height: 22px;">'}
                         </div>
                         <div class="link-details">
                             <h4>${link.title || ('Daily Mission #' + taskId)}</h4>
                             <p>Reward: +${linkRewardAmt} Diamonds</p>
                         </div>
                     </div>
-                    <button class="btn-primary" ${isDone ? 'disabled' : ''} onclick="app.executeLinkTask(${idx})">
+                    <button class="btn-primary" ${isDone ? 'disabled' : ''} onclick="app.executeLinkTask(${idx})" aria-label="Visit and Complete ${link.title || ('Daily Mission #' + taskId)}">
                         ${isDone ? 'CLAIMED' : 'VISIT LINK'}
                     </button>
                 `;
