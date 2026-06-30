@@ -5,7 +5,7 @@
     --accent-gold: #ffd700;
     --accent-cyan: #00f2fe;
     --text-main: #ffffff;
-    --text-muted: #94a3b8;
+    --text-muted: #cbd5e1;
     --border-glow: rgba(0, 242, 254, 0.25);
     --font-body: 'Quicksand', sans-serif;
 }
@@ -194,7 +194,7 @@ body {
 .link-icon-box { background: rgba(0, 242, 254, 0.12); color: var(--accent-cyan); }
 .completed .link-icon-box { background: rgba(0, 230, 118, 0.15); color: #00e676; }
 
-.integration-info h4, .link-details h4 {
+.integration-info h4, .integration-info h3, .link-details h4, .link-details h3 {
     font-size: 0.92rem;
     font-weight: 800;
     color: #fff;
@@ -242,7 +242,7 @@ body {
 .banner-left { display: flex; flex-direction: column; gap: 1px; }
 .banner-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; }
 .countdown-timer { font-size: 1.3rem; font-weight: 800; color: var(--accent-gold); line-height: 1; }
-.banner-badge { background: var(--primary-fire); font-size: 0.75rem; font-weight: 800; padding: 5px 10px; border-radius: 8px; color: #fff; }
+.banner-badge { background: var(--accent-gold); font-size: 0.75rem; font-weight: 800; padding: 5px 10px; border-radius: 8px; color: #0a0a0f; }
 
 /* Dashboard Sections */
 .dashboard-section { background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 15px; margin-bottom: 15px; }

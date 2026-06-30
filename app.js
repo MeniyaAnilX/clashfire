@@ -522,7 +522,7 @@ class ClashFireApp {
                                 <i class="fa-solid fa-calendar-check"></i>
                             </div>
                             <div class="link-details">
-                                <h4>${item.title || 'Daily Visit Task #' + taskId}</h4>
+                                <h3>${item.title || 'Daily Visit Task #' + taskId}</h3>
                                 <p style="color: ${isCompleted ? 'var(--text-muted)' : 'var(--accent-gold)'};">Wait ${item.duration || 15}s = +${item.reward || 10} Diamonds</p>
                             </div>
                         </div>
@@ -676,7 +676,7 @@ class ClashFireApp {
                             ${isDone ? '<i class="fa-solid fa-check"></i>' : '<img src="diamond.png" alt="Diamond Icon" style="width: 22px; height: 22px;">'}
                         </div>
                         <div class="link-details">
-                            <h4>${link.title || ('Daily Mission #' + taskId)}</h4>
+                            <h3>${link.title || ('Daily Mission #' + taskId)}</h3>
                             <p>Reward: +${linkRewardAmt} Diamonds</p>
                         </div>
                     </div>
