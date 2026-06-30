@@ -91,7 +91,7 @@ class ClashFireApp {
         await this.loadUserProfile();
         await this.checkReferralBonus();
         await this.checkSurveyReward();
-        await this.checkVpnAndProxy();
+
 
         this.renderDashboard();
         this.startCountdownTimer();
@@ -1139,31 +1139,6 @@ class ClashFireApp {
         document.getElementById('global-loader').classList.add('hidden');
     }
 
-    async checkVpnAndProxy() {
-        try {
-            const isVpnShieldOn = (this.integrations.vpnEnabled !== false && this.integrations.vpnEnabled !== 'false');
-            if (!isVpnShieldOn) return;
-
-            const res = await fetch("https://freeipapi.com/api/json");
-            if (!res.ok) return;
-            const data = await res.json();
-            
-            if (data) {
-                const isVpnOrProxy = data.isProxy === true;
-                const isNotIndia = (data.countryCode || "").toUpperCase() !== "IN";
-
-                if (isVpnOrProxy || isNotIndia) {
-                    const blocker = document.getElementById('vpn-blocker-overlay');
-                    if (blocker) {
-                        blocker.style.display = 'flex';
-                        blocker.classList.remove('hidden');
-                    }
-                }
-            }
-        } catch(e) {
-            console.warn("VPN validation skipped:", e.message);
-        }
-    }
 
     startDailyVisit(index) {
         const item = this.dailyVisit.items[index];
