@@ -735,21 +735,38 @@
                     if (uData.referredBy) {
                         const refCode = uData.referredBy;
                         
-                        // Find the referrer user to clean up their referredDevices array
+                        // Find the referrer user using displayId or search references
                         const snapshot = await db.collection("users").get();
                         for (const rDoc of snapshot.docs) {
-                            const displayId = "CF-" + rDoc.id.substring(9, 15);
-                            if (displayId === refCode && rDoc.id !== docId) {
-                                const rData = rDoc.data();
-                                const updatedDevices = (rData.referredDevices || []).filter(id => id !== docId);
+                            // Safer extraction check: format code validation
+                            const displayId = "CF-" + rDoc.id.substring(rDoc.id.indexOf('_HW_') !== -1 ? rDoc.id.indexOf('_HW_') + 4 : 9, rDoc.id.indexOf('_HW_') !== -1 ? rDoc.id.indexOf('_HW_') + 10 : 15);
+                            if (displayId === refCode || rDoc.id.includes(refCode.replace('CF-', ''))) {
                                 await rDoc.ref.update({
-                                    referredDevices: updatedDevices
+                                    referredDevices: firebase.firestore.FieldValue.arrayRemove(docId)
                                 });
-                                console.log(`Successfully cleaned up device ID ${docId} from referrer ${displayId} referred list.`);
+                                console.log(`Successfully cleaned up device ID ${docId} from referrer profile using arrayRemove.`);
                                 break;
                             }
                         }
                     }
+                }
+
+                // Also run a global backup sweep: remove this docId from ANY user's referredDevices array to guarantee clean state
+                const allUsers = await db.collection("users").get();
+                const batchRemove = db.batch();
+                let batchRun = false;
+                for (const uDoc of allUsers.docs) {
+                    const data = uDoc.data();
+                    if (data.referredDevices && data.referredDevices.includes(docId)) {
+                        batchRemove.update(uDoc.ref, {
+                            referredDevices: firebase.firestore.FieldValue.arrayRemove(docId)
+                        });
+                        batchRun = true;
+                    }
+                }
+                if (batchRun) {
+                    await batchRemove.commit();
+                    console.log("Global sweep removed deleted device ID from all referral tables.");
                 }
 
                 // 2. Delete user and associated requests
