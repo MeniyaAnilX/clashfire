@@ -685,71 +685,32 @@ class ClashFireApp {
     }
 
     executeIsolatedAdScript(containerElement, rawHtmlCode, slotTag = 'slot') {
-        if (!containerElement) return;
+        if (!containerElement || !rawHtmlCode) return;
         containerElement.innerHTML = '';
+        containerElement.style.height = 'auto'; // Remove fixed height constraint
 
-        // Initial height estimation based on format
-        let initialHeight = 90;
-        if (rawHtmlCode.includes('250') || rawHtmlCode.includes('300x250')) {
-            initialHeight = 250;
-        } else if (rawHtmlCode.includes('50') || rawHtmlCode.includes('320x50')) {
-            initialHeight = 50;
-        }
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = rawHtmlCode;
 
-        containerElement.style.height = (initialHeight + 8) + 'px';
+        // Append non-script elements first
+        Array.from(tempDiv.childNodes).forEach(node => {
+            if (node.tagName !== 'SCRIPT') {
+                containerElement.appendChild(node.cloneNode(true));
+            }
+        });
 
-        // Isolated Iframe Sandbox preventing global atOptions collision and auto-resizing
-        const iframe = document.createElement('iframe');
-        iframe.style.width = '100%';
-        iframe.style.height = initialHeight + 'px';
-        iframe.style.border = 'none';
-        iframe.style.overflow = 'hidden';
-        iframe.scrolling = 'no';
-
-        containerElement.appendChild(iframe);
-
-        const doc = iframe.contentWindow.document;
-        doc.open();
-        doc.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <base target="_blank">
-                <style>
-                    html, body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; overflow: hidden; }
-                    iframe, img, div { max-width: 100% !important; margin: 0 auto; display: block; }
-                </style>
-            </head>
-            <body>
-                ${rawHtmlCode}
-            </body>
-            </html>
-        `);
-        doc.close();
-
-        // Dynamic Real-time Height Auto-fit Detection
-        const adjustHeight = () => {
-            try {
-                if (iframe.contentWindow && iframe.contentWindow.document && iframe.contentWindow.document.body) {
-                    const body = iframe.contentWindow.document.body;
-                    const childElems = body.querySelectorAll('iframe, img, div');
-                    let maxChildH = 0;
-                    childElems.forEach(el => {
-                        if (el.offsetHeight > maxChildH) maxChildH = el.offsetHeight;
-                    });
-                    
-                    const actualH = maxChildH > 30 ? maxChildH : body.scrollHeight;
-                    if (actualH > 30) {
-                        iframe.style.height = actualH + 'px';
-                        containerElement.style.height = (actualH + 8) + 'px';
-                    }
-                }
-            } catch(e){}
-        };
-
-        setTimeout(adjustHeight, 600);
-        setTimeout(adjustHeight, 1500);
-        setTimeout(adjustHeight, 3000);
+        // Dynamically execute script tags
+        const scripts = tempDiv.querySelectorAll('script');
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => {
+                newScript.setAttribute(attr.name, attr.value);
+            });
+            if (oldScript.innerHTML) {
+                newScript.innerHTML = oldScript.innerHTML;
+            }
+            containerElement.appendChild(newScript);
+        });
     }
 
     renderRedeemHistory() {

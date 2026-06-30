@@ -414,21 +414,29 @@
             const container = document.getElementById(elementId);
             if (!container || !scriptHtml) return;
             container.innerHTML = '';
-            const iframe = document.createElement('iframe');
-            iframe.style.width = '100%';
-            iframe.style.height = '270px';
-            iframe.style.border = 'none';
-            iframe.style.margin = '0 auto';
-            iframe.style.display = 'block';
-            iframe.style.overflow = 'hidden';
-            iframe.setAttribute('scrolling', 'no');
-            container.appendChild(iframe);
-            try {
-                const doc = iframe.contentDocument || iframe.contentWindow.document;
-                doc.open();
-                doc.write(`<!DOCTYPE html><html><head><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;}</style></head><body>${scriptHtml}</body></html>`);
-                doc.close();
-            } catch(err) { console.error("Ad slot injection failed:", err); }
+            
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = scriptHtml;
+            
+            // Append non-script elements first so they exist when script runs
+            Array.from(tempDiv.childNodes).forEach(node => {
+                if (node.tagName !== 'SCRIPT') {
+                    container.appendChild(node.cloneNode(true));
+                }
+            });
+            
+            // Dynamically execute script tags
+            const scripts = tempDiv.querySelectorAll('script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach(attr => {
+                    newScript.setAttribute(attr.name, attr.value);
+                });
+                if (oldScript.innerHTML) {
+                    newScript.innerHTML = oldScript.innerHTML;
+                }
+                container.appendChild(newScript);
+            });
         }
 
         // Global state
