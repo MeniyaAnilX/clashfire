@@ -295,6 +295,19 @@ class ClashFireApp {
     }
 
     async loadUserProfile() {
+        // Step 1: Instantly read local cache to make sure UI gets updated instantly (0ms delay)
+        const savedCache = localStorage.getItem('CLASH_USER_DATA_' + this.deviceId);
+        if (savedCache) {
+            try {
+                this.user = { ...this.user, ...JSON.parse(savedCache) };
+                if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
+                if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
+                if (!this.user.referredDevices) this.user.referredDevices = [];
+                if (!this.user.completedDailyVisits || Array.isArray(this.user.completedDailyVisits)) this.user.completedDailyVisits = {};
+                this.renderDashboard();
+            } catch(e){}
+        }
+
         const today = await this.getSecureServerDate();
 
         if (this.firestoreActive) {
@@ -319,6 +332,8 @@ class ClashFireApp {
                             lastResetDate: today
                         });
                     }
+                    // Write back sync updates to cache
+                    localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
                 } else {
                     this.user.lastResetDate = today;
                     this.user.redemptionHistory = [];
