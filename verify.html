@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FFire.xyz - Mission Reward Verification</title>
     <meta name="description" content="Verifying your FFire.xyz daily mission completion. Diamond reward is being credited to your Free Fire account.">
     <meta name="robots" content="noindex, nofollow">
@@ -162,6 +162,8 @@
     </style>
 </head>
 <body>
+    <!-- Main Content Area Landmark -->
+    <main id="main-content-landmark">
 
     <!-- ========================================== -->
     <!-- COMMON TOP: Header Ad & Indicator Info     -->
@@ -376,7 +378,7 @@
                 <p>Many Free Fire players spend ₹500–₹2,000 every month buying diamonds to purchase Elite Pass, weapon skins, and character bundles. Over one year, this adds up to ₹6,000–₹24,000 of real money spent on in-game items. FFire.xyz offers a smarter alternative — earn Free Fire diamonds completely free by completing simple daily missions like watching videos and completing tasks. By earning diamonds through FFire.xyz instead of purchasing them, you effectively save real money that can be redirected into your SIP, emergency fund, or investment portfolio.</p>
             </div>
         </div>
-    </div>
+    </main>
 
 
     <script>
@@ -695,20 +697,20 @@
 
         async function getSecureServerDate() {
             try {
-                const res = await fetch('https://worldtimeapi.org/api/timezone/Asia/Kolkata');
-                const data = await res.json();
-                if (data && data.datetime) {
-                    return data.datetime.split('T')[0];
+                const res2 = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata');
+                const data2 = await res2.json();
+                if (data2 && data2.date) {
+                    const parts = data2.date.split('/');
+                    if (parts.length === 3) {
+                        return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+                    }
                 }
             } catch (e) {
                 try {
-                    const res2 = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata');
-                    const data2 = await res2.json();
-                    if (data2 && data2.date) {
-                        const parts = data2.date.split('/');
-                        if (parts.length === 3) {
-                            return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
-                        }
+                    const res = await fetch('https://worldtimeapi.org/api/timezone/Asia/Kolkata');
+                    const data = await res.json();
+                    if (data && data.datetime) {
+                        return data.datetime.split('T')[0];
                     }
                 } catch (err) {}
             }

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Primary SEO Tags -->
     <title>FFire.xyz - Get Free Fire Diamonds</title>
@@ -89,7 +89,7 @@
                 <div class="wallet-badge" onclick="app.scrollToRedeem()">
                     <img src="diamond.png" alt="Diamond" class="wallet-gem-img">
                     <span id="user-coins">0</span>
-                    <button class="add-coin-btn"><i class="fa-solid fa-plus"></i></button>
+                    <button class="add-coin-btn" aria-label="Add Diamonds"><i class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
         </header>
@@ -107,8 +107,10 @@
             </button>
         </nav>
 
-        <!-- TAB 1: HOME PANE (REFER & EARN AND COMMUNITY) -->
-        <div id="tab-home" class="app-tab-pane active">
+        <!-- Main Content Area landmark -->
+        <main id="main-content-landmark">
+            <!-- TAB 1: HOME PANE (REFER & EARN AND COMMUNITY) -->
+            <div id="tab-home" class="app-tab-pane active">
 
             <!-- Live Auto-Generating Payout Proofs Section -->
             <section class="dashboard-section" id="live-proofs-section" style="margin-bottom: 15px;">
@@ -476,6 +478,8 @@
         <!-- Bottom Dynamic Native Banner Ad Slot -->
         <div id="banner-ad-bottom" class="native-banner-slot hidden"></div>
 
+
+        </main>
 
         <!-- Footer -->
         <footer class="app-footer">

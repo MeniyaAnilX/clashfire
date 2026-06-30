@@ -271,20 +271,20 @@ class ClashFireApp {
 
     async getSecureServerDate() {
         try {
-            const res = await fetch('https://worldtimeapi.org/api/timezone/Asia/Kolkata');
-            const data = await res.json();
-            if (data && data.datetime) {
-                return data.datetime.split('T')[0];
+            const res2 = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata');
+            const data2 = await res2.json();
+            if (data2 && data2.date) {
+                const parts = data2.date.split('/');
+                if (parts.length === 3) {
+                    return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+                }
             }
         } catch (e) {
             try {
-                const res2 = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata');
-                const data2 = await res2.json();
-                if (data2 && data2.date) {
-                    const parts = data2.date.split('/');
-                    if (parts.length === 3) {
-                        return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
-                    }
+                const res = await fetch('https://worldtimeapi.org/api/timezone/Asia/Kolkata');
+                const data = await res.json();
+                if (data && data.datetime) {
+                    return data.datetime.split('T')[0];
                 }
             } catch (err) {}
         }
