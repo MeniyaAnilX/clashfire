@@ -1316,10 +1316,13 @@ class ClashFireApp {
         };
         localStorage.setItem("CF_ACTIVE_TOKEN_TASK_" + taskId, JSON.stringify(token));
 
-        // Open internal premium verification page in a new tab.
-        const targetUrl = window.location.origin + "/verify.html?task=" + taskId;
+        // Open the admin-configured sponsor shortener URL directly in a new tab.
+        let targetUrl = link.url || (window.location.origin + "/verify.html?task=" + taskId);
+        if (targetUrl && !/^https?:\/\//i.test(targetUrl)) {
+            targetUrl = "https://" + targetUrl;
+        }
         window.open(targetUrl, '_blank');
-        this.showToast('MISSION STARTED', 'Please stay on the opened page to verify and claim diamonds!', 'info');
+        this.showToast('MISSION STARTED', 'Please complete the shortener link to verify and claim diamonds!', 'info');
     }
 
     startLiveProofsTicker() {
