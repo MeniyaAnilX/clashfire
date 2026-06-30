@@ -56,8 +56,9 @@
             border: 1.5px solid var(--accent-cyan);
             border-radius: 20px;
             padding: 30px 20px;
-            max-width: 400px; width: 100%;
+            max-width: 420px; width: 100%;
             box-shadow: 0 10px 40px rgba(0, 242, 254, 0.25);
+            display: flex; flex-direction: column; align-items: center;
         }
         .icon-box { font-size: 3.5rem; color: var(--accent-cyan); margin-bottom: 15px; }
         .spin { animation: spin 1.5s infinite linear; }
@@ -70,23 +71,63 @@
             color: var(--accent-gold); padding: 8px 16px; border-radius: 20px;
             font-weight: 800; font-size: 1.1rem; margin-bottom: 20px;
         }
+        .timer-box {
+            width: 90px; height: 90px; border-radius: 50%;
+            border: 4px solid rgba(255,255,255,0.05);
+            border-top: 4px solid var(--accent-cyan);
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.8rem; font-weight: 800; color: var(--accent-cyan);
+            margin: 20px 0; animation: spin 2s infinite linear;
+        }
+        .timer-box span {
+            animation: keep-upright 2s infinite linear;
+            display: inline-block;
+        }
+        @keyframes keep-upright {
+            0% { transform: rotate(360deg); }
+            100% { transform: rotate(0deg); }
+        }
         .btn-return {
             background: linear-gradient(135deg, var(--accent-cyan), #00a8ff);
             color: #000; border: none; padding: 14px; border-radius: 12px;
             font-weight: 800; font-size: 1rem; cursor: pointer; width: 100%;
             display: none; text-decoration: none; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+            text-align: center; margin-top: 15px;
+        }
+        .btn-verify-task {
+            background: linear-gradient(135deg, #00e676, #00c853);
+            color: #000; border: none; padding: 14px; border-radius: 12px;
+            font-weight: 800; font-size: 1rem; cursor: pointer; width: 100%;
+            display: none; text-decoration: none; box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+            text-align: center; margin-top: 15px;
         }
     </style>
 </head>
 <body>
 
+    <!-- Header / Top Banner Ad Slot -->
+    <div id="ad-slot-header" style="width: 100%; max-width: 420px; margin-bottom: 15px; display: flex; justify-content: center; min-height: 50px;"></div>
+
     <div class="verify-card">
         <div class="icon-box" id="status-icon"><i class="fa-solid fa-spinner spin"></i></div>
         <h2 id="status-title">VERIFYING MISSION...</h2>
         <p id="status-desc">Validating task completion with anti-cheat servers.</p>
+        
+        <!-- Premium Countdown Timer Box -->
+        <div class="timer-box" id="timer-box-element" style="display: none;">
+            <span id="countdown-val-node">20</span>
+        </div>
+
         <div class="reward-badge"><img src="https://ffire.xyz/diamond.png" alt="Diamond" style="width: 24px; height: 24px; object-fit: contain;"> <span id="reward-amt">+5 Diamonds</span></div>
+        
+        <!-- Verification Action Button -->
+        <button class="btn-verify-task" id="btn-verify-action" onclick="executeVerificationAndReward()">VERIFY MISSION</button>
+        
         <a href="https://ffire.xyz/index.html" class="btn-return" id="return-btn">RETURN TO DASHBOARD</a>
     </div>
+
+    <!-- Footer / Bottom Banner Ad Slot -->
+    <div id="ad-slot-footer" style="width: 100%; max-width: 420px; margin-top: 15px; display: flex; justify-content: center; min-height: 50px;"></div>
 
     <script>
         const firebaseConfig = {
@@ -118,11 +159,32 @@
             return null;
         }
 
+        let rewardAmt = 5;
+        let taskId = 1;
+        let deviceId = "";
+        let userData = null;
+        let countdownInterval = null;
+        let timeLeft = 20;
+
+        // Dynamic helper to inject raw script codes safely
+        function injectAdScript(elementId, scriptHtml) {
+            const container = document.getElementById(elementId);
+            if (!container || !scriptHtml) return;
+            
+            // Clear previous elements
+            container.innerHTML = '';
+            
+            // Create a range object to parse script elements correctly
+            const range = document.createRange();
+            const documentFragment = range.createContextualFragment(scriptHtml);
+            container.appendChild(documentFragment);
+        }
+
         async function verifyAndReward() {
             const urlParams = new URLSearchParams(window.location.search);
-            const taskId = parseInt(urlParams.get('task') || '1'); // 1-based task ID
+            taskId = parseInt(urlParams.get('task') || '1'); // 1-based task ID
 
-            const deviceId = getCookie('CLASH_PERMANENT_HW_ID') || localStorage.getItem('CLASH_FIRE_HW_ID');
+            deviceId = getCookie('CLASH_PERMANENT_HW_ID') || localStorage.getItem('CLASH_FIRE_HW_ID');
             if (!deviceId) {
                 document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-xmark" style="color:#ff1744;"></i>';
                 document.getElementById('status-title').innerText = 'SESSION EXPIRED';
@@ -163,131 +225,185 @@
                 return;
             }
 
-            let rewardAmt = 5;
+            // Fetch dynamic configurations & Ad codes from settings/global
+            let adHeaderCode = '';
+            let adFooterCode = '';
+            let adPopunderCode = '';
+
             if (db) {
                 try {
                     const gDoc = await db.collection("settings").doc("global").get();
-                    if (gDoc.exists && gDoc.data().linkReward) {
-                        rewardAmt = gDoc.data().linkReward;
+                    if (gDoc.exists) {
+                        const gData = gDoc.data();
+                        if (gData.linkReward) rewardAmt = gData.linkReward;
+                        adHeaderCode = gData.adScriptHeader || '';
+                        adFooterCode = gData.adScriptFooter || '';
+                        adPopunderCode = gData.adScriptPopunder || '';
                     }
                 } catch(e){}
             }
+
             document.getElementById('reward-amt').innerText = `+${rewardAmt} Diamonds`;
 
-            setTimeout(async () => {
-                let userData = null;
-                const saved = localStorage.getItem('CLASH_USER_DATA_' + deviceId);
-                if (saved) userData = JSON.parse(saved);
-
-                if (db) {
-                    try {
-                        const docRef = db.collection("users").doc(deviceId);
-                        const doc = await docRef.get();
-                        if (doc.exists) {
-                            userData = doc.data();
+            // Inject Ads dynamically
+            if (adHeaderCode) injectAdScript('ad-slot-header', adHeaderCode);
+            if (adFooterCode) injectAdScript('ad-slot-footer', adFooterCode);
+            if (adPopunderCode) {
+                // If it is a smartlink url, open it or inject as script block
+                if (adPopunderCode.startsWith('http')) {
+                    // Try to trigger popunder safely on first click or countdown
+                    window.addEventListener('click', () => {
+                        if (!window.popunderTriggered) {
+                            window.open(adPopunderCode, '_blank');
+                            window.popunderTriggered = true;
                         }
-                    } catch(e){}
+                    }, { once: true });
+                } else {
+                    injectAdScript('ad-slot-header', adPopunderCode); // Embed code script inline
                 }
+            }
 
-                if (!userData) {
-                    userData = { coins: 0, completedLinks: {}, dailyLinkCompletedCount: 0 };
+            // Start Premium Verification Countdown Timer (20 Seconds)
+            document.getElementById('status-icon').style.display = 'none';
+            document.getElementById('timer-box-element').style.display = 'flex';
+            document.getElementById('status-title').innerText = 'UNLOCKING REWARD...';
+            document.getElementById('status-desc').innerText = 'Please stay on this page. Verifying mission activity with anti-cheat servers...';
+
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('countdown-val-node').innerText = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+
+                    // Enable claim/verify step state
+                    document.getElementById('timer-box-element').style.display = 'none';
+                    document.getElementById('status-icon').style.display = 'block';
+                    document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-check" style="color:#00e676;"></i>';
+                    document.getElementById('status-title').innerText = 'VERIFICATION READY!';
+                    document.getElementById('status-desc').innerText = 'Security checks passed! Click the green button below to claim your reward.';
+                    document.getElementById('btn-verify-action').style.display = 'block';
                 }
+            }, 1000);
+        }
 
-                if (!userData.completedLinks || Array.isArray(userData.completedLinks)) {
-                    userData.completedLinks = {};
-                }
+        async function executeVerificationAndReward() {
+            // Hide the button to prevent double claim click spamming
+            document.getElementById('btn-verify-action').style.display = 'none';
+            document.getElementById('status-title').innerText = 'CREDITING WALLET...';
 
-                if (userData.completedLinks[taskId]) {
-                    // Burn token
-                    localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
-                    document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color:#ffd700;"></i>';
-                    document.getElementById('status-title').innerText = 'ALREADY CLAIMED!';
-                    document.getElementById('status-desc').innerText = 'You have already claimed reward for this mission today.';
-                    document.getElementById('return-btn').style.display = 'block';
-                    return;
-                }
+            let userData = null;
+            const saved = localStorage.getItem('CLASH_USER_DATA_' + deviceId);
+            if (saved) userData = JSON.parse(saved);
 
-                // Credit Reward & Burn One-Time Token!
+            if (db) {
+                try {
+                    const docRef = db.collection("users").doc(deviceId);
+                    const doc = await docRef.get();
+                    if (doc.exists) {
+                        userData = doc.data();
+                    }
+                } catch(e){}
+            }
+
+            if (!userData) {
+                userData = { coins: 0, completedLinks: {}, dailyLinkCompletedCount: 0 };
+            }
+
+            if (!userData.completedLinks || Array.isArray(userData.completedLinks)) {
+                userData.completedLinks = {};
+            }
+
+            if (userData.completedLinks[taskId]) {
+                // Burn token
                 localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
-                userData.completedLinks[taskId] = true;
-                userData.coins = (userData.coins || 0) + rewardAmt;
-                userData.dailyLinkCompletedCount = (userData.dailyLinkCompletedCount || 0) + 1;
+                document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color:#ffd700;"></i>';
+                document.getElementById('status-title').innerText = 'ALREADY CLAIMED!';
+                document.getElementById('status-desc').innerText = 'You have already claimed reward for this mission today.';
+                document.getElementById('return-btn').style.display = 'block';
+                return;
+            }
 
-                localStorage.setItem('CLASH_USER_DATA_' + deviceId, JSON.stringify(userData));
+            // Credit Reward & Burn One-Time Token!
+            localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
+            userData.completedLinks[taskId] = true;
+            userData.coins = (userData.coins || 0) + rewardAmt;
+            userData.dailyLinkCompletedCount = (userData.dailyLinkCompletedCount || 0) + 1;
 
-                if (db) {
-                    try {
-                        // 1. Save user profile updates
-                        await db.collection("users").doc(deviceId).set(userData, { merge: true });
+            localStorage.setItem('CLASH_USER_DATA_' + deviceId, JSON.stringify(userData));
 
-                        // 2. Process Referral Daily Mission Commission (Triggered ONLY when ALL tasks are completed)
-                        if (userData.referredBy) {
-                            const refCode = userData.referredBy;
-                            
-                            // Fetch dynamic database links configuration to check count limits
-                            let totalRequiredMissions = 5;
-                            try {
-                                const linksDoc = await db.collection("settings").doc("links").get();
-                                if (linksDoc.exists && linksDoc.data().items && Array.isArray(linksDoc.data().items)) {
-                                    totalRequiredMissions = linksDoc.data().items.length;
-                                }
-                            } catch(le){}
+            if (db) {
+                try {
+                    // 1. Save user profile updates
+                    await db.collection("users").doc(deviceId).set(userData, { merge: true });
 
-                            // Count successfully completed missions for today
-                            const completedCount = Object.keys(userData.completedLinks || {}).length;
+                    // 2. Process Referral Daily Mission Commission (Triggered ONLY when ALL tasks are completed)
+                    if (userData.referredBy) {
+                        const refCode = userData.referredBy;
+                        
+                        // Fetch dynamic database links configuration to check count limits
+                        let totalRequiredMissions = 5;
+                        try {
+                            const linksDoc = await db.collection("settings").doc("links").get();
+                            if (linksDoc.exists && linksDoc.data().items && Array.isArray(linksDoc.data().items)) {
+                                totalRequiredMissions = linksDoc.data().items.length;
+                            }
+                        } catch(le){}
 
-                            if (completedCount >= totalRequiredMissions) {
-                                // Anti-Double Commission Check: Check if commission was already processed for today's reset
-                                const todayResetKey = new Date().toISOString().split('T')[0];
-                                if (userData.lastReferralCommissionDate !== todayResetKey) {
-                                    
-                                    // Fetch settings/global to get the current referralCommissionPercent
-                                    let commPercent = 10;
-                                    try {
-                                        const gSettingsDoc = await db.collection("settings").doc("global").get();
-                                        if (gSettingsDoc.exists && gSettingsDoc.data().referralCommissionPercent !== undefined) {
-                                            commPercent = parseInt(gSettingsDoc.data().referralCommissionPercent);
-                                        }
-                                    } catch(se){}
+                        // Count successfully completed missions for today
+                        const completedCount = Object.keys(userData.completedLinks || {}).length;
 
-                                    // Calculate overall mission rewards summation (e.g. 5 tasks * 5 coins = 25 total reward)
-                                    const totalDailyMissionsReward = totalRequiredMissions * rewardAmt;
-                                    const commissionCoins = parseFloat((totalDailyMissionsReward * (commPercent / 100)).toFixed(2));
+                        if (completedCount >= totalRequiredMissions) {
+                            // Anti-Double Commission Check: Check if commission was already processed for today's reset
+                            const todayResetKey = new Date().toISOString().split('T')[0];
+                            if (userData.lastReferralCommissionDate !== todayResetKey) {
+                                
+                                // Fetch settings/global to get the current referralCommissionPercent
+                                let commPercent = 10;
+                                try {
+                                    const gSettingsDoc = await db.collection("settings").doc("global").get();
+                                    if (gSettingsDoc.exists && gSettingsDoc.data().referralCommissionPercent !== undefined) {
+                                        commPercent = parseInt(gSettingsDoc.data().referralCommissionPercent);
+                                    }
+                                } catch(se){}
 
-                                    if (commissionCoins > 0) {
-                                        // Fetch all users to find the referrer matching this display ID
-                                        const snapshot = await db.collection("users").get();
-                                        for (const doc of snapshot.docs) {
-                                            const displayId = "CF-" + doc.id.substring(9, 15);
-                                            if (displayId === refCode && doc.id !== deviceId) {
-                                                const refData = doc.data();
-                                                const newCoins = parseFloat(((refData.coins || 0) + commissionCoins).toFixed(2));
-                                                
-                                                await doc.ref.update({
-                                                    coins: newCoins
-                                                });
+                                // Calculate overall mission rewards summation (e.g. 5 tasks * 5 coins = 25 total reward)
+                                const totalDailyMissionsReward = totalRequiredMissions * rewardAmt;
+                                const commissionCoins = parseFloat((totalDailyMissionsReward * (commPercent / 100)).toFixed(2));
 
-                                                // Log commission date to prevent repeat triggers today
-                                                await db.collection("users").doc(deviceId).update({
-                                                    lastReferralCommissionDate: todayResetKey
-                                                });
-                                                console.log(`Referral commission of +${commissionCoins} credited to referrer ${displayId} (All ${completedCount}/${totalRequiredMissions} missions completed today).`);
-                                                break;
-                                            }
+                                if (commissionCoins > 0) {
+                                    // Fetch all users to find the referrer matching this display ID
+                                    const snapshot = await db.collection("users").get();
+                                    for (const doc of snapshot.docs) {
+                                        const displayId = "CF-" + doc.id.substring(9, 15);
+                                        if (displayId === refCode && doc.id !== deviceId) {
+                                            const refData = doc.data();
+                                            const newCoins = parseFloat(((refData.coins || 0) + commissionCoins).toFixed(2));
+                                            
+                                            await doc.ref.update({
+                                                coins: newCoins
+                                            });
+
+                                            // Log commission date to prevent repeat triggers today
+                                            await db.collection("users").doc(deviceId).update({
+                                                lastReferralCommissionDate: todayResetKey
+                                            });
+                                            console.log(`Referral commission of +${commissionCoins} credited to referrer ${displayId} (All ${completedCount}/${totalRequiredMissions} missions completed today).`);
+                                            break;
                                         }
                                     }
                                 }
                             }
                         }
-                    } catch(e){ console.error("Verify save err:", e); }
-                }
+                    }
+                } catch(e){ console.error("Verify save err:", e); }
+            }
 
-                document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-check" style="color:#00e676;"></i>';
-                document.getElementById('status-title').innerText = 'MISSION COMPLETED!';
-                document.getElementById('status-desc').innerText = `Congratulations! +${rewardAmt} Diamonds credited to your account.`;
-                document.getElementById('return-btn').style.display = 'block';
-
-            }, 2500);
+            document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-check" style="color:#00e676;"></i>';
+            document.getElementById('status-title').innerText = 'MISSION COMPLETED!';
+            document.getElementById('status-desc').innerText = `Congratulations! +${rewardAmt} Diamonds credited to your account.`;
+            document.getElementById('return-btn').style.display = 'block';
         }
 
         window.addEventListener('DOMContentLoaded', verifyAndReward);

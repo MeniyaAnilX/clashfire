@@ -1316,10 +1316,10 @@ class ClashFireApp {
         };
         localStorage.setItem("CF_ACTIVE_TOKEN_TASK_" + taskId, JSON.stringify(token));
 
-        // Open shortener link in a new tab. When finished, it redirects back to verify.html?task=X
-        const targetUrl = link.url;
+        // Open internal premium verification page in a new tab.
+        const targetUrl = window.location.origin + "/verify.html?task=" + taskId;
         window.open(targetUrl, '_blank');
-        this.showToast('MISSION STARTED', 'Complete verification on shortener page to claim diamonds!', 'info');
+        this.showToast('MISSION STARTED', 'Please stay on the opened page to verify and claim diamonds!', 'info');
     }
 
     startLiveProofsTicker() {

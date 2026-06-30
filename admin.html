@@ -334,7 +334,7 @@
         <!-- Card A: Rewards -->
         <div class="control-card">
             <div class="card-title"><i class="fa-solid fa-sliders"></i> DYNAMIC REWARD AMOUNTS</div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 15px;">
                 <div class="form-group">
                     <label>Diamonds Per Link</label>
                     <input type="number" id="setting-link-reward" value="5">
@@ -344,7 +344,25 @@
                     <input type="number" id="setting-ref-commission" value="10" min="0" max="100">
                 </div>
             </div>
-            <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE REWARD AMOUNTS</button>
+            
+            <div class="card-title" style="margin-top: 20px; font-size: 0.95rem;"><i class="fa-solid fa-code"></i> DYNAMIC AD CODE INTEGRATION (ADS CONFIGURE)</div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;">Paste HTML/JavaScript tags from Monetag or Adsterra directly. Clean banner spaces will auto-inject these.</p>
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px;">
+                <div class="form-group">
+                    <label>Header Banner Script Code (e.g. 300x250 Native Ads)</label>
+                    <textarea id="ad-script-header" rows="4" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; padding:8px; font-family:monospace; font-size:0.75rem;" placeholder="<!-- Paste Ad Code here -->"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Footer Banner Script Code (e.g. Banner Ads)</label>
+                    <textarea id="ad-script-footer" rows="4" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; padding:8px; font-family:monospace; font-size:0.75rem;" placeholder="<!-- Paste Ad Code here -->"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Popunder / Smartlink Code Script (Pop redirect trigger)</label>
+                    <textarea id="ad-script-popunder" rows="4" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; padding:8px; font-family:monospace; font-size:0.75rem;" placeholder="<!-- Paste Popunder script or Smartlink URL here -->"></textarea>
+                </div>
+            </div>
+
+            <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE REWARD & AD SETTINGS</button>
         </div>
 
         <!-- Card B: Unlimited Dynamic Shortener Links Manager -->
@@ -394,6 +412,9 @@
                     const data = doc.data();
                     document.getElementById('setting-link-reward').value = data.linkReward || 5;
                     document.getElementById('setting-ref-commission').value = data.referralCommissionPercent || 10;
+                    document.getElementById('ad-script-header').value = data.adScriptHeader || '';
+                    document.getElementById('ad-script-footer').value = data.adScriptFooter || '';
+                    document.getElementById('ad-script-popunder').value = data.adScriptPopunder || '';
                 }
 
                 const linksDoc = await db.collection("settings").doc("links").get();
@@ -558,14 +579,20 @@
         async function saveGlobalSettings() {
             const linkR = parseInt(document.getElementById('setting-link-reward').value || '5');
             const refPercent = parseInt(document.getElementById('setting-ref-commission').value || '10');
+            const adHeader = document.getElementById('ad-script-header').value.trim();
+            const adFooter = document.getElementById('ad-script-footer').value.trim();
+            const adPopunder = document.getElementById('ad-script-popunder').value.trim();
 
             try {
                 await db.collection("settings").doc("global").set({
                     linkReward: linkR,
                     referralCommissionPercent: refPercent,
+                    adScriptHeader: adHeader,
+                    adScriptFooter: adFooter,
+                    adScriptPopunder: adPopunder,
                     updatedAt: new Date().toISOString()
                 });
-                alert("App Reward Settings saved live!");
+                alert("App Reward & Ad Settings saved live!");
             } catch(e) { alert("Error: " + e.message); }
         }
 
