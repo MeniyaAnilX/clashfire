@@ -829,8 +829,14 @@ class ClashFireApp {
         const rawHashString = `${userId}-${secureHashKey}`;
         const finalMd5 = this.calculateJSmd5(rawHashString);
 
-        // Build target CPX Offerwall URL with dynamic user properties
-        const cpxUrl = `https://offers.cpx-research.com/index.php?app_id=${appId}&ext_user_id=${userId}&secure_hash=${finalMd5}&username=${userId}&email=${userId}@clashfire.com`;
+        // Build target CPX Offerwall URL by dynamically replacing dashboard template placeholders
+        let cpxUrl = "https://offers.cpx-research.com/index.php?app_id={app_id}&ext_user_id={unique_user_id}&secure_hash={secure_hash}&username={user_name}&email={user_email}&subid_1=&subid_2";
+        
+        cpxUrl = cpxUrl.replace('{app_id}', appId);
+        cpxUrl = cpxUrl.replace('{unique_user_id}', userId);
+        cpxUrl = cpxUrl.replace('{secure_hash}', finalMd5);
+        cpxUrl = cpxUrl.replace('{user_name}', userId);
+        cpxUrl = cpxUrl.replace('{user_email}', `${userId}@clashfire.com`);
 
         window.open(cpxUrl, '_blank');
         this.showToast('SURVEYS LAUNCHED', 'Complete premium surveys on target tab to earn rewards!', 'info');
