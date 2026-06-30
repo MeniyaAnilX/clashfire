@@ -689,8 +689,32 @@ class ClashFireApp {
         containerElement.innerHTML = '';
         containerElement.style.height = 'auto'; // Remove fixed height constraint
 
+        const suffix = '-' + slotTag;
+        let modifiedHtml = rawHtmlCode;
+
+        // Find container IDs in the HTML code and append suffix to make them unique
+        const idRegex = /id=["']([^"']+)["']/g;
+        let match;
+        const idsFound = [];
+        while ((match = idRegex.exec(rawHtmlCode)) !== null) {
+            const foundId = match[1];
+            if (!foundId.endsWith(suffix)) {
+                idsFound.push(foundId);
+            }
+        }
+
+        idsFound.forEach(id => {
+            const uniqueId = id + suffix;
+            const replaceIdRegex = new RegExp(`id=["']${id}["']`, 'g');
+            modifiedHtml = modifiedHtml.replace(replaceIdRegex, `id="${uniqueId}"`);
+
+            const escapedId = id.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const replaceRefRegex = new RegExp(escapedId, 'g');
+            modifiedHtml = modifiedHtml.replace(replaceRefRegex, uniqueId);
+        });
+
         const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = rawHtmlCode;
+        tempDiv.innerHTML = modifiedHtml;
 
         // Append non-script elements first
         Array.from(tempDiv.childNodes).forEach(node => {
