@@ -167,37 +167,49 @@
         let timeLeft = 20;
 
         // Dynamic helper to inject raw script codes safely
+        // Dynamic helper to inject raw script codes inside a clean dynamic iframe context
         function injectAdScript(elementId, scriptHtml) {
             const container = document.getElementById(elementId);
             if (!container || !scriptHtml) return;
             
             container.innerHTML = '';
             
-            // Temporary div to parse the elements
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = scriptHtml;
+            // Create a borderless, transparent styled iframe
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '270px'; // Supports standard sizes like 300x250 native banner easily
+            iframe.style.border = 'none';
+            iframe.style.margin = '0 auto';
+            iframe.style.display = 'block';
+            iframe.style.overflow = 'hidden';
+            iframe.setAttribute('scrolling', 'no');
             
-            // Loop through child elements and append or execute scripts
-            const children = Array.from(tempDiv.childNodes);
-            children.forEach(node => {
-                if (node.tagName && node.tagName.toLowerCase() === 'script') {
-                    const newScript = document.createElement('script');
-                    
-                    // Copy all attributes from parsed script
-                    Array.from(node.attributes).forEach(attr => {
-                        newScript.setAttribute(attr.name, attr.value);
-                    });
-                    
-                    // Copy inline scripts content
-                    if (node.innerHTML) {
-                        newScript.innerHTML = node.innerHTML;
-                    }
-                    
-                    document.head.appendChild(newScript);
-                } else {
-                    container.appendChild(node.cloneNode(true));
-                }
-            });
+            container.appendChild(iframe);
+            
+            try {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>
+                            body { 
+                                margin: 0; padding: 0; 
+                                display: flex; justify-content: center; align-items: center; 
+                                background: transparent; overflow: hidden; 
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        ${scriptHtml}
+                    </body>
+                    </html>
+                `);
+                doc.close();
+            } catch (err) {
+                console.error("Ad slot injection failed: ", err);
+            }
         }
 
         async function verifyAndReward() {
