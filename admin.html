@@ -368,6 +368,21 @@
 
             <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE REWARD & AD SETTINGS</button>
         </div>
+
+        <!-- Card B: Dynamic Unlimited Daily Mission Links Manager -->
+        <div class="control-card" style="margin-top: 20px;">
+            <div class="card-title"><i class="fa-solid fa-link"></i> DYNAMIC UNLIMITED DAILY MISSION LINKS</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Configure your dynamic mission shortener links (e.g. GPLinks, ShrinkMe). Users will visit these sponsor URLs sequentially before unlocking rewards.</p>
+            
+            <div id="dynamic-links-list-container">
+                <!-- Dynamically populated mission rows will load here -->
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 15px;">
+                <button class="btn-action" style="background: var(--accent-cyan); color: #000; font-weight: 800;" onclick="addNewMissionRow()"><i class="fa-solid fa-plus"></i> ADD NEW MISSION LINK</button>
+                <button class="btn-action" style="background: #00e676; flex-grow: 1;" onclick="saveMissionLinks()"><i class="fa-solid fa-save"></i> SAVE ALL MISSION LINKS</button>
+            </div>
+        </div>
     </div>
 
     <script>
