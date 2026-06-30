@@ -217,8 +217,42 @@
 
                 if (db) {
                     try {
+                        // 1. Save user profile updates
                         await db.collection("users").doc(deviceId).set(userData, { merge: true });
-                    } catch(e){}
+
+                        // 2. Process Referral Daily Mission Commission
+                        if (userData.referredBy) {
+                            const refCode = userData.referredBy;
+                            
+                            // Fetch settings/global to get the current referralCommissionPercent
+                            let commPercent = 10;
+                            try {
+                                const gSettingsDoc = await db.collection("settings").doc("global").get();
+                                if (gSettingsDoc.exists && gSettingsDoc.data().referralCommissionPercent !== undefined) {
+                                    commPercent = parseInt(gSettingsDoc.data().referralCommissionPercent);
+                                }
+                            } catch(se){}
+
+                            // Fetch all users to find the referrer matching this custom display ID
+                            const snapshot = await db.collection("users").get();
+                            for (const doc of snapshot.docs) {
+                                const displayId = "CF-" + doc.id.substring(9, 15);
+                                if (displayId === refCode && doc.id !== deviceId) {
+                                    const refData = doc.data();
+                                    const commissionCoins = parseFloat((rewardAmt * (commPercent / 100)).toFixed(2));
+                                    
+                                    if (commissionCoins > 0) {
+                                        const newCoins = parseFloat(((refData.coins || 0) + commissionCoins).toFixed(2));
+                                        await doc.ref.update({
+                                            coins: newCoins
+                                        });
+                                        console.log(`Referral commission of +${commissionCoins} coins credited to referrer ${displayId}`);
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    } catch(e){ console.error("Verify save err:", e); }
                 }
 
                 document.getElementById('status-icon').innerHTML = '<i class="fa-solid fa-circle-check" style="color:#00e676;"></i>';

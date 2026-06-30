@@ -340,8 +340,8 @@
                     <input type="number" id="setting-link-reward" value="5">
                 </div>
                 <div class="form-group">
-                    <label>Referral Bonus Diamonds</label>
-                    <input type="number" id="setting-ref-reward" value="10">
+                    <label>Referral Mission Commission (%)</label>
+                    <input type="number" id="setting-ref-commission" value="10" min="0" max="100">
                 </div>
             </div>
             <button class="btn-action" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE REWARD AMOUNTS</button>
@@ -393,7 +393,7 @@
                 if (doc.exists) {
                     const data = doc.data();
                     document.getElementById('setting-link-reward').value = data.linkReward || 5;
-                    document.getElementById('setting-ref-reward').value = data.referralReward || 10;
+                    document.getElementById('setting-ref-commission').value = data.referralCommissionPercent || 10;
                 }
 
                 const linksDoc = await db.collection("settings").doc("links").get();
@@ -557,12 +557,12 @@
 
         async function saveGlobalSettings() {
             const linkR = parseInt(document.getElementById('setting-link-reward').value || '5');
-            const refR = parseInt(document.getElementById('setting-ref-reward').value || '10');
+            const refPercent = parseInt(document.getElementById('setting-ref-commission').value || '10');
 
             try {
                 await db.collection("settings").doc("global").set({
                     linkReward: linkR,
-                    referralReward: refR,
+                    referralCommissionPercent: refPercent,
                     updatedAt: new Date().toISOString()
                 });
                 alert("App Reward Settings saved live!");

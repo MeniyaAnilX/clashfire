@@ -31,7 +31,7 @@ class ClashFireApp {
         };
         this.globalSettings = {
             linkReward: 5,
-            referralReward: 10
+            referralCommissionPercent: 10
         };
         this.integrations = {
             toroxUrl: localStorage.getItem('CF_CACHE_TOROX_URL') || "https://torox.io",
@@ -369,13 +369,10 @@ class ClashFireApp {
                     return; // Hard-blocked! Already referred by this user.
                 }
 
-                const bonus = this.globalSettings.referralReward || 10;
-                const newCoins = (referrerData.coins || 0) + bonus;
                 referredDevices.push(this.deviceId);
 
-                // 4. Update referrer coins and referredDevices array in Firestore
+                // 4. Update referrer referredDevices array in Firestore
                 await referrerDocRef.update({
-                    coins: newCoins,
                     referredDevices: referredDevices
                 });
 
@@ -481,13 +478,12 @@ class ClashFireApp {
 
         // Render Referral Statistics Dynamically
         const refCount = (this.user.referredDevices || []).length;
-        const refRewardPerUser = (this.globalSettings.referralReward || 10);
-        const refTotalReward = refCount * refRewardPerUser;
+        const refPercent = (this.globalSettings.referralCommissionPercent || 10);
 
         const countElem = document.getElementById('ref-stat-count');
         const rewardElem = document.getElementById('ref-stat-reward');
         if (countElem) countElem.innerText = refCount;
-        if (rewardElem) rewardElem.innerText = refTotalReward + " 💎";
+        if (rewardElem) rewardElem.innerText = refPercent + "% Rate";
 
         const gzLabel = document.getElementById('gamezop-reward-label');
         if (gzLabel) gzLabel.innerText = `Play 3 Mins = +${this.integrations.gamezopReward || 5} Diamonds`;
