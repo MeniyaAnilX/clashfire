@@ -57,7 +57,7 @@ class ClashFireApp {
         };
         this.dailyVisit = {
             items: [
-                { id: 0, taskId: 1, title: "Daily Visit Task #1", url: "https://clashfire.vercel.app", duration: 15, reward: 10 }
+                { id: 0, taskId: 1, title: "Daily Visit Task #1", url: "https://ffire.xyz", duration: 15, reward: 10 }
             ]
         };
         this.db = null;
@@ -66,11 +66,11 @@ class ClashFireApp {
 
         // Dynamic Mission Tasks Array (1-indexed task IDs)
         this.dailyLinks = [
-            { id: 0, taskId: 1, title: "Daily Mission Supply #1", url: "https://clashfire.vercel.app/verify.html?task=1" },
-            { id: 1, taskId: 2, title: "Daily Mission Elite #2", url: "https://clashfire.vercel.app/verify.html?task=2" },
-            { id: 2, taskId: 3, title: "Daily Mission Vault #3", url: "https://clashfire.vercel.app/verify.html?task=3" },
-            { id: 3, taskId: 4, title: "Daily Mission Armor #4", url: "https://clashfire.vercel.app/verify.html?task=4" },
-            { id: 4, taskId: 5, title: "Daily Mission Heroic #5", url: "https://clashfire.vercel.app/verify.html?task=5" }
+            { id: 0, taskId: 1, title: "Daily Mission Supply #1", url: "https://ffire.xyz/verify.html?task=1" },
+            { id: 1, taskId: 2, title: "Daily Mission Elite #2", url: "https://ffire.xyz/verify.html?task=2" },
+            { id: 2, taskId: 3, title: "Daily Mission Vault #3", url: "https://ffire.xyz/verify.html?task=3" },
+            { id: 3, taskId: 4, title: "Daily Mission Armor #4", url: "https://ffire.xyz/verify.html?task=4" },
+            { id: 4, taskId: 5, title: "Daily Mission Heroic #5", url: "https://ffire.xyz/verify.html?task=5" }
         ];
 
         this.init();
@@ -389,7 +389,7 @@ class ClashFireApp {
                 }, { merge: true });
 
                 localStorage.setItem('REFERRAL_PROCESSED_' + this.deviceId, 'true');
-                this.showToast('WELCOME TO CLASH FIRE', `Joined via referral link from ${refCode}!`, 'info');
+                this.showToast('WELCOME TO FFIRE.XYZ', `Joined via referral link from ${refCode}!`, 'info');
             }
         } catch(e) { console.error("Referral Sync Error:", e); }
     }
@@ -1201,7 +1201,7 @@ class ClashFireApp {
             countdownVal.innerText = this.dvSecondsLeft + "s";
 
             // Format target URL to ensure absolute protocol matching
-            let targetUrl = item.url || "https://clashfire.vercel.app";
+            let targetUrl = item.url || "https://ffire.xyz";
             if (!/^https?:\/\//i.test(targetUrl)) {
                 targetUrl = "https://" + targetUrl;
             }
@@ -1241,7 +1241,7 @@ class ClashFireApp {
                         }
                     }
                 } else {
-                    // User returned early to Clash Fire tab - pause timer and warn
+                    // User returned early to FFire.xyz tab - pause timer and warn
                     this.dvHasReturned = true; // Set return lock
                     overlayTitle.innerText = "⏱️ TIMER PAUSED";
                     warningText.innerText = "You returned too early! Click the CONTINUE VISIT button to resume the timer.";
@@ -1262,7 +1262,7 @@ class ClashFireApp {
 
         this.dvHasReturned = false; // Reset lock to false so it can decrement
         
-        let targetUrl = item.url || "https://clashfire.vercel.app";
+        let targetUrl = item.url || "https://ffire.xyz";
         if (!/^https?:\/\//i.test(targetUrl)) {
             targetUrl = "https://" + targetUrl;
         }
