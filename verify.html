@@ -824,13 +824,24 @@
         }
 
         function handleReturnToDashboard() {
+            let shouldOpenSmartlink = false;
             if (window.smartlinkEnabled && window.smartlinkUrl) {
+                const lastTrigger = localStorage.getItem('CF_LAST_SMARTLINK_TRIGGER');
+                const now = Date.now();
+                if (!lastTrigger || (now - parseInt(lastTrigger)) > 24 * 60 * 60 * 1000) {
+                    shouldOpenSmartlink = true;
+                    localStorage.setItem('CF_LAST_SMARTLINK_TRIGGER', now.toString());
+                }
+            }
+
+            if (shouldOpenSmartlink) {
                 try {
                     window.open("https://ffire.xyz/index.html", 'ClashFireDashboard');
                     window.location.href = window.smartlinkUrl;
                     return;
                 } catch(e){}
             }
+
             if (window.opener) {
                 window.close();
             } else {
