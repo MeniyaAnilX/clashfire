@@ -480,7 +480,7 @@
                         <label>Mission #${missionNum} Shortener URL</label>
                         <input type="text" id="m-url-${index}" value="${item.url || ''}" placeholder="https://gplinks.co/...">
                     </div>
-                    <div class="target-hint"><i class="fa-solid fa-bullseye"></i> Target Verification URL: https://clashfire.vercel.app/verify.html?task=${missionNum}</div>
+                    <div class="target-hint"><i class="fa-solid fa-bullseye"></i> Target Verification URL: https://ffire.xyz/verify.html?task=${missionNum}</div>
                 `;
                 container.appendChild(row);
             });
@@ -490,7 +490,7 @@
             const nextMissionNum = currentMissionLinks.length + 1;
             currentMissionLinks.push({
                 title: `Daily Mission Supply #${nextMissionNum}`,
-                url: `https://clashfire.vercel.app/verify.html?task=${nextMissionNum}`
+                url: `https://ffire.xyz/verify.html?task=${nextMissionNum}`
             });
             renderAdminMissionRows();
         }
