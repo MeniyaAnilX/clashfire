@@ -220,35 +220,62 @@
                         // 1. Save user profile updates
                         await db.collection("users").doc(deviceId).set(userData, { merge: true });
 
-                        // 2. Process Referral Daily Mission Commission
+                        // 2. Process Referral Daily Mission Commission (Triggered ONLY when ALL tasks are completed)
                         if (userData.referredBy) {
                             const refCode = userData.referredBy;
                             
-                            // Fetch settings/global to get the current referralCommissionPercent
-                            let commPercent = 10;
+                            // Fetch dynamic database links configuration to check count limits
+                            let totalRequiredMissions = 5;
                             try {
-                                const gSettingsDoc = await db.collection("settings").doc("global").get();
-                                if (gSettingsDoc.exists && gSettingsDoc.data().referralCommissionPercent !== undefined) {
-                                    commPercent = parseInt(gSettingsDoc.data().referralCommissionPercent);
+                                const linksDoc = await db.collection("settings").doc("links").get();
+                                if (linksDoc.exists && linksDoc.data().items && Array.isArray(linksDoc.data().items)) {
+                                    totalRequiredMissions = linksDoc.data().items.length;
                                 }
-                            } catch(se){}
+                            } catch(le){}
 
-                            // Fetch all users to find the referrer matching this custom display ID
-                            const snapshot = await db.collection("users").get();
-                            for (const doc of snapshot.docs) {
-                                const displayId = "CF-" + doc.id.substring(9, 15);
-                                if (displayId === refCode && doc.id !== deviceId) {
-                                    const refData = doc.data();
-                                    const commissionCoins = parseFloat((rewardAmt * (commPercent / 100)).toFixed(2));
+                            // Count successfully completed missions for today
+                            const completedCount = Object.keys(userData.completedLinks || {}).length;
+
+                            if (completedCount >= totalRequiredMissions) {
+                                // Anti-Double Commission Check: Check if commission was already processed for today's reset
+                                const todayResetKey = new Date().toISOString().split('T')[0];
+                                if (userData.lastReferralCommissionDate !== todayResetKey) {
                                     
+                                    // Fetch settings/global to get the current referralCommissionPercent
+                                    let commPercent = 10;
+                                    try {
+                                        const gSettingsDoc = await db.collection("settings").doc("global").get();
+                                        if (gSettingsDoc.exists && gSettingsDoc.data().referralCommissionPercent !== undefined) {
+                                            commPercent = parseInt(gSettingsDoc.data().referralCommissionPercent);
+                                        }
+                                    } catch(se){}
+
+                                    // Calculate overall mission rewards summation (e.g. 5 tasks * 5 coins = 25 total reward)
+                                    const totalDailyMissionsReward = totalRequiredMissions * rewardAmt;
+                                    const commissionCoins = parseFloat((totalDailyMissionsReward * (commPercent / 100)).toFixed(2));
+
                                     if (commissionCoins > 0) {
-                                        const newCoins = parseFloat(((refData.coins || 0) + commissionCoins).toFixed(2));
-                                        await doc.ref.update({
-                                            coins: newCoins
-                                        });
-                                        console.log(`Referral commission of +${commissionCoins} coins credited to referrer ${displayId}`);
+                                        // Fetch all users to find the referrer matching this display ID
+                                        const snapshot = await db.collection("users").get();
+                                        for (const doc of snapshot.docs) {
+                                            const displayId = "CF-" + doc.id.substring(9, 15);
+                                            if (displayId === refCode && doc.id !== deviceId) {
+                                                const refData = doc.data();
+                                                const newCoins = parseFloat(((refData.coins || 0) + commissionCoins).toFixed(2));
+                                                
+                                                await doc.ref.update({
+                                                    coins: newCoins
+                                                });
+
+                                                // Log commission date to prevent repeat triggers today
+                                                await db.collection("users").doc(deviceId).update({
+                                                    lastReferralCommissionDate: todayResetKey
+                                                });
+                                                console.log(`Referral commission of +${commissionCoins} credited to referrer ${displayId} (All ${completedCount}/${totalRequiredMissions} missions completed today).`);
+                                                break;
+                                            }
+                                        }
                                     }
-                                    break;
                                 }
                             }
                         }
