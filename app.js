@@ -97,6 +97,13 @@ class ClashFireApp {
         this.startCountdownTimer();
         this.startLiveProofsTicker();
         this.protectAppFromInspect();
+
+        document.addEventListener('visibilitychange', async () => {
+            if (document.visibilityState === 'visible') {
+                await this.loadUserProfile();
+                this.renderDashboard();
+            }
+        });
     }
 
     switchAppTab(tabId, btnElem) {
