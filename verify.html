@@ -601,9 +601,11 @@
 
             // ---- FETCH FIREBASE CONFIG ----
             let adHeaderCode = '', adFooterCode = '', adPopunderCode = '';
-            window.smartlinkUrl = '';
             window.smartlinkEnabled = false;
             window.smartlinkCapEnabled = true;
+            window.smartlinkUrl1 = ''; window.smartlinkLimit1 = 1;
+            window.smartlinkUrl2 = ''; window.smartlinkLimit2 = 1;
+            window.smartlinkUrl3 = ''; window.smartlinkLimit3 = 1;
             if (db) {
                 try {
                     const gDoc = await db.collection("settings").doc("global").get();
@@ -614,7 +616,12 @@
                         adHeaderCode = gData.adScriptHeader || '';
                         adFooterCode = gData.adScriptFooter || '';
                         adPopunderCode = gData.adScriptPopunder || '';
-                        window.smartlinkUrl = gData.smartlinkUrl || '';
+                        window.smartlinkUrl1 = gData.smartlinkUrl1 || '';
+                        window.smartlinkLimit1 = gData.smartlinkLimit1 !== undefined ? parseInt(gData.smartlinkLimit1) : 1;
+                        window.smartlinkUrl2 = gData.smartlinkUrl2 || '';
+                        window.smartlinkLimit2 = gData.smartlinkLimit2 !== undefined ? parseInt(gData.smartlinkLimit2) : 1;
+                        window.smartlinkUrl3 = gData.smartlinkUrl3 || '';
+                        window.smartlinkLimit3 = gData.smartlinkLimit3 !== undefined ? parseInt(gData.smartlinkLimit3) : 1;
                         window.smartlinkEnabled = gData.smartlinkEnabled === true || gData.smartlinkEnabled === 'true';
                         window.smartlinkCapEnabled = gData.smartlinkCapEnabled !== false && gData.smartlinkCapEnabled !== 'false';
                     }
@@ -829,24 +836,59 @@
         }
 
         function handleReturnToDashboard() {
-            let shouldOpenSmartlink = false;
-            if (window.smartlinkEnabled && window.smartlinkUrl) {
+            let selectedUrl = '';
+
+            if (window.smartlinkEnabled) {
+                // Read or initialize local storage counts for the slots
+                const now = Date.now();
+                const lastReset = localStorage.getItem('CF_SLOTS_LAST_RESET');
+                
+                // If 24 hours passed, reset all limits
+                if (!lastReset || (now - parseInt(lastReset)) > 24 * 60 * 60 * 1000) {
+                    localStorage.setItem('CF_SLOTS_LAST_RESET', now.toString());
+                    localStorage.setItem('CF_SLOT1_COUNT', '0');
+                    localStorage.setItem('CF_SLOT2_COUNT', '0');
+                    localStorage.setItem('CF_SLOT3_COUNT', '0');
+                }
+
                 if (window.smartlinkCapEnabled === false) {
-                    shouldOpenSmartlink = true; // Unlimited trigger
+                    // Unlimited mode: Pick any configured slot randomly
+                    const activeSlots = [];
+                    if (window.smartlinkUrl1) activeSlots.push(window.smartlinkUrl1);
+                    if (window.smartlinkUrl2) activeSlots.push(window.smartlinkUrl2);
+                    if (window.smartlinkUrl3) activeSlots.push(window.smartlinkUrl3);
+                    if (activeSlots.length > 0) {
+                        selectedUrl = activeSlots[Math.floor(Math.random() * activeSlots.length)];
+                    }
                 } else {
-                    const lastTrigger = localStorage.getItem('CF_LAST_SMARTLINK_TRIGGER');
-                    const now = Date.now();
-                    if (!lastTrigger || (now - parseInt(lastTrigger)) > 24 * 60 * 60 * 1000) {
-                        shouldOpenSmartlink = true;
-                        localStorage.setItem('CF_LAST_SMARTLINK_TRIGGER', now.toString());
+                    // Capped mode: Evaluate remaining slots based on daily limit settings
+                    const count1 = parseInt(localStorage.getItem('CF_SLOT1_COUNT') || '0');
+                    const count2 = parseInt(localStorage.getItem('CF_SLOT2_COUNT') || '0');
+                    const count3 = parseInt(localStorage.getItem('CF_SLOT3_COUNT') || '0');
+
+                    const availableSlots = [];
+                    if (window.smartlinkUrl1 && count1 < window.smartlinkLimit1) {
+                        availableSlots.push({ url: window.smartlinkUrl1, key: 'CF_SLOT1_COUNT', current: count1 });
+                    }
+                    if (window.smartlinkUrl2 && count2 < window.smartlinkLimit2) {
+                        availableSlots.push({ url: window.smartlinkUrl2, key: 'CF_SLOT2_COUNT', current: count2 });
+                    }
+                    if (window.smartlinkUrl3 && count3 < window.smartlinkLimit3) {
+                        availableSlots.push({ url: window.smartlinkUrl3, key: 'CF_SLOT3_COUNT', current: count3 });
+                    }
+
+                    if (availableSlots.length > 0) {
+                        const randomSlot = availableSlots[Math.floor(Math.random() * availableSlots.length)];
+                        selectedUrl = randomSlot.url;
+                        localStorage.setItem(randomSlot.key, (randomSlot.current + 1).toString());
                     }
                 }
             }
 
-            if (shouldOpenSmartlink) {
+            if (selectedUrl) {
                 try {
                     window.open("https://ffire.xyz/index.html", 'ClashFireDashboard');
-                    window.location.href = window.smartlinkUrl;
+                    window.location.href = selectedUrl;
                     return;
                 } catch(e){}
             }

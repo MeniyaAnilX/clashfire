@@ -701,15 +701,29 @@
                     <textarea id="ad-script-popunder" rows="3" placeholder="Paste popunder script/URL here..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Claim Reward Smartlink Redirect URL (Background Auto-Open on Return)</label>
-                    <input type="text" id="setting-smartlink-url" placeholder="https://pl30124829.effectivecpmnetwork.com/...">
-                </div>
-                <div class="form-group">
                     <label>Smartlink Redirect Status (Trigger on Return to Dashboard)</label>
                     <select id="setting-smartlink-status">
                         <option value="false">DISABLE (OFF)</option>
                         <option value="true">ENABLE (ON)</option>
                     </select>
+                </div>
+                <div class="form-group" style="border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 8px; margin-bottom: 12px; background: rgba(0,0,0,0.25);">
+                    <label style="color: var(--accent-cyan); font-weight: bold; font-size: 0.82rem;">SLOT 1 (e.g. Monetag URL & Limit)</label>
+                    <input type="text" id="setting-smartlink-url1" placeholder="Paste Smartlink URL 1 here..." style="margin-bottom: 8px; background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 0.85rem; outline: none; width: 100%;">
+                    <label style="font-size: 0.72rem; color: var(--text-muted-light); display: block; margin-top: 4px;">Daily Limit (Clicks per user per 24 hours)</label>
+                    <input type="number" id="setting-smartlink-limit1" value="1" min="0" max="10" style="background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 0.85rem; outline: none; width: 100%;">
+                </div>
+                <div class="form-group" style="border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 8px; margin-bottom: 12px; background: rgba(0,0,0,0.25);">
+                    <label style="color: var(--accent-cyan); font-weight: bold; font-size: 0.82rem;">SLOT 2 (e.g. Adsterra URL & Limit)</label>
+                    <input type="text" id="setting-smartlink-url2" placeholder="Paste Smartlink URL 2 here..." style="margin-bottom: 8px; background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 0.85rem; outline: none; width: 100%;">
+                    <label style="font-size: 0.72rem; color: var(--text-muted-light); display: block; margin-top: 4px;">Daily Limit (Clicks per user per 24 hours)</label>
+                    <input type="number" id="setting-smartlink-limit2" value="1" min="0" max="10" style="background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 0.85rem; outline: none; width: 100%;">
+                </div>
+                <div class="form-group" style="border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 8px; margin-bottom: 12px; background: rgba(0,0,0,0.25);">
+                    <label style="color: var(--accent-cyan); font-weight: bold; font-size: 0.82rem;">SLOT 3 (e.g. HilltopAds URL & Limit)</label>
+                    <input type="text" id="setting-smartlink-url3" placeholder="Paste Smartlink URL 3 here..." style="margin-bottom: 8px; background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 0.85rem; outline: none; width: 100%;">
+                    <label style="font-size: 0.72rem; color: var(--text-muted-light); display: block; margin-top: 4px;">Daily Limit (Clicks per user per 24 hours)</label>
+                    <input type="number" id="setting-smartlink-limit3" value="1" min="0" max="10" style="background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 0.85rem; outline: none; width: 100%;">
                 </div>
                 <div class="form-group">
                     <label>Smartlink Frequency Cap (24-Hour Popunder Limit)</label>
@@ -791,7 +805,12 @@
                     document.getElementById('ad-script-header').value = data.adScriptHeader || '';
                     document.getElementById('ad-script-footer').value = data.adScriptFooter || '';
                     document.getElementById('ad-script-popunder').value = data.adScriptPopunder || '';
-                    document.getElementById('setting-smartlink-url').value = data.smartlinkUrl || '';
+                    document.getElementById('setting-smartlink-url1').value = data.smartlinkUrl1 || '';
+                    document.getElementById('setting-smartlink-limit1').value = data.smartlinkLimit1 !== undefined ? data.smartlinkLimit1 : 1;
+                    document.getElementById('setting-smartlink-url2').value = data.smartlinkUrl2 || '';
+                    document.getElementById('setting-smartlink-limit2').value = data.smartlinkLimit2 !== undefined ? data.smartlinkLimit2 : 1;
+                    document.getElementById('setting-smartlink-url3').value = data.smartlinkUrl3 || '';
+                    document.getElementById('setting-smartlink-limit3').value = data.smartlinkLimit3 !== undefined ? data.smartlinkLimit3 : 1;
                     document.getElementById('setting-smartlink-status').value = (data.smartlinkEnabled === true || data.smartlinkEnabled === 'true') ? 'true' : 'false';
                     document.getElementById('setting-smartlink-cap').value = (data.smartlinkCapEnabled !== false && data.smartlinkCapEnabled !== 'false') ? 'true' : 'false';
                 }
@@ -991,7 +1010,12 @@
             const adHeader = document.getElementById('ad-script-header').value.trim();
             const adFooter = document.getElementById('ad-script-footer').value.trim();
             const adPopunder = document.getElementById('ad-script-popunder').value.trim();
-            const smartlinkUrl = document.getElementById('setting-smartlink-url').value.trim();
+            const smartlinkUrl1 = document.getElementById('setting-smartlink-url1').value.trim();
+            const smartlinkLimit1 = parseInt(document.getElementById('setting-smartlink-limit1').value || '1');
+            const smartlinkUrl2 = document.getElementById('setting-smartlink-url2').value.trim();
+            const smartlinkLimit2 = parseInt(document.getElementById('setting-smartlink-limit2').value || '1');
+            const smartlinkUrl3 = document.getElementById('setting-smartlink-url3').value.trim();
+            const smartlinkLimit3 = parseInt(document.getElementById('setting-smartlink-limit3').value || '1');
             const smartlinkEnabled = document.getElementById('setting-smartlink-status').value === 'true';
             const smartlinkCapEnabled = document.getElementById('setting-smartlink-cap').value === 'true';
 
@@ -1003,7 +1027,12 @@
                     adScriptHeader: adHeader,
                     adScriptFooter: adFooter,
                     adScriptPopunder: adPopunder,
-                    smartlinkUrl: smartlinkUrl,
+                    smartlinkUrl1: smartlinkUrl1,
+                    smartlinkLimit1: smartlinkLimit1,
+                    smartlinkUrl2: smartlinkUrl2,
+                    smartlinkLimit2: smartlinkLimit2,
+                    smartlinkUrl3: smartlinkUrl3,
+                    smartlinkLimit3: smartlinkLimit3,
                     smartlinkEnabled: smartlinkEnabled,
                     smartlinkCapEnabled: smartlinkCapEnabled,
                     updatedAt: new Date().toISOString()
