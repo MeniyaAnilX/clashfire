@@ -88,10 +88,10 @@ class ClashFireApp {
         const devElem = document.getElementById('display-device-id');
         if (devElem) devElem.innerText = "User ID: " + this.displayUserId;
 
-        await this.loadGlobalSettings();
-        await this.loadUserProfile();
-        await this.checkReferralBonus();
-        await this.checkSurveyReward();
+        this.loadGlobalSettings();
+        this.loadUserProfile();
+        this.checkReferralBonus();
+        this.checkSurveyReward();
 
 
         this.renderDashboard();
