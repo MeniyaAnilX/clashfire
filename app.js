@@ -661,6 +661,33 @@ class ClashFireApp {
             document.getElementById('ff-uid').value = this.user.freeFireUid;
         }
 
+        // Dynamically inject Global Popunder if enabled
+        const popunderEnabled = this.globalSettings.adScriptPopunderEnabled === true || this.globalSettings.adScriptPopunderEnabled === 'true';
+        let existingPop = document.getElementById('cf-global-popunder-script');
+        if (popunderEnabled && this.globalSettings.adScriptPopunder) {
+            if (!existingPop) {
+                const holder = document.createElement('div');
+                holder.id = 'cf-global-popunder-script';
+                holder.style.display = 'none';
+                holder.innerHTML = this.globalSettings.adScriptPopunder;
+                document.body.appendChild(holder);
+
+                const scripts = holder.getElementsByTagName('script');
+                Array.from(scripts).forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                });
+            }
+        } else if (!popunderEnabled && existingPop) {
+            existingPop.remove();
+        }
+
         const refInput = document.getElementById('referral-link-input');
         if (refInput && this.displayUserId) {
             refInput.value = `${window.location.origin}${window.location.pathname}?ref=${this.displayUserId}`;

@@ -564,7 +564,8 @@
                         if (gData.verifyTimerSeconds !== undefined) totalTimerSeconds = parseInt(gData.verifyTimerSeconds);
                         adHeaderCode = gData.adScriptHeader || '';
                         adFooterCode = gData.adScriptFooter || '';
-                        adPopunderCode = gData.adScriptPopunder || '';
+                        const popunderOn = gData.adScriptPopunderEnabled === true || gData.adScriptPopunderEnabled === 'true' || gData.adScriptPopunderEnabled === undefined;
+                        adPopunderCode = popunderOn ? (gData.adScriptPopunder || '') : '';
                         window.smartlinkUrl1 = gData.smartlinkUrl1 || '';
                         window.smartlinkLimit1 = gData.smartlinkLimit1 !== undefined ? parseInt(gData.smartlinkLimit1) : 1;
                         window.smartlinkUrl2 = gData.smartlinkUrl2 || '';

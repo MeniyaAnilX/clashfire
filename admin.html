@@ -299,149 +299,179 @@
             transition: all 0.2s ease; 
             box-shadow: 0 4px 12px rgba(0, 242, 254, 0.15);
         }
-
-        .btn-action:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(0, 242, 254, 0.25);
+        
+        .btn-action:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.35); 
         }
 
         .btn-action:active {
             transform: translateY(0);
         }
-
-        /* Lists & Row Items */
-        .mission-row-item { 
-            background: var(--bg-input); 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            border-radius: 12px; 
-            padding: 18px; 
-            margin-bottom: 14px; 
-            position: relative; 
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        
+        /* Table Styles */
+        .table-responsive { overflow-x: auto; margin-top: 10px; }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            text-align: left; 
+            font-size: 0.9rem; 
         }
         
-        .target-hint { 
-            font-size: 0.75rem; 
-            color: var(--accent-gold); 
+        th, td { 
+            padding: 16px 20px; 
+            border-bottom: 1px solid var(--border-light); 
+        }
+        
+        th { 
+            color: var(--text-muted-light); 
             font-weight: 600; 
-            font-family: monospace; 
-            background: rgba(255, 215, 0, 0.06);
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: 1px solid rgba(255, 215, 0, 0.1);
-            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.01); 
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
         }
         
-        .btn-del-link { 
-            background: rgba(255, 23, 68, 0.1); 
-            color: #ff1744; 
-            border: 1px solid rgba(255, 23, 68, 0.2); 
-            padding: 8px 14px; 
-            border-radius: 8px; 
-            font-weight: 700; 
-            font-size: 0.8rem; 
-            cursor: pointer; 
-            align-self: flex-end;
-            transition: all 0.2s ease;
-        }
-
-        .btn-del-link:hover {
-            background: #ff1744;
-            color: #fff;
-            border-color: #ff1744;
-        }
-
-        /* Tables */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-            border-radius: 12px;
-            border: 1px solid var(--border-light);
-        }
-
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.9rem; }
-        th { color: var(--text-muted-light); font-weight: 600; background: rgba(0,0,0,0.25); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
         tr:hover td { background: rgba(255, 255, 255, 0.015); }
-        tr:last-child td { border-bottom: none; }
-
-        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
-        .status-badge.pending { background: rgba(255, 215, 0, 0.08); color: var(--accent-gold); border: 1px solid rgba(255, 215, 0, 0.2); }
-        .status-badge.completed { background: rgba(0, 230, 118, 0.08); color: var(--accent-green); border: 1px solid rgba(0, 230, 118, 0.2); }
-
-        .btn-complete { 
-            background: var(--green-gradient); 
-            color: #020617; 
-            border: none; 
-            padding: 8px 16px; 
-            border-radius: 8px; 
+        
+        /* Badges */
+        .status-badge { 
+            padding: 6px 12px; 
+            border-radius: 20px; 
+            font-size: 0.75rem; 
             font-weight: 700; 
-            font-size: 0.8rem; 
-            cursor: pointer; 
-            transition: all 0.2s ease; 
             display: inline-flex;
             align-items: center;
             gap: 6px;
         }
-        .btn-complete:hover { opacity: 0.95; }
-
-        .dia-input { 
-            background: var(--bg-input); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            border-radius: 8px; 
-            padding: 8px 12px; 
+        
+        .status-badge.pending { 
+            background: rgba(255, 215, 0, 0.08); 
             color: var(--accent-gold); 
-            font-weight: 700; 
-            width: 100px; 
-            font-size: 0.9rem; 
-            outline: none; 
-            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .status-badge.completed { 
+            background: rgba(0, 230, 118, 0.08); 
+            color: var(--accent-green); 
+            border: 1px solid rgba(0, 230, 118, 0.2);
+        }
+        
+        .btn-complete {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-main);
+            border: 1px solid var(--border-light);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-complete:hover {
+            background: var(--cyan-gradient);
+            color: #020617;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 4px 12px rgba(0, 242, 254, 0.2);
         }
 
-        .dia-input:focus {
-            border-color: var(--accent-gold);
+        .btn-save-dia {
+            background: var(--green-gradient);
+            color: #020617;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .btn-save-dia { 
-            background: var(--gold-gradient); 
-            color: #020617; 
-            border: none; 
-            padding: 8px 14px; 
-            border-radius: 8px; 
-            font-weight: 700; 
-            font-size: 0.8rem; 
-            cursor: pointer; 
-            margin-left: 6px; 
-            transition: all 0.2s ease;
+        .btn-save-dia:hover {
+            box-shadow: 0 4px 12px rgba(0, 230, 118, 0.25);
+            transform: translateY(-1px);
         }
-        .btn-save-dia:hover { opacity: 0.95; }
+        
+        .dia-input {
+            width: 100px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-align: center;
+            background: var(--bg-input);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--accent-cyan);
+        }
+
+        /* List Items Row */
+        .mission-row-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-light);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .btn-del-link {
+            position: absolute;
+            top: 18px;
+            right: 20px;
+            background: rgba(255, 23, 72, 0.08);
+            color: #ff1744;
+            border: 1px solid rgba(255, 23, 72, 0.25);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-del-link:hover {
+            background: #ff1744;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 23, 72, 0.3);
+        }
+
+        .target-hint {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
     </style>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
     <header>
         <div class="brand">
-            <i class="fa-solid fa-fire"></i> CLASH FIRE CONTROL CENTER
+            <i class="fa-solid fa-fire"></i>
+            CLASH FIRE CONTROL CENTER
         </div>
         <div class="badge-live">
-            <i class="fa-solid fa-circle"></i> LIVE RUNTIME SYNCHRONIZED
+            <i class="fa-solid fa-circle"></i>
+            LIVE RUNTIME SYNCHRONIZED
         </div>
     </header>
 
+    <!-- Stat Dashboard Cards -->
     <div class="stats-grid">
-        <div class="stat-card" style="--card-accent: var(--primary);">
+        <div class="stat-card" style="--card-accent: var(--accent-gold);">
             <div class="stat-info">
                 <div class="stat-val" id="stat-pending">0</div>
                 <div class="stat-label">Pending Transfers</div>
             </div>
             <div class="stat-icon-wrapper">
-                <i class="fa-solid fa-clock-rotate-left"></i>
+                <i class="fa-solid fa-clock"></i>
             </div>
         </div>
         <div class="stat-card" style="--card-accent: var(--accent-green);">
@@ -466,17 +496,18 @@
 
     <!-- Navigation Tabs -->
     <nav class="admin-nav">
-        <button class="nav-tab active" onclick="switchTab('tab-redemptions', this)"><i class="fa-solid fa-gem"></i> REDEMPTIONS QUEUE</button>
-        <button class="nav-tab" onclick="switchTab('tab-users', this)"><i class="fa-solid fa-users"></i> PLAYERS DATABASE</button>
-        <button class="nav-tab" onclick="switchTab('tab-tasks-merged', this)"><i class="fa-solid fa-tasks"></i> MISSIONS & VISITS</button>
-        <button class="nav-tab" onclick="switchTab('tab-integrations-merged', this)"><i class="fa-solid fa-bullhorn"></i> COMMUNITY</button>
-        <button class="nav-tab" onclick="switchTab('tab-settings-merged', this)"><i class="fa-solid fa-sliders"></i> CONFIG & AD CODES</button>
+        <button class="nav-tab active" onclick="switchTab('tab-redemptions', this)"><i class="fa-solid fa-gem"></i> REDEEMS</button>
+        <button class="nav-tab" onclick="switchTab('tab-users', this)"><i class="fa-solid fa-users"></i> USERS</button>
+        <button class="nav-tab" onclick="switchTab('tab-tasks-merged', this)"><i class="fa-solid fa-tasks"></i> MISSIONS</button>
+        <button class="nav-tab" onclick="switchTab('tab-community', this)"><i class="fa-solid fa-bullhorn"></i> COMMUNITY</button>
+        <button class="nav-tab" onclick="switchTab('tab-ads-code', this)"><i class="fa-solid fa-rectangle-ad"></i> ADS CODE</button>
+        <button class="nav-tab" onclick="switchTab('tab-smartlinks', this)"><i class="fa-solid fa-link"></i> SMART LINKS</button>
     </nav>
 
-    <!-- Tab 1: Redemptions Queue -->
+    <!-- Tab 1: Redeem Request System -->
     <div id="tab-redemptions" class="tab-content active section-box">
         <div class="section-title">
-            <i class="fa-solid fa-gem"></i> DIAMOND REDEMPTIONS QUEUE
+            <i class="fa-solid fa-gem"></i> DIAMOND REDEEMS QUEUE
         </div>
         <div class="table-responsive">
             <table>
@@ -497,14 +528,14 @@
         </div>
     </div>
 
-    <!-- Tab 2: All Players Database -->
+    <!-- Tab 2: Users Database -->
     <div id="tab-users" class="tab-content section-box">
         <div class="section-title">
-            <i class="fa-solid fa-users"></i> ALL PLAYERS DATABASE
+            <i class="fa-solid fa-users"></i> PLAYERS DATABASE
         </div>
         <div class="form-group" style="margin-bottom: 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
             <label style="margin: 0; font-weight: 600; color: var(--text-muted-light);"><i class="fa-solid fa-search"></i> Search Players:</label>
-            <input type="text" id="player-search-input" placeholder="Search by Player UID, User ID (e.g. CF-123456), or Device ID..." oninput="filterPlayersTable()" style="flex-grow: 1;">
+            <input type="text" id="player-search-input" placeholder="Search by Player UID, User ID, or Device ID..." oninput="filterPlayersTable()" style="flex-grow: 1;">
         </div>
         <div class="table-responsive">
             <table>
@@ -523,14 +554,14 @@
         </div>
     </div>
 
-    <!-- Tab 3: Missions & Visits Merged Section -->
+    <!-- Tab 3: Missions (Daily Missions vs Daily Visits) -->
     <div id="tab-tasks-merged" class="tab-content">
         <div class="admin-grid-2col">
             
-            <!-- Left Side: Shortener Mission Links -->
+            <!-- Left Side: Daily Mission Shorteners -->
             <div class="section-box" style="margin-bottom: 0;">
                 <div class="section-title">
-                    <i class="fa-solid fa-link"></i> DYNAMIC DAILY MISSIONS (SHORTENERS)
+                    <i class="fa-solid fa-link"></i> DAILY MISSION LINKS (SHORTENERS)
                 </div>
                 <p style="font-size: 0.82rem; color: var(--text-muted-light); margin-bottom: 20px;">Configure your dynamic mission shortener links (e.g. GPLinks, ShrinkMe).</p>
                 
@@ -547,7 +578,7 @@
             <!-- Right Side: Daily Visit Tasks -->
             <div class="section-box" style="margin-bottom: 0;">
                 <div class="section-title">
-                    <i class="fa-solid fa-calendar-check"></i> DYNAMIC DAILY VISIT TASKS (SAME-TAB VIEWER)
+                    <i class="fa-solid fa-calendar-check"></i> DAILY VISIT TASKS (SAME-TAB VIEWER)
                 </div>
                 <p style="font-size: 0.82rem; color: var(--text-muted-light); margin-bottom: 20px;">Configure target website visits with custom time-limit constraints.</p>
                 
@@ -564,21 +595,21 @@
         </div>
     </div>
 
-    <!-- Tab 4: Community & Integrations Merged Section -->
-    <div id="tab-integrations-merged" class="tab-content">
+    <!-- Tab 4: Community Section (Community Task + Gamezop Arcade) -->
+    <div id="tab-community" class="tab-content">
         <div class="admin-grid-2col">
             
-            <!-- Left Side: Community Pane -->
+            <!-- Left Side: Community Task Manager -->
             <div class="section-box" style="margin-bottom: 0;">
                 <div class="section-title">
                     <i class="fa-solid fa-bullhorn"></i> COMMUNITY & PROMOTIONS MANAGER
                 </div>
                 <div class="form-group">
-                    <label>Task Title (e.g. Join Our Channel)</label>
-                    <input type="text" id="integ-sponsor-title" placeholder="e.g. Join Our Channel">
+                    <label>Task Title (e.g. Join Our Telegram Channel)</label>
+                    <input type="text" id="integ-sponsor-title" placeholder="e.g. Join Our Telegram Channel">
                 </div>
                 <div class="form-group">
-                    <label>Destination Link (Telegram / YouTube)</label>
+                    <label>Destination Link (Telegram / YouTube / Website)</label>
                     <input type="text" id="integ-sponsor-url" placeholder="https://t.me/yourchannel">
                 </div>
                 <div class="form-row-grid">
@@ -602,7 +633,7 @@
                         <input type="number" id="integ-sponsor-reward" value="10">
                     </div>
                     <div class="form-group">
-                        <label>Station Status</label>
+                        <label>Sponsor Task Status</label>
                         <select id="integ-sponsor-status">
                             <option value="true">ACTIVE</option>
                             <option value="false">DISABLED</option>
@@ -611,144 +642,57 @@
                 </div>
             </div>
 
-            <!-- Right Side: Offerwalls & Arcade -->
+            <!-- Right Side: Gamezop Arcade Settings -->
             <div class="section-box" style="margin-bottom: 0; display: flex; flex-direction: column; gap: 16px;">
-                <div class="section-title" style="margin-bottom: 5px;">
-                    <i class="fa-solid fa-award"></i> SURVEY & GAME INTEGRATIONS
+                <div class="section-title">
+                    <i class="fa-solid fa-gamepad"></i> GAMEZOP ARCADE SETTINGS
                 </div>
-
-                <!-- Torox Offerwall -->
+                <p style="font-size: 0.82rem; color: var(--text-muted-light); margin-bottom: 5px;">Manage active gameplay reward rewards from Gamezop.</p>
+                
                 <div class="control-card" style="margin-bottom: 0; background: rgba(0,0,0,0.15); padding: 18px;">
-                    <div class="card-title" style="margin-bottom: 12px; font-size: 0.85rem;"><i class="fa-solid fa-cubes"></i> Torox Settings</div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <input type="text" id="integ-torox-url" placeholder="Torox URL link..." style="margin-bottom: 8px;">
-                        <select id="integ-torox-status">
-                            <option value="true">Torox: ENABLED</option>
-                            <option value="false">Torox: DISABLED</option>
-                        </select>
+                    <div class="form-group">
+                        <label>Gamezop Play Link URL</label>
+                        <input type="text" id="integ-gz-url" placeholder="Gamezop Link..." style="width: 100%;">
                     </div>
-                </div>
-
-                <!-- Gamezop Arcade -->
-                <div class="control-card" style="margin-bottom: 0; background: rgba(0,0,0,0.15); padding: 18px;">
-                    <div class="card-title" style="margin-bottom: 12px; font-size: 0.85rem;"><i class="fa-solid fa-gamepad"></i> Gamezop Arcade Settings</div>
-                    <input type="text" id="integ-gz-url" placeholder="Gamezop Link..." style="margin-bottom: 8px; width: 100%;">
-                    <div class="form-row-grid" style="margin-bottom: 0; gap: 8px;">
-                        <input type="number" id="integ-gz-reward" value="5" placeholder="Diamonds">
-                        <select id="integ-gz-status">
-                            <option value="true">Gamezop: ACTIVE</option>
-                            <option value="false">Gamezop: INACTIVE</option>
-                        </select>
+                    <div class="form-row-grid" style="margin-bottom: 0; gap: 8px; margin-top: 8px;">
+                        <div class="form-group">
+                            <label>Reward Diamonds</label>
+                            <input type="number" id="integ-gz-reward" value="5" placeholder="Diamonds">
+                        </div>
+                        <div class="form-group">
+                            <label>Gamezop Status</label>
+                            <select id="integ-gz-status">
+                                <option value="true">Gamezop: ACTIVE</option>
+                                <option value="false">Gamezop: INACTIVE</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-
-                <!-- CPX survey -->
-                <div class="control-card" style="margin-bottom: 0; background: rgba(0,0,0,0.15); padding: 18px;">
-                    <div class="card-title" style="margin-bottom: 12px; font-size: 0.85rem;"><i class="fa-solid fa-square-poll-vertical"></i> CPX Survey Settings</div>
-                    <div class="form-row-grid" style="margin-bottom: 8px; gap: 8px;">
-                        <input type="text" id="integ-cpx-appid" value="34050" placeholder="App ID">
-                        <input type="text" id="integ-cpx-hash" value="ucHVQYc5kg6SooA56Z2sQBl12wkU61T4" placeholder="Secure Hash">
-                    </div>
-                    <select id="integ-cpx-status" style="width: 100%;">
-                        <option value="false">CPX Survey: DISABLED</option>
-                        <option value="true">CPX Survey: ENABLED</option>
-                    </select>
                 </div>
             </div>
 
         </div>
         <div style="margin-top: 15px; text-align: right;">
-            <button class="btn-action" style="background: var(--green-gradient); color: #020617; width: 100%; max-width: 400px;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE COMMUNITY & STATION INTEGRATIONS</button>
+            <button class="btn-action" style="background: var(--green-gradient); color: #020617; width: 100%; max-width: 400px;" onclick="saveCommunitySettings()"><i class="fa-solid fa-save"></i> SAVE COMMUNITY & ARCADE</button>
         </div>
     </div>
 
-    <!-- Tab 5: Global Config & Ad Codes Merged Section -->
-    <div id="tab-settings-merged" class="tab-content">
+    <!-- Tab 5: Ads Code (Home banners, Verify banners, PopUnder Script) -->
+    <div id="tab-ads-code" class="tab-content">
         <div class="admin-grid-2col">
             
-            <!-- Left Side: Rewards & Timer and Ad Integrations -->
+            <!-- Left Side: Home Banners & Global Toggle -->
             <div class="section-box" style="margin-bottom: 0;">
                 <div class="section-title">
-                    <i class="fa-solid fa-sliders"></i> REWARDS & TIMER VALUES
+                    <i class="fa-solid fa-rectangle-ad"></i> HOME PAGES NATIVE BANNER ADS
                 </div>
-                <div class="form-group">
-                    <label>Diamonds Per Link Visit</label>
-                    <input type="number" id="setting-link-reward" value="5">
-                </div>
-                <div class="form-group">
-                    <label>Referral Mission Commission (%)</label>
-                    <input type="number" id="setting-ref-commission" value="10" min="0" max="100">
-                </div>
-                <div class="form-group">
-                    <label>Verification Timer Delay (Seconds)</label>
-                    <input type="number" id="setting-timer-seconds" value="20" min="5" max="300">
-                </div>
-
-                <div class="section-title" style="margin-top: 25px; margin-bottom: 10px;">
-                    <i class="fa-solid fa-code"></i> VERIFY PAGE ADS SCRIPTS
-                </div>
-                <p style="font-size: 0.78rem; color: var(--text-muted-light); margin-bottom: 12px;">Paste Monetag / Adsterra verification tags.</p>
-                <div class="form-group">
-                    <label>Header Ad Script Code (e.g. 300x250 Native)</label>
-                    <textarea id="ad-script-header" rows="3" placeholder="Paste header script here..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Footer Ad Script Code (e.g. Banner)</label>
-                    <textarea id="ad-script-footer" rows="3" placeholder="Paste footer script here..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Popunder Ad Script / Smartlink URL</label>
-                    <textarea id="ad-script-popunder" rows="3" placeholder="Paste popunder script/URL here..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Smartlink Redirect Status (Trigger on Return to Dashboard)</label>
-                    <select id="setting-smartlink-status">
-                        <option value="false">DISABLE (OFF)</option>
-                        <option value="true">ENABLE (ON)</option>
-                    </select>
-                </div>
-                <div class="form-group" style="border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 8px; margin-bottom: 12px; background: rgba(0,0,0,0.25);">
-                    <label style="color: var(--accent-cyan); font-weight: bold; font-size: 0.82rem;">SLOT 1 (e.g. Monetag URL & Limit)</label>
-                    <input type="text" id="setting-smartlink-url1" placeholder="Paste Smartlink URL 1 here..." style="margin-bottom: 8px; background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 0.85rem; outline: none; width: 100%;">
-                    <label style="font-size: 0.72rem; color: var(--text-muted-light); display: block; margin-top: 4px;">Daily Limit (Clicks per user per 24 hours)</label>
-                    <input type="number" id="setting-smartlink-limit1" value="1" min="0" max="10" style="background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 0.85rem; outline: none; width: 100%;">
-                </div>
-                <div class="form-group" style="border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 8px; margin-bottom: 12px; background: rgba(0,0,0,0.25);">
-                    <label style="color: var(--accent-cyan); font-weight: bold; font-size: 0.82rem;">SLOT 2 (e.g. Adsterra URL & Limit)</label>
-                    <input type="text" id="setting-smartlink-url2" placeholder="Paste Smartlink URL 2 here..." style="margin-bottom: 8px; background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 0.85rem; outline: none; width: 100%;">
-                    <label style="font-size: 0.72rem; color: var(--text-muted-light); display: block; margin-top: 4px;">Daily Limit (Clicks per user per 24 hours)</label>
-                    <input type="number" id="setting-smartlink-limit2" value="1" min="0" max="10" style="background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 0.85rem; outline: none; width: 100%;">
-                </div>
-                <div class="form-group" style="border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 8px; margin-bottom: 12px; background: rgba(0,0,0,0.25);">
-                    <label style="color: var(--accent-cyan); font-weight: bold; font-size: 0.82rem;">SLOT 3 (e.g. HilltopAds URL & Limit)</label>
-                    <input type="text" id="setting-smartlink-url3" placeholder="Paste Smartlink URL 3 here..." style="margin-bottom: 8px; background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 0.85rem; outline: none; width: 100%;">
-                    <label style="font-size: 0.72rem; color: var(--text-muted-light); display: block; margin-top: 4px;">Daily Limit (Clicks per user per 24 hours)</label>
-                    <input type="number" id="setting-smartlink-limit3" value="1" min="0" max="10" style="background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 0.85rem; outline: none; width: 100%;">
-                </div>
-                <div class="form-group" style="border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 8px; margin-bottom: 12px; background: rgba(0,0,0,0.25);">
-                    <label style="color: var(--accent-cyan); font-weight: bold; font-size: 0.82rem;">SLOT 4 (e.g. PopAds URL & Limit)</label>
-                    <input type="text" id="setting-smartlink-url4" placeholder="Paste Smartlink URL 4 here..." style="margin-bottom: 8px; background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 0.85rem; outline: none; width: 100%;">
-                    <label style="font-size: 0.72rem; color: var(--text-muted-light); display: block; margin-top: 4px;">Daily Limit (Clicks per user per 24 hours)</label>
-                    <input type="number" id="setting-smartlink-limit4" value="1" min="0" max="10" style="background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 0.85rem; outline: none; width: 100%;">
-                </div>
-                <div class="form-group">
-                    <label>Smartlink Frequency Cap (24-Hour Popunder Limit)</label>
-                    <select id="setting-smartlink-cap">
-                        <option value="true">ENABLE 24-HOUR LIMIT (RECOMMENDED - PREMIUM CPM)</option>
-                        <option value="false">DISABLE LIMIT (UNLIMITED POPUP REDIRECTS)</option>
-                    </select>
-                </div>
-
-                <button class="btn-action" style="background: var(--primary-gradient); color: white; width: 100%; margin-top: 10px;" onclick="saveGlobalSettings()"><i class="fa-solid fa-save"></i> SAVE APP VALUES & VERIFY ADS</button>
-            </div>
-
-            <!-- Right Side: Native Banner Ads Manager -->
-            <div class="section-box" style="margin-bottom: 0;">
-                <div class="section-title">
-                    <i class="fa-solid fa-rectangle-ad"></i> NATIVE BANNER ADS MANAGER (MAIN SITE SLOTS)
-                </div>
-                <p style="font-size: 0.82rem; color: var(--text-muted-light); margin-bottom: 16px;">Configure ad units placed within dashboard tabs.</p>
                 
+                <div class="form-group">
+                    <label>Native Banner Status (Master Switch for Dashboard)</label>
+                    <select id="integ-banner-status">
+                        <option value="false">DISABLE (HIDDEN)</option>
+                        <option value="true">ENABLE (ACTIVE LIVE)</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label>TOP BANNER Ad Code (Monetag / Adsterra Script #1)</label>
                     <textarea id="integ-banner-code" rows="3" placeholder="Paste TOP banner <script> code here..."></textarea>
@@ -761,20 +705,129 @@
                     <label>BOTTOM BANNER Ad Code (Monetag / Adsterra Script #2)</label>
                     <textarea id="integ-banner-bot-code" rows="3" placeholder="Paste BOTTOM banner <script> code here..."></textarea>
                 </div>
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label>Native Banner Status</label>
-                    <select id="integ-banner-status">
-                        <option value="false">DISABLE (HIDDEN)</option>
-                        <option value="true">ENABLE (ACTIVE LIVE)</option>
-                    </select>
+            </div>
+
+            <!-- Right Side: Verify Banners & Full Site PopUnder -->
+            <div class="section-box" style="margin-bottom: 0; display: flex; flex-direction: column; gap: 16px;">
+                <div class="section-title">
+                    <i class="fa-solid fa-code"></i> VERIFY BANNERS & FULL SITE POPUNDER
+                </div>
+                
+                <!-- Verify Page Banner Configs -->
+                <div class="control-card" style="margin-bottom: 0; background: rgba(0,0,0,0.15); padding: 18px;">
+                    <div class="card-title" style="margin-bottom: 12px; font-size: 0.85rem;"><i class="fa-solid fa-file-code"></i> Verify Page Banners</div>
+                    <div class="form-group">
+                        <label>Header Ad Script Code (e.g. 300x250 Native)</label>
+                        <textarea id="ad-script-header" rows="2" placeholder="Paste header script here..."></textarea>
+                    </div>
+                    <div class="form-group" style="margin-top: 8px;">
+                        <label>Footer Ad Script Code (e.g. Banner)</label>
+                        <textarea id="ad-script-footer" rows="2" placeholder="Paste footer script here..."></textarea>
+                    </div>
                 </div>
 
-                <button class="btn-action" style="background: var(--green-gradient); color: #020617; width: 100%;" onclick="saveIntegrationsSettings()"><i class="fa-solid fa-save"></i> SAVE NATIVE BANNER ADS</button>
+                <!-- Full Site PopUnder Script Container -->
+                <div class="control-card" style="margin-bottom: 0; background: rgba(0,0,0,0.15); padding: 18px;">
+                    <div class="card-title" style="margin-bottom: 12px; font-size: 0.85rem;"><i class="fa-solid fa-window-restore"></i> Global Popunder Script Box</div>
+                    <div class="form-group">
+                        <label>Popunder Script code (Paste Any Pop Ads Script Code Here)</label>
+                        <textarea id="ad-script-popunder" rows="4" placeholder="Paste Popunder script tags here (CDATA / JS code is fully supported)..."></textarea>
+                    </div>
+                    <div class="form-group" style="margin-top: 8px;">
+                        <label>Popunder Script Status</label>
+                        <select id="ad-script-popunder-status">
+                            <option value="true">ENABLE POPUNDER SCRIPT (ACTIVE)</option>
+                            <option value="false">DISABLE POPUNDER SCRIPT (INACTIVE)</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
         </div>
+        <div style="margin-top: 15px; text-align: right;">
+            <button class="btn-action" style="background: var(--green-gradient); color: #020617; width: 100%; max-width: 400px;" onclick="saveAdsCodeSettings()"><i class="fa-solid fa-save"></i> SAVE ALL ADS CODES</button>
+        </div>
     </div>
 
+    <!-- Tab 6: Smart Links (Redirect Return to Dashboard URLs & caps) -->
+    <div id="tab-smartlinks" class="tab-content section-box">
+        <div class="section-title">
+            <i class="fa-solid fa-link"></i> RETURN TO DASHBOARD SMART LINKS ROTATOR
+        </div>
+        <p style="font-size: 0.82rem; color: var(--text-muted-light); margin-bottom: 20px;">Rotate dynamic smart links when users return to dashboard. Set daily impression limits per user.</p>
+        
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label>Smartlink Redirect Status</label>
+            <select id="setting-smartlink-status">
+                <option value="false">DISABLE (OFF)</option>
+                <option value="true">ENABLE (ON)</option>
+            </select>
+        </div>
+
+        <div class="admin-grid-2col" style="gap: 16px;">
+            <div class="form-group" style="border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 12px; background: rgba(0,0,0,0.25);">
+                <label style="color: var(--accent-cyan); font-weight: bold; font-size: 0.85rem;">SLOT 1 (Monetag Smartlink)</label>
+                <input type="text" id="setting-smartlink-url1" placeholder="Paste Smartlink URL 1..." style="margin-top: 6px; width: 100%;">
+                <label style="font-size: 0.72rem; color: var(--text-muted-light); display: block; margin-top: 8px;">Daily Limit (Clicks per user per day)</label>
+                <input type="number" id="setting-smartlink-limit1" value="1" min="0" max="10" style="margin-top: 4px; width: 100%;">
+            </div>
+            
+            <div class="form-group" style="border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 12px; background: rgba(0,0,0,0.25);">
+                <label style="color: var(--accent-cyan); font-weight: bold; font-size: 0.85rem;">SLOT 2 (Adsterra Smartlink)</label>
+                <input type="text" id="setting-smartlink-url2" placeholder="Paste Smartlink URL 2..." style="margin-top: 6px; width: 100%;">
+                <label style="font-size: 0.72rem; color: var(--text-muted-light); display: block; margin-top: 8px;">Daily Limit (Clicks per user per day)</label>
+                <input type="number" id="setting-smartlink-limit2" value="1" min="0" max="10" style="margin-top: 4px; width: 100%;">
+            </div>
+
+            <div class="form-group" style="border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 12px; background: rgba(0,0,0,0.25);">
+                <label style="color: var(--accent-cyan); font-weight: bold; font-size: 0.85rem;">SLOT 3 (HilltopAds Smartlink)</label>
+                <input type="text" id="setting-smartlink-url3" placeholder="Paste Smartlink URL 3..." style="margin-top: 6px; width: 100%;">
+                <label style="font-size: 0.72rem; color: var(--text-muted-light); display: block; margin-top: 8px;">Daily Limit (Clicks per user per day)</label>
+                <input type="number" id="setting-smartlink-limit3" value="1" min="0" max="10" style="margin-top: 4px; width: 100%;">
+            </div>
+
+            <div class="form-group" style="border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 12px; background: rgba(0,0,0,0.25);">
+                <label style="color: var(--accent-cyan); font-weight: bold; font-size: 0.85rem;">SLOT 4 (PopAds Smartlink)</label>
+                <input type="text" id="setting-smartlink-url4" placeholder="Paste Smartlink URL 4..." style="margin-top: 6px; width: 100%;">
+                <label style="font-size: 0.72rem; color: var(--text-muted-light); display: block; margin-top: 8px;">Daily Limit (Clicks per user per day)</label>
+                <input type="number" id="setting-smartlink-limit4" value="1" min="0" max="10" style="margin-top: 4px; width: 100%;">
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 20px;">
+            <label>Smartlink Frequency Cap (24-Hour Popunder Limit)</label>
+            <select id="setting-smartlink-cap">
+                <option value="true">ENABLE 24-HOUR LIMIT (RECOMMENDED - PREMIUM CPM)</option>
+                <option value="false">DISABLE LIMIT (UNLIMITED POPUP REDIRECTS)</option>
+            </select>
+        </div>
+
+        <!-- Global Timer Delay & Diamond Rewards -->
+        <div class="section-title" style="margin-top: 30px; margin-bottom: 15px;">
+            <i class="fa-solid fa-sliders"></i> DYNAMIC SYSTEM CONFIGURATION
+        </div>
+        <div class="form-row-grid">
+            <div class="form-group">
+                <label>Diamonds Per Shortener Mission</label>
+                <input type="number" id="setting-link-reward" value="5">
+            </div>
+            <div class="form-group">
+                <label>Referral Bonus Commission (%)</label>
+                <input type="number" id="setting-ref-commission" value="10" min="0" max="100">
+            </div>
+            <div class="form-group">
+                <label>Verification Timer Delay (Seconds)</label>
+                <input type="number" id="setting-timer-seconds" value="20" min="5" max="300">
+            </div>
+        </div>
+
+        <div style="margin-top: 20px; text-align: right;">
+            <button class="btn-action" style="background: var(--primary-gradient); color: white; width: 100%; max-width: 400px;" onclick="saveSmartlinksSettings()"><i class="fa-solid fa-save"></i> SAVE SMARTLINKS & CONFIG</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCQocUJB6rMG-1qHVyXwXDoYBlTb17XX3k",
@@ -811,6 +864,7 @@
                     document.getElementById('ad-script-header').value = data.adScriptHeader || '';
                     document.getElementById('ad-script-footer').value = data.adScriptFooter || '';
                     document.getElementById('ad-script-popunder').value = data.adScriptPopunder || '';
+                    document.getElementById('ad-script-popunder-status').value = data.adScriptPopunderEnabled === false || data.adScriptPopunderEnabled === 'false' ? 'false' : 'true';
                     document.getElementById('setting-smartlink-url1').value = data.smartlinkUrl1 || '';
                     document.getElementById('setting-smartlink-limit1').value = data.smartlinkLimit1 !== undefined ? data.smartlinkLimit1 : 1;
                     document.getElementById('setting-smartlink-url2').value = data.smartlinkUrl2 || '';
@@ -837,9 +891,7 @@
                     currentMissionLinks = [
                         { title: "Daily Mission #1", url: "https://ffire.xyz/verify.html?task=1" },
                         { title: "Daily Mission #2", url: "https://ffire.xyz/verify.html?task=2" },
-                        { title: "Daily Mission #3", url: "https://ffire.xyz/verify.html?task=3" },
-                        { title: "Daily Mission #4", url: "https://ffire.xyz/verify.html?task=4" },
-                        { title: "Daily Mission #5", url: "https://ffire.xyz/verify.html?task=5" }
+                        { title: "Daily Mission #3", url: "https://ffire.xyz/verify.html?task=3" }
                     ];
                 }
 
@@ -848,8 +900,6 @@
                 const integDoc = await db.collection("settings").doc("integrations").get();
                 if (integDoc.exists) {
                     const iData = integDoc.data();
-                    document.getElementById('integ-torox-url').value = iData.toroxUrl || '';
-                    document.getElementById('integ-torox-status').value = (iData.toroxEnabled === true || iData.toroxEnabled === 'true') ? 'true' : 'false';
                     document.getElementById('integ-gz-url').value = iData.gamezopUrl || '';
                     document.getElementById('integ-gz-reward').value = iData.gamezopReward || 5;
                     document.getElementById('integ-gz-status').value = (iData.gamezopEnabled === true || iData.gamezopEnabled === 'true') ? 'true' : 'false';
@@ -863,9 +913,6 @@
                     document.getElementById('integ-sponsor-btn').value = iData.sponsorBtnText || 'JOIN NOW';
                     document.getElementById('integ-sponsor-reward').value = iData.sponsorReward || 10;
                     document.getElementById('integ-sponsor-status').value = (iData.sponsorEnabled === true || iData.sponsorEnabled === 'true') ? 'true' : 'false';
-                    document.getElementById('integ-cpx-appid').value = iData.cpxAppId || '34050';
-                    document.getElementById('integ-cpx-hash').value = iData.cpxSecureHash || 'ucHVQYc5kg6SooA56Z2sQBl12wkU61T4';
-                    document.getElementById('integ-cpx-status').value = (iData.cpxEnabled === true || iData.cpxEnabled === 'true') ? 'true' : 'false';
                 }
 
                 const visitDoc = await db.collection("settings").doc("dailyvisit").get();
@@ -873,13 +920,12 @@
                     const vData = visitDoc.data();
                     if (vData.items && Array.isArray(vData.items)) {
                         currentDailyVisits = vData.items;
-                    } else if (vData.url) {
-                        currentDailyVisits = [{ url: vData.url, duration: vData.duration || 15, reward: vData.reward || 10 }];
                     }
                 }
+
                 if (!currentDailyVisits || currentDailyVisits.length === 0) {
                     currentDailyVisits = [
-                        { url: "https://ffire.xyz", duration: 15, reward: 10 }
+                        { title: "Daily Visit Task #1", url: "https://ffire.xyz", duration: 15, reward: 10 }
                     ];
                 }
                 renderAdminDailyVisitRows();
@@ -1011,13 +1057,96 @@
             }
         }
 
-        async function saveGlobalSettings() {
-            const linkR = parseInt(document.getElementById('setting-link-reward').value || '5');
-            const refPercent = parseInt(document.getElementById('setting-ref-commission').value || '10');
-            const timerSec = parseInt(document.getElementById('setting-timer-seconds').value || '20');
+        async function saveCommunitySettings() {
+            const gzUrl = document.getElementById('integ-gz-url').value.trim();
+            const gzReward = parseInt(document.getElementById('integ-gz-reward').value || '5');
+            const gzEnabled = document.getElementById('integ-gz-status').value === 'true';
+            
+            const sponsorTitle = document.getElementById('integ-sponsor-title').value.trim();
+            const sponsorUrl = document.getElementById('integ-sponsor-url').value.trim();
+            const sponsorIcon = document.getElementById('integ-sponsor-icon').value;
+            const sponsorBtnText = document.getElementById('integ-sponsor-btn').value.trim();
+            const sponsorReward = parseInt(document.getElementById('integ-sponsor-reward').value || '10');
+            const sponsorEnabled = document.getElementById('integ-sponsor-status').value === 'true';
+
+            try {
+                // Fetch existing integrations to preserve banner ad fields
+                const docSnap = await db.collection("settings").doc("integrations").get();
+                let existingData = {};
+                if (docSnap.exists) {
+                    existingData = docSnap.data();
+                }
+
+                await db.collection("settings").doc("integrations").set({
+                    ...existingData,
+                    gamezopUrl: gzUrl,
+                    gamezopReward: gzReward,
+                    gamezopEnabled: gzEnabled,
+                    sponsorTitle: sponsorTitle,
+                    sponsorUrl: sponsorUrl,
+                    sponsorIcon: sponsorIcon,
+                    sponsorBtnText: sponsorBtnText,
+                    sponsorReward: sponsorReward,
+                    sponsorEnabled: sponsorEnabled,
+                    updatedAt: new Date().toISOString()
+                });
+                alert("Community, Community tasks, & Arcade settings saved live!");
+            } catch(e) { alert("Error: " + e.message); }
+        }
+
+        async function saveAdsCodeSettings() {
+            const bannerStatus = document.getElementById('integ-banner-status').value === 'true';
+            const bannerCode = document.getElementById('integ-banner-code').value.trim();
+            const bannerMidCode = document.getElementById('integ-banner-mid-code').value.trim();
+            const bannerBotCode = document.getElementById('integ-banner-bot-code').value.trim();
+            
             const adHeader = document.getElementById('ad-script-header').value.trim();
             const adFooter = document.getElementById('ad-script-footer').value.trim();
             const adPopunder = document.getElementById('ad-script-popunder').value.trim();
+            const adPopunderEnabled = document.getElementById('ad-script-popunder-status').value === 'true';
+
+            try {
+                // Save Native Banner Ads to integrations doc
+                const docSnap = await db.collection("settings").doc("integrations").get();
+                let existingData = {};
+                if (docSnap.exists) {
+                    existingData = docSnap.data();
+                }
+
+                await db.collection("settings").doc("integrations").set({
+                    ...existingData,
+                    bannerEnabled: bannerStatus,
+                    bannerHtmlCode: bannerCode,
+                    bannerMiddleHtmlCode: bannerMidCode,
+                    bannerBottomHtmlCode: bannerBotCode,
+                    updatedAt: new Date().toISOString()
+                });
+
+                // Save Verify Page Ads + Popunder script to global config doc
+                const globalSnap = await db.collection("settings").doc("global").get();
+                let existingGlobal = {};
+                if (globalSnap.exists) {
+                    existingGlobal = globalSnap.data();
+                }
+
+                await db.collection("settings").doc("global").set({
+                    ...existingGlobal,
+                    adScriptHeader: adHeader,
+                    adScriptFooter: adFooter,
+                    adScriptPopunder: adPopunder,
+                    adScriptPopunderEnabled: adPopunderEnabled,
+                    updatedAt: new Date().toISOString()
+                });
+
+                alert("All Native Banners, Verify page ads, & Popunder settings saved live!");
+            } catch(e) { alert("Error saving ads code: " + e.message); }
+        }
+
+        async function saveSmartlinksSettings() {
+            const linkR = parseInt(document.getElementById('setting-link-reward').value || '5');
+            const refPercent = parseInt(document.getElementById('setting-ref-commission').value || '10');
+            const timerSec = parseInt(document.getElementById('setting-timer-seconds').value || '20');
+
             const smartlinkUrl1 = document.getElementById('setting-smartlink-url1').value.trim();
             const smartlinkLimit1 = parseInt(document.getElementById('setting-smartlink-limit1').value || '1');
             const smartlinkUrl2 = document.getElementById('setting-smartlink-url2').value.trim();
@@ -1030,13 +1159,17 @@
             const smartlinkCapEnabled = document.getElementById('setting-smartlink-cap').value === 'true';
 
             try {
+                const globalSnap = await db.collection("settings").doc("global").get();
+                let existingGlobal = {};
+                if (globalSnap.exists) {
+                    existingGlobal = globalSnap.data();
+                }
+
                 await db.collection("settings").doc("global").set({
+                    ...existingGlobal,
                     linkReward: linkR,
                     referralCommissionPercent: refPercent,
                     verifyTimerSeconds: timerSec,
-                    adScriptHeader: adHeader,
-                    adScriptFooter: adFooter,
-                    adScriptPopunder: adPopunder,
                     smartlinkUrl1: smartlinkUrl1,
                     smartlinkLimit1: smartlinkLimit1,
                     smartlinkUrl2: smartlinkUrl2,
@@ -1049,7 +1182,7 @@
                     smartlinkCapEnabled: smartlinkCapEnabled,
                     updatedAt: new Date().toISOString()
                 });
-                alert("App Reward & Ad Settings saved live!");
+                alert("Smartlinks configuration & dynamic limits saved live!");
             } catch(e) { alert("Error: " + e.message); }
         }
 
@@ -1077,37 +1210,6 @@
                     updatedAt: new Date().toISOString()
                 });
                 alert("Daily Visit Task Settings saved live!");
-            } catch(e) { alert("Error: " + e.message); }
-        }
-
-        async function saveIntegrationsSettings() {
-            const toroxUrl = document.getElementById('integ-torox-url').value.trim();
-            const toroxEnabled = document.getElementById('integ-torox-status').value === 'true';
-            const gzUrl = document.getElementById('integ-gz-url').value.trim();
-            const gzReward = parseInt(document.getElementById('integ-gz-reward').value || '5');
-            const gzEnabled = document.getElementById('integ-gz-status').value === 'true';
-            const bannerCode = document.getElementById('integ-banner-code').value.trim();
-            const bannerMidCode = document.getElementById('integ-banner-mid-code').value.trim();
-            const bannerBotCode = document.getElementById('integ-banner-bot-code').value.trim();
-            const bannerEnabled = document.getElementById('integ-banner-status').value === 'true';
-            const sponsorTitle = document.getElementById('integ-sponsor-title').value.trim();
-            const sponsorUrl = document.getElementById('integ-sponsor-url').value.trim();
-            const sponsorIcon = document.getElementById('integ-sponsor-icon').value;
-
-            try {
-                await db.collection("settings").doc("integrations").set({
-                    toroxUrl, toroxEnabled, gamezopUrl: gzUrl, gamezopReward: gzReward, gamezopEnabled: gzEnabled,
-                    bannerHtmlCode: bannerCode, bannerMiddleHtmlCode: bannerMidCode, bannerBottomHtmlCode: bannerBotCode, bannerEnabled,
-                    sponsorTitle, sponsorUrl, sponsorIcon,
-                    sponsorBtnText: document.getElementById('integ-sponsor-btn').value.trim(),
-                    sponsorReward: parseInt(document.getElementById('integ-sponsor-reward').value || '10'),
-                    sponsorEnabled: document.getElementById('integ-sponsor-status').value === 'true',
-                    cpxAppId: document.getElementById('integ-cpx-appid').value.trim(),
-                    cpxSecureHash: document.getElementById('integ-cpx-hash').value.trim(),
-                    cpxEnabled: document.getElementById('integ-cpx-status').value === 'true',
-                    updatedAt: new Date().toISOString()
-                });
-                alert("Integrations & Community Settings saved live! User app updated.");
             } catch(e) { alert("Error: " + e.message); }
         }
 
