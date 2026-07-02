@@ -718,11 +718,7 @@ class ClashFireApp {
             this.showToast('ALREADY CLAIMED', 'You have already claimed your community bonus!', 'info');
         }
     }
-
     executeIsolatedAdScript(containerElement, rawHtmlCode, slotTag = 'slot') {
-        if (!containerElement || !rawHtmlCode) return;
-        containerElement.innerHTML = '';
-    executeIsolatedAdScript(containerElement, rawHtmlCode, slotTag) {
         if (!containerElement || !rawHtmlCode) return;
         containerElement.innerHTML = '';
         
