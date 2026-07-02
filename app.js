@@ -767,7 +767,6 @@ class ClashFireApp {
             setTimeout(adjustH, 2500);
         } catch(e){}
     }
-    }
 
     renderRedeemHistory() {
         const historyContainer = document.getElementById('history-container');
