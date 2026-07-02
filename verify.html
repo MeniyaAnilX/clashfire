@@ -420,95 +420,43 @@
             if (!container || !scriptHtml) return;
             container.innerHTML = '';
             
-            // Check if this is an Adsterra/Monetag format atOptions ad
-            if (scriptHtml.includes('atOptions')) {
-                // Determine format height estimation
-                let initialHeight = 90;
-                if (scriptHtml.includes('250') || scriptHtml.includes('300x250')) {
-                    initialHeight = 250;
-                } else if (scriptHtml.includes('50') || scriptHtml.includes('320x50')) {
-                    initialHeight = 50;
-                }
+            let initialHeight = 90;
+            if (scriptHtml.includes('250') || scriptHtml.includes('300x250')) {
+                initialHeight = 250;
+            } else if (scriptHtml.includes('50') || scriptHtml.includes('320x50')) {
+                initialHeight = 50;
+            }
+            
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = initialHeight + 'px';
+            iframe.style.border = 'none';
+            iframe.style.overflow = 'hidden';
+            iframe.setAttribute('scrolling', 'no');
+            container.appendChild(iframe);
+            
+            try {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write(`<!DOCTYPE html><html><head><base target="_blank"><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;} iframe, img, div, ins { max-width: 100% !important; margin: 0 auto; display: block; }</style></head><body>${scriptHtml}</body></html>`);
+                doc.close();
                 
-                const iframe = document.createElement('iframe');
-                iframe.style.width = '100%';
-                iframe.style.height = initialHeight + 'px';
-                iframe.style.border = 'none';
-                iframe.style.overflow = 'hidden';
-                iframe.setAttribute('scrolling', 'no');
-                container.appendChild(iframe);
-                
-                try {
-                    const doc = iframe.contentDocument || iframe.contentWindow.document;
-                    doc.open();
-                    doc.write(`<!DOCTYPE html><html><head><base target="_blank"><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;} iframe, img, div { max-width: 100% !important; margin: 0 auto; display: block; }</style></head><body>${scriptHtml}</body></html>`);
-                    doc.close();
-                    
-                    // Auto adjustment logic inside iframe
-                    const adjustH = () => {
-                        try {
-                            if (iframe.contentWindow && iframe.contentWindow.document && iframe.contentWindow.document.body) {
-                                const body = iframe.contentWindow.document.body;
-                                const maxChildH = Math.max(...Array.from(body.querySelectorAll('iframe, img, div')).map(el => el.offsetHeight), 0);
-                                const actualH = maxChildH > 30 ? maxChildH : body.scrollHeight;
-                                if (actualH > 30) {
-                                    iframe.style.height = actualH + 'px';
-                                }
+                const adjustH = () => {
+                    try {
+                        if (iframe.contentWindow && iframe.contentWindow.document && iframe.contentWindow.document.body) {
+                            const body = iframe.contentWindow.document.body;
+                            const maxChildH = Math.max(...Array.from(body.querySelectorAll('iframe, img, div, ins')).map(el => el.offsetHeight), 0);
+                            const actualH = maxChildH > 30 ? maxChildH : body.scrollHeight;
+                            if (actualH > 30) {
+                                iframe.style.height = actualH + 'px';
                             }
-                        } catch(e){}
-                    };
-                    setTimeout(adjustH, 800);
-                    setTimeout(adjustH, 2000);
-                } catch(err) { console.error("Ad slot injection failed:", err); }
-                return;
-            }
-
-            const suffix = '-' + elementId;
-            let modifiedHtml = scriptHtml;
-            
-            // Find container IDs in the HTML code and append suffix to make them unique
-            const idRegex = /id=["']([^"']+)["']/g;
-            let match;
-            const idsFound = [];
-            while ((match = idRegex.exec(scriptHtml)) !== null) {
-                const foundId = match[1];
-                if (!foundId.endsWith(suffix)) {
-                    idsFound.push(foundId);
-                }
-            }
-            
-            idsFound.forEach(id => {
-                const uniqueId = id + suffix;
-                const replaceIdRegex = new RegExp(`id=["']${id}["']`, 'g');
-                modifiedHtml = modifiedHtml.replace(replaceIdRegex, `id="${uniqueId}"`);
-                
-                const escapedId = id.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                const replaceRefRegex = new RegExp(escapedId, 'g');
-                modifiedHtml = modifiedHtml.replace(replaceRefRegex, uniqueId);
-            });
-            
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = modifiedHtml;
-            
-            // Append non-script elements first so they exist when script runs
-            Array.from(tempDiv.childNodes).forEach(node => {
-                if (node.tagName !== 'SCRIPT') {
-                    container.appendChild(node.cloneNode(true));
-                }
-            });
-            
-            // Dynamically execute script tags
-            const scripts = tempDiv.querySelectorAll('script');
-            scripts.forEach(oldScript => {
-                const newScript = document.createElement('script');
-                Array.from(oldScript.attributes).forEach(attr => {
-                    newScript.setAttribute(attr.name, attr.value);
-                });
-                if (oldScript.innerHTML) {
-                    newScript.innerHTML = oldScript.innerHTML;
-                }
-                container.appendChild(newScript);
-            });
+                        }
+                    } catch(e){}
+                };
+                setTimeout(adjustH, 500);
+                setTimeout(adjustH, 1200);
+                setTimeout(adjustH, 2500);
+            } catch(err) { console.error("Ad slot injection failed:", err); }
         }
 
         // Global state
