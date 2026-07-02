@@ -794,14 +794,6 @@
             </div>
         </div>
 
-        <div class="form-group" style="margin-top: 20px;">
-            <label>Smartlink Frequency Cap (24-Hour Popunder Limit)</label>
-            <select id="setting-smartlink-cap">
-                <option value="true">ENABLE 24-HOUR LIMIT (RECOMMENDED - PREMIUM CPM)</option>
-                <option value="false">DISABLE LIMIT (UNLIMITED POPUP REDIRECTS)</option>
-            </select>
-        </div>
-
         <!-- Global Timer Delay & Diamond Rewards -->
         <div class="section-title" style="margin-top: 30px; margin-bottom: 15px;">
             <i class="fa-solid fa-sliders"></i> DYNAMIC SYSTEM CONFIGURATION
@@ -874,7 +866,6 @@
                     document.getElementById('setting-smartlink-url4').value = data.smartlinkUrl4 || '';
                     document.getElementById('setting-smartlink-limit4').value = data.smartlinkLimit4 !== undefined ? data.smartlinkLimit4 : 1;
                     document.getElementById('setting-smartlink-status').value = (data.smartlinkEnabled === true || data.smartlinkEnabled === 'true') ? 'true' : 'false';
-                    document.getElementById('setting-smartlink-cap').value = (data.smartlinkCapEnabled !== false && data.smartlinkCapEnabled !== 'false') ? 'true' : 'false';
                 }
 
                 const linksDoc = await db.collection("settings").doc("links").get();
@@ -1156,7 +1147,6 @@
             const smartlinkUrl4 = document.getElementById('setting-smartlink-url4').value.trim();
             const smartlinkLimit4 = parseInt(document.getElementById('setting-smartlink-limit4').value || '1');
             const smartlinkEnabled = document.getElementById('setting-smartlink-status').value === 'true';
-            const smartlinkCapEnabled = document.getElementById('setting-smartlink-cap').value === 'true';
 
             try {
                 const globalSnap = await db.collection("settings").doc("global").get();
@@ -1179,7 +1169,6 @@
                     smartlinkUrl4: smartlinkUrl4,
                     smartlinkLimit4: smartlinkLimit4,
                     smartlinkEnabled: smartlinkEnabled,
-                    smartlinkCapEnabled: smartlinkCapEnabled,
                     updatedAt: new Date().toISOString()
                 });
                 alert("Smartlinks configuration & dynamic limits saved live!");
