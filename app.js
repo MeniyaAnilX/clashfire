@@ -314,43 +314,50 @@ class ClashFireApp {
         if (this.firestoreActive) {
             try {
                 const docRef = this.db.collection("users").doc(this.deviceId);
-                const doc = await docRef.get();
-                if (doc.exists) {
-                    this.user = { ...this.user, ...doc.data() };
-                    if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
-                    if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
-                    if (!this.user.referredDevices) this.user.referredDevices = [];
-                    if (!this.user.completedDailyVisits || Array.isArray(this.user.completedDailyVisits)) this.user.completedDailyVisits = {};
-                    if (this.user.lastResetDate !== today) {
-                        this.user.dailyLinkCompletedCount = 0;
-                        this.user.completedLinks = {};
-                        this.user.completedDailyVisits = {};
-                        this.user.lastResetDate = today;
-                        await docRef.update({
+                
+                // Realtime subscription for instant dashboard updates
+                docRef.onSnapshot(async doc => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        this.user = { ...this.user, ...data };
+                        if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
+                        if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
+                        if (!this.user.referredDevices) this.user.referredDevices = [];
+                        if (!this.user.completedDailyVisits || Array.isArray(this.user.completedDailyVisits)) this.user.completedDailyVisits = {};
+                        
+                        // Check date reset logic inside snapshot
+                        if (this.user.lastResetDate !== today) {
+                            this.user.dailyLinkCompletedCount = 0;
+                            this.user.completedLinks = {};
+                            this.user.completedDailyVisits = {};
+                            this.user.lastResetDate = today;
+                            await docRef.update({
+                                dailyLinkCompletedCount: 0,
+                                completedLinks: {},
+                                completedDailyVisits: {},
+                                lastResetDate: today
+                            });
+                        }
+                        
+                        localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
+                        this.renderDashboard();
+                    } else {
+                        this.user = {
+                            coins: 0,
+                            freeFireUid: '',
                             dailyLinkCompletedCount: 0,
                             completedLinks: {},
-                            completedDailyVisits: {},
-                            lastResetDate: today
-                        });
+                            redemptionHistory: [],
+                            lastResetDate: today,
+                            referredBy: null,
+                            referralClaimed: false,
+                            referredDevices: [],
+                            completedDailyVisits: {}
+                        };
+                        localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
+                        await docRef.set(this.user);
                     }
-                    // Write back sync updates to cache
-                    localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
-                } else {
-                    this.user = {
-                        coins: 0,
-                        freeFireUid: '',
-                        dailyLinkCompletedCount: 0,
-                        completedLinks: {},
-                        redemptionHistory: [],
-                        lastResetDate: today,
-                        referredBy: null,
-                        referralClaimed: false,
-                        referredDevices: [],
-                        completedDailyVisits: {}
-                    };
-                    localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
-                    await docRef.set(this.user);
-                }
+                });
                 return;
             } catch (err) { console.error(err); }
         }
