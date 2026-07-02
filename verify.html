@@ -606,6 +606,7 @@
             window.smartlinkUrl1 = ''; window.smartlinkLimit1 = 1;
             window.smartlinkUrl2 = ''; window.smartlinkLimit2 = 1;
             window.smartlinkUrl3 = ''; window.smartlinkLimit3 = 1;
+            window.smartlinkUrl4 = ''; window.smartlinkLimit4 = 1;
             if (db) {
                 try {
                     const gDoc = await db.collection("settings").doc("global").get();
@@ -622,6 +623,8 @@
                         window.smartlinkLimit2 = gData.smartlinkLimit2 !== undefined ? parseInt(gData.smartlinkLimit2) : 1;
                         window.smartlinkUrl3 = gData.smartlinkUrl3 || '';
                         window.smartlinkLimit3 = gData.smartlinkLimit3 !== undefined ? parseInt(gData.smartlinkLimit3) : 1;
+                        window.smartlinkUrl4 = gData.smartlinkUrl4 || '';
+                        window.smartlinkLimit4 = gData.smartlinkLimit4 !== undefined ? parseInt(gData.smartlinkLimit4) : 1;
                         window.smartlinkEnabled = gData.smartlinkEnabled === true || gData.smartlinkEnabled === 'true';
                         window.smartlinkCapEnabled = gData.smartlinkCapEnabled !== false && gData.smartlinkCapEnabled !== 'false';
                     }
@@ -839,16 +842,17 @@
             let selectedUrl = '';
 
             if (window.smartlinkEnabled) {
-                // Read or initialize local storage counts for the slots
-                const now = Date.now();
-                const lastReset = localStorage.getItem('CF_SLOTS_LAST_RESET');
+                // Get current UTC date (e.g. "2026-07-02")
+                const todayUTC = new Date().toISOString().split('T')[0];
+                const lastResetDate = localStorage.getItem('CF_SLOTS_UTC_RESET_DATE');
                 
-                // If 24 hours passed, reset all limits
-                if (!lastReset || (now - parseInt(lastReset)) > 24 * 60 * 60 * 1000) {
-                    localStorage.setItem('CF_SLOTS_LAST_RESET', now.toString());
+                // If UTC date changed, reset all slot clicks counters
+                if (lastResetDate !== todayUTC) {
+                    localStorage.setItem('CF_SLOTS_UTC_RESET_DATE', todayUTC);
                     localStorage.setItem('CF_SLOT1_COUNT', '0');
                     localStorage.setItem('CF_SLOT2_COUNT', '0');
                     localStorage.setItem('CF_SLOT3_COUNT', '0');
+                    localStorage.setItem('CF_SLOT4_COUNT', '0');
                 }
 
                 if (window.smartlinkCapEnabled === false) {
@@ -857,6 +861,7 @@
                     if (window.smartlinkUrl1) activeSlots.push(window.smartlinkUrl1);
                     if (window.smartlinkUrl2) activeSlots.push(window.smartlinkUrl2);
                     if (window.smartlinkUrl3) activeSlots.push(window.smartlinkUrl3);
+                    if (window.smartlinkUrl4) activeSlots.push(window.smartlinkUrl4);
                     if (activeSlots.length > 0) {
                         selectedUrl = activeSlots[Math.floor(Math.random() * activeSlots.length)];
                     }
@@ -865,6 +870,7 @@
                     const count1 = parseInt(localStorage.getItem('CF_SLOT1_COUNT') || '0');
                     const count2 = parseInt(localStorage.getItem('CF_SLOT2_COUNT') || '0');
                     const count3 = parseInt(localStorage.getItem('CF_SLOT3_COUNT') || '0');
+                    const count4 = parseInt(localStorage.getItem('CF_SLOT4_COUNT') || '0');
 
                     const availableSlots = [];
                     if (window.smartlinkUrl1 && count1 < window.smartlinkLimit1) {
@@ -875,6 +881,9 @@
                     }
                     if (window.smartlinkUrl3 && count3 < window.smartlinkLimit3) {
                         availableSlots.push({ url: window.smartlinkUrl3, key: 'CF_SLOT3_COUNT', current: count3 });
+                    }
+                    if (window.smartlinkUrl4 && count4 < window.smartlinkLimit4) {
+                        availableSlots.push({ url: window.smartlinkUrl4, key: 'CF_SLOT4_COUNT', current: count4 });
                     }
 
                     if (availableSlots.length > 0) {
