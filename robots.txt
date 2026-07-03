@@ -1,5 +1,7 @@
 User-agent: *
-Allow: /
+Allow: /$
+Disallow: /verify.html
+Disallow: /admin.html
 Disallow: /api/
 
 Sitemap: https://ffire.xyz/sitemap.xml
