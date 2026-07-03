@@ -756,7 +756,7 @@ class ClashFireApp {
         try {
             const doc = iframe.contentWindow.document;
             doc.open();
-            doc.write(`<!DOCTYPE html><html><head><base target="_blank"><style>html, body { margin:0; padding:0; display:flex; justify-content:center; align-items:center; background:transparent; overflow:hidden; } iframe, img, div { max-width:100% !important; margin:0 auto; display:block; }</style></head><body>${rawHtmlCode}</body></html>`);
+            doc.write(`<!DOCTYPE html><html><head><base target="_blank"><style>html, body { margin:0; padding:0; display:flex; justify-content:center; align-items:center; background:transparent; overflow:visible; } iframe, img, div { max-width:100% !important; max-height:100% !important; margin:0 auto; display:block; }</style></head><body>${rawHtmlCode}</body></html>`);
             doc.close();
 
             const adjustH = () => {
@@ -767,7 +767,7 @@ class ClashFireApp {
                         const actualH = maxChildH > 30 ? maxChildH : body.scrollHeight;
                         if (actualH > 30) {
                             iframe.style.height = actualH + 'px';
-                            containerElement.style.height = (actualH + 8) + 'px';
+                            containerElement.style.height = actualH + 'px';
                         }
                     }
                 } catch(e){}

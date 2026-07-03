@@ -438,7 +438,7 @@
             try {
                 const doc = iframe.contentDocument || iframe.contentWindow.document;
                 doc.open();
-                doc.write(`<!DOCTYPE html><html><head><base target="_blank"><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;} iframe, img, div, ins { max-width: 100% !important; margin: 0 auto; display: block; }</style></head><body>${scriptHtml}</body></html>`);
+                doc.write(`<!DOCTYPE html><html><head><base target="_blank"><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:visible;} iframe, img, div, ins { max-width: 100% !important; max-height: 100% !important; margin: 0 auto; display: block; }</style></head><body>${scriptHtml}</body></html>`);
                 doc.close();
                 
                 const adjustH = () => {
@@ -447,8 +447,9 @@
                             const body = iframe.contentWindow.document.body;
                             const maxChildH = Math.max(...Array.from(body.querySelectorAll('iframe, img, div, ins')).map(el => el.offsetHeight), 0);
                             const actualH = maxChildH > 30 ? maxChildH : body.scrollHeight;
-                            if (actualH > 30) {
+                             if (actualH > 30) {
                                 iframe.style.height = actualH + 'px';
+                                container.style.height = actualH + 'px';
                             }
                         }
                     } catch(e){}
