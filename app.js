@@ -577,8 +577,17 @@ class ClashFireApp {
         }
     }
 
+    formatCoins(coins) {
+        if (typeof coins !== 'number') coins = parseInt(coins || '0');
+        if (coins <= 999) return coins;
+        
+        // Format to 1 decimal place if fractional (e.g., 1500 -> 1.5k, 1000 -> 1k)
+        const formatted = (coins / 1000).toFixed(1);
+        return formatted.endsWith('.0') ? formatted.slice(0, -2) + 'k' : formatted + 'k';
+    }
+
     renderDashboard() {
-        document.getElementById('user-coins').innerText = this.user.coins;
+        document.getElementById('user-coins').innerText = this.formatCoins(this.user.coins);
         const totalLinks = this.dailyLinks ? this.dailyLinks.length : 0;
         const bannerPointsElem = document.getElementById('banner-points');
         if (bannerPointsElem) {
