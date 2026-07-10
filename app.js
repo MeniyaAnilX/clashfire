@@ -916,8 +916,10 @@ class ClashFireApp {
             const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const secs = Math.floor((diff % (1000 * 60)) / 1000);
 
-            document.getElementById('reset-timer').innerText = 
-                `${hours.toString().padStart(2, '0')}h ${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
+            const timerElem = document.getElementById('daily-timer-title');
+            if (timerElem) {
+                timerElem.innerText = `${hours.toString().padStart(2, '0')}h ${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
+            }
         };
         updateTimer();
         setInterval(updateTimer, 1000);
