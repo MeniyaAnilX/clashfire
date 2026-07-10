@@ -5,6 +5,6 @@
   "main": "index.html",
   "dependencies": {},
   "engines": {
-    "node": "20.x"
+    "node": "22.x"
   }
 }
