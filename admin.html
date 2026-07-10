@@ -880,9 +880,9 @@
 
                 if (!currentMissionLinks || currentMissionLinks.length === 0) {
                     currentMissionLinks = [
-                        { title: "Daily Mission #1", url: "https://ffire.xyz/verify.html?task=1" },
-                        { title: "Daily Mission #2", url: "https://ffire.xyz/verify.html?task=2" },
-                        { title: "Daily Mission #3", url: "https://ffire.xyz/verify.html?task=3" }
+                        { title: "Daily Mission #1", url: "https://freediamond.in/verify.html?task=1" },
+                        { title: "Daily Mission #2", url: "https://freediamond.in/verify.html?task=2" },
+                        { title: "Daily Mission #3", url: "https://freediamond.in/verify.html?task=3" }
                     ];
                 }
 
@@ -916,7 +916,7 @@
 
                 if (!currentDailyVisits || currentDailyVisits.length === 0) {
                     currentDailyVisits = [
-                        { title: "Daily Visit Task #1", url: "https://ffire.xyz", duration: 15, reward: 10 }
+                        { title: "Daily Visit Task #1", url: "https://freediamond.in", duration: 15, reward: 10 }
                     ];
                 }
                 renderAdminDailyVisitRows();
@@ -941,7 +941,7 @@
                         <label>Mission #${missionNum} Shortener URL</label>
                         <input type="text" id="m-url-${index}" value="${item.url || ''}" placeholder="https://gplinks.co/...">
                     </div>
-                    <div class="target-hint"><i class="fa-solid fa-bullseye"></i> Target Verification URL: https://ffire.xyz/verify.html?task=${missionNum}</div>
+                    <div class="target-hint"><i class="fa-solid fa-bullseye"></i> Target Verification URL: https://freediamond.in/verify.html?task=${missionNum}</div>
                 `;
                 container.appendChild(row);
             });
@@ -952,7 +952,7 @@
             const nextMissionNum = currentMissionLinks.length + 1;
             currentMissionLinks.push({
                 title: `Daily Mission #${nextMissionNum}`,
-                url: `https://ffire.xyz/verify.html?task=${nextMissionNum}`
+                url: `https://freediamond.in/verify.html?task=${nextMissionNum}`
             });
             renderAdminMissionRows();
         }
@@ -1024,7 +1024,7 @@
             const nextNum = currentDailyVisits.length + 1;
             currentDailyVisits.push({
                 title: `Daily Visit Task #${nextNum}`,
-                url: `https://ffire.xyz`,
+                url: `https://freediamond.in`,
                 duration: 15,
                 reward: 10
             });
@@ -1212,7 +1212,7 @@
                     id: i,
                     taskId: missionNum,
                     title: t || `Daily Mission #${missionNum}`,
-                    url: u || `https://ffire.xyz/verify.html?task=${missionNum}`
+                    url: u || `https://freediamond.in/verify.html?task=${missionNum}`
                 });
             }
 
