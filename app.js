@@ -99,21 +99,41 @@ class ClashFireApp {
         this.startLiveProofsTicker();
         this.protectAppFromInspect();
 
-        // Check if loading specific blog post from URL slug (supports ?post=slug and pretty /slug format)
+        // Check if loading specific blog post or legal pages from URL slug (supports ?post=slug and pretty /slug formats)
         const urlParams = new URLSearchParams(window.location.search);
         let postSlug = urlParams.get('post');
+        let pageParam = urlParams.get('page');
         
-        // If query param is empty, check path slug (e.g. /free-fire-free-diamonds-2026)
-        if (!postSlug && window.location.pathname.length > 1) {
-            const cleanPath = window.location.pathname.replace(/^\/+/g, ''); // strip leading slash
+        const cleanPath = window.location.pathname.replace(/^\/+/g, '').trim();
+        
+        if (cleanPath) {
             if (cleanPath === 'free-fire-free-diamonds-2026') {
                 postSlug = cleanPath;
+            } else if (cleanPath === 'privacy-policy') {
+                pageParam = 'privacy';
+            } else if (cleanPath === 'terms-conditions') {
+                pageParam = 'terms';
+            } else if (cleanPath === 'disclaimer') {
+                pageParam = 'disclaimer';
+            } else if (cleanPath === 'contact-us') {
+                pageParam = 'contact';
+            } else if (cleanPath === 'faq') {
+                pageParam = 'faq';
+            } else if (cleanPath === 'blog') {
+                pageParam = 'blog';
             }
         }
 
         if (postSlug) {
             this.switchAppTab('tab-blog');
             this.openBlogPost(postSlug);
+        } else if (pageParam) {
+            if (pageParam === 'privacy') this.switchAppTab('tab-privacy');
+            if (pageParam === 'terms') this.switchAppTab('tab-terms');
+            if (pageParam === 'disclaimer') this.switchAppTab('tab-disclaimer');
+            if (pageParam === 'contact') this.switchAppTab('tab-contact');
+            if (pageParam === 'faq') this.switchAppTab('tab-faq');
+            if (pageParam === 'blog') this.switchAppTab('tab-blog');
         }
 
         document.addEventListener('visibilitychange', async () => {
@@ -140,9 +160,30 @@ class ClashFireApp {
             if (tabId === 'tab-redeem' && btns[2]) btns[2].classList.add('active');
         }
 
-        // Auto close open blog posts if switching tabs (and reset URL to /)
+        // Auto close open blog posts if switching tabs (and reset URL to / or legal sub-path)
         if (tabId !== 'tab-blog') {
-            this.closeBlogPost(true);
+            this.closeBlogPost(false); // Close sub view without clearing history yet
+        }
+
+        // Set Dynamic Pretty URLs inside Address bar on tab navigation
+        if (tabId === 'tab-home') {
+            window.history.pushState({}, '', '/');
+        } else if (tabId === 'tab-privacy') {
+            window.history.pushState({}, '', '/privacy-policy');
+        } else if (tabId === 'tab-terms') {
+            window.history.pushState({}, '', '/terms-conditions');
+        } else if (tabId === 'tab-disclaimer') {
+            window.history.pushState({}, '', '/disclaimer');
+        } else if (tabId === 'tab-contact') {
+            window.history.pushState({}, '', '/contact-us');
+        } else if (tabId === 'tab-faq') {
+            window.history.pushState({}, '', '/faq');
+        } else if (tabId === 'tab-blog') {
+            // Only push root blog path if no post single view is active
+            const listView = document.getElementById('blog-list-view');
+            if (listView && listView.style.display !== 'none') {
+                window.history.pushState({}, '', '/blog');
+            }
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
