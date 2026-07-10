@@ -3,8 +3,5 @@
   "version": "1.0.0",
   "description": "Free Fire Premium Diamond Earning Platform",
   "main": "index.html",
-  "dependencies": {},
-  "engines": {
-    "node": "22.x"
-  }
+  "dependencies": {}
 }
