@@ -121,6 +121,8 @@ class ClashFireApp {
             if (tabId === 'tab-home' && btns[0]) btns[0].classList.add('active');
             if (tabId === 'tab-tasks' && btns[1]) btns[1].classList.add('active');
             if (tabId === 'tab-redeem' && btns[2]) btns[2].classList.add('active');
+            if (tabId === 'tab-blog' && btns[3]) btns[3].classList.add('active');
+            if (tabId === 'tab-faq' && btns[4]) btns[4].classList.add('active');
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });

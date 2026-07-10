@@ -98,7 +98,7 @@
         </header>
 
         <!-- Main Navigation Bar Tabs -->
-        <nav class="main-nav-tabs">
+        <nav class="main-nav-tabs" style="display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px;">
             <button class="tab-btn active" onclick="app.switchAppTab('tab-home', this)">
                 <i class="fa-solid fa-house"></i> HOME
             </button>
@@ -107,6 +107,12 @@
             </button>
             <button class="tab-btn" onclick="app.switchAppTab('tab-redeem', this)">
                 <i class="fa-solid fa-gem"></i> REDEEM
+            </button>
+            <button class="tab-btn" onclick="app.switchAppTab('tab-blog', this)">
+                <i class="fa-solid fa-newspaper"></i> BLOG
+            </button>
+            <button class="tab-btn" onclick="app.switchAppTab('tab-faq', this)">
+                <i class="fa-solid fa-circle-question"></i> FAQ
             </button>
         </nav>
 
@@ -133,9 +139,11 @@
             <div class="banner-card">
                 <div class="banner-left">
                     <span class="banner-label"><i class="fa-solid fa-clock"></i> RESET IN</span>
-                    <span class="countdown-timer" id="reset-timer">24h 00m 00s</span>
+                    <span class="banner-title" id="daily-timer-title">Syncing...</span>
                 </div>
-                <span class="banner-badge" id="completed-links-badge">0/5 DONE</span>
+                <div class="banner-right">
+                    <span class="banner-points-badge" id="banner-points">0/150 💎</span>
+                </div>
             </div>
 
             <!-- Daily Shortener Missions Section -->
@@ -180,9 +188,61 @@
                     </div>
                 </div>
             </section>
+        </div>
 
+        <!-- TAB 4: BLOG PANE -->
+        <div id="tab-blog" class="app-tab-pane">
+            <section class="dashboard-section" style="background: rgba(18, 20, 32, 0.4); border: 1px solid rgba(255, 255, 255, 0.03); padding: 24px; border-radius: 16px;">
+                <div class="section-title" style="margin-bottom: 20px;">
+                    <h2><i class="fa-solid fa-newspaper" style="color: var(--accent-cyan);"></i> LATEST GAMING NEWS</h2>
+                </div>
+                
+                <!-- Main Blog Post Article -->
+                <article class="blog-post-card" style="background: rgba(10, 10, 15, 0.6); border: 1.5px solid rgba(0, 242, 254, 0.1); border-radius: 14px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+                    <img src="hero_banner.png" alt="Free Fire Free Diamond App Guide 2026" style="width: 100%; height: auto; display: block; object-fit: cover; border-bottom: 1.5px solid rgba(0, 242, 254, 0.1);">
+                    <div style="padding: 22px;">
+                        <h2 style="font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 8px; line-height: 1.3;">Free Fire Mein Free Diamond Kaise Le? (100% Working Trick 2026)</h2>
+                        <div style="display: flex; gap: 12px; margin-bottom: 15px; font-size: 0.75rem; color: var(--text-muted);">
+                            <span><i class="fa-solid fa-calendar-days"></i> July 10, 2026</span>
+                            <span><i class="fa-solid fa-user"></i> FreeDiamond Admin</span>
+                            <span style="color: var(--accent-gold);"><i class="fa-solid fa-fire"></i> Trending #1</span>
+                        </div>
+                        
+                        <div class="blog-body" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.75; display: flex; flex-direction: column; gap: 14px;">
+                            <p>
+                                Kya aap Free Fire ya Free Fire Max khelte hain aur character, skins ya elite pass buy karne ke liye free diamonds chahte hain? Main jaanta hoon ki game ke andar diamond top up karna kitna expensive ho chuka hai. Lekin chinta mat kijiye, hum is guide mein deep analysis ke sath dekhenge ki **Free Fire mein free diamond kaise le** bina kisi hack ya account ban risk ke.
+                            </p>
+                            
+                            <h3 style="color: #fff; font-size: 1rem; font-weight: 700; margin-top: 10px; border-left: 3px solid var(--accent-cyan); padding-left: 8px;">1. Free Fire Free Diamond App kya sach mein work karte hain?</h3>
+                            <p>
+                                Internet par hazaron apps hain jo claim karte hain ki wo free diamonds denge, lekin unme se 95% scam hote hain jo aapse tasks karwa lete hain aur payment ke time withdraw reject kar dete hain. Lekin **FreeDiamond.in** ek safe, transparent platform hai jahan users simple shortener mission complete karte hain. Advertisements se jo commission banta hai, system usi fund ka diamond purchase karke directly players ki **Free Fire UID** par credit karta hai. Ye tarika 100% legal aur working hai.
+                            </p>
+
+                            <h3 style="color: #fff; font-size: 1rem; font-weight: 700; margin-top: 10px; border-left: 3px solid var(--accent-cyan); padding-left: 8px;">2. Free Fire UID Top Up Tricks</h3>
+                            <p>
+                                Kisi bhi safe method se diamond redeem karne ke liye sabse important chiz hoti hai aapka **Free Fire UID**. Kabhi bhi kisi website par apna game user-id password ya social login share mat karein. Safe top-up platforms hamesha sirf numerical UID lete hain aur usi par processing request bhejte hain. FreeDiamond.in par redeem vault me ja kar aap 310 se le kar 5600 tak diamond packages select karke dynamic UID top-up request submit kar sakte hain.
+                            </p>
+
+                            <h3 style="color: #fff; font-size: 1rem; font-weight: 700; margin-top: 10px; border-left: 3px solid var(--accent-cyan); padding-left: 8px;">3. Earn Coins Rapidly for Diamond Payouts</h3>
+                            <p>
+                                Diamonds jaldi claim karne ke liye dynamic daily login tasks, community updates subscribe checks aur daily visit shortener links complete karein. Agar aap daily 5 to 6 links complete karte hain toh aap asani se minimum redeem margin check trigger kar sakte hain. Aap apne unique referral coordinates links ko share karke dosto ki validation activity se extra reward credits commission bhi passive structure me secure kar sakte hain.
+                            </p>
+                        </div>
+                        
+                        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-wrap: wrap; gap: 8px;">
+                            <span style="background: rgba(0, 242, 254, 0.08); color: var(--accent-cyan); font-size: 0.7rem; padding: 4px 10px; border-radius: 12px; font-weight: 600;">#FreeFireDiamonds</span>
+                            <span style="background: rgba(0, 242, 254, 0.08); color: var(--accent-cyan); font-size: 0.7rem; padding: 4px 10px; border-radius: 12px; font-weight: 600;">#DiamondApp</span>
+                            <span style="background: rgba(0, 242, 254, 0.08); color: var(--accent-cyan); font-size: 0.7rem; padding: 4px 10px; border-radius: 12px; font-weight: 600;">#FreeFireUID</span>
+                        </div>
+                    </div>
+                </article>
+            </section>
+        </div>
+
+        <!-- TAB 5: FAQ PANE -->
+        <div id="tab-faq" class="app-tab-pane">
             <!-- SEO Rich Content Block — Google Trends Keywords Targeted -->
-            <section class="dashboard-section seo-info-section" style="background: rgba(18, 20, 32, 0.5); border: 1px solid rgba(255, 255, 255, 0.03); margin-top: 25px; padding: 20px; border-radius: 12px;">
+            <section class="dashboard-section seo-info-section" style="background: rgba(18, 20, 32, 0.5); border: 1px solid rgba(255, 255, 255, 0.03); padding: 20px; border-radius: 12px;">
 
                 <h2 style="font-size: 1.1rem; color: #fff; margin-bottom: 10px;"><i class="fa-solid fa-circle-info"></i> Free Fire Mein Diamond Kaise Milega? (2026)</h2>
                 <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px;">
