@@ -99,6 +99,14 @@ class ClashFireApp {
         this.startLiveProofsTicker();
         this.protectAppFromInspect();
 
+        // Check if loading specific blog post from URL slug
+        const urlParams = new URLSearchParams(window.location.search);
+        const postSlug = urlParams.get('post');
+        if (postSlug) {
+            this.switchAppTab('tab-blog');
+            this.openBlogPost(postSlug);
+        }
+
         document.addEventListener('visibilitychange', async () => {
             if (document.visibilityState === 'visible') {
                 await this.loadUserProfile();
@@ -125,7 +133,39 @@ class ClashFireApp {
             if (tabId === 'tab-faq' && btns[4]) btns[4].classList.add('active');
         }
 
+        // Auto close open blog posts if switching tabs
+        if (tabId !== 'tab-blog') {
+            this.closeBlogPost(false);
+        }
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    openBlogPost(postSlug) {
+        const listView = document.getElementById('blog-list-view');
+        const postView = document.getElementById('blog-post-view');
+        if (listView && postView) {
+            listView.style.display = 'none';
+            postView.style.display = 'block';
+            
+            // Set dynamic routing parameter in URL
+            window.history.pushState({ blogPost: postSlug }, '', `?post=${postSlug}`);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
+    closeBlogPost(updateHistory = true) {
+        const listView = document.getElementById('blog-list-view');
+        const postView = document.getElementById('blog-post-view');
+        if (listView && postView) {
+            listView.style.display = 'block';
+            postView.style.display = 'none';
+            
+            if (updateHistory) {
+                // Clear URL parameters silently
+                window.history.pushState({}, '', window.location.pathname);
+            }
+        }
     }
 
     start3SecPageLoader() {
