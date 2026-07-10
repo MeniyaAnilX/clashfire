@@ -997,7 +997,7 @@ class ClashFireApp {
             countdownVal.innerText = this.dvSecondsLeft + "s";
 
             // Format target URL to ensure absolute protocol matching
-            let targetUrl = item.url || "https://ffire.xyz";
+            let targetUrl = item.url || window.location.origin;
             if (!/^https?:\/\//i.test(targetUrl)) {
                 targetUrl = "https://" + targetUrl;
             }
@@ -1058,7 +1058,7 @@ class ClashFireApp {
 
         this.dvHasReturned = false; // Reset lock to false so it can decrement
         
-        let targetUrl = item.url || "https://ffire.xyz";
+        let targetUrl = item.url || window.location.origin;
         if (!/^https?:\/\//i.test(targetUrl)) {
             targetUrl = "https://" + targetUrl;
         }

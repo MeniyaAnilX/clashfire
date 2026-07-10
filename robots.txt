@@ -4,4 +4,4 @@ Disallow: /verify.html
 Disallow: /admin.html
 Disallow: /api/
 
-Sitemap: https://ffire.xyz/sitemap.xml
+Sitemap: https://freediamond.in/sitemap.xml
