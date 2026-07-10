@@ -99,7 +99,7 @@ class ClashFireApp {
         this.startLiveProofsTicker();
         this.protectAppFromInspect();
 
-        // Check if loading specific blog post or legal pages from URL slug (supports ?post=slug and pretty /slug formats)
+        // Check if loading specific blog post or faq/blog pages from URL slug
         const urlParams = new URLSearchParams(window.location.search);
         let postSlug = urlParams.get('post');
         let pageParam = urlParams.get('page');
@@ -109,14 +109,6 @@ class ClashFireApp {
         if (cleanPath) {
             if (cleanPath === 'free-fire-free-diamonds-2026') {
                 postSlug = cleanPath;
-            } else if (cleanPath === 'privacy-policy') {
-                pageParam = 'privacy';
-            } else if (cleanPath === 'terms-conditions') {
-                pageParam = 'terms';
-            } else if (cleanPath === 'disclaimer') {
-                pageParam = 'disclaimer';
-            } else if (cleanPath === 'contact-us') {
-                pageParam = 'contact';
             } else if (cleanPath === 'faq') {
                 pageParam = 'faq';
             } else if (cleanPath === 'blog') {
@@ -128,10 +120,6 @@ class ClashFireApp {
             this.switchAppTab('tab-blog');
             this.openBlogPost(postSlug);
         } else if (pageParam) {
-            if (pageParam === 'privacy') this.switchAppTab('tab-privacy');
-            if (pageParam === 'terms') this.switchAppTab('tab-terms');
-            if (pageParam === 'disclaimer') this.switchAppTab('tab-disclaimer');
-            if (pageParam === 'contact') this.switchAppTab('tab-contact');
             if (pageParam === 'faq') this.switchAppTab('tab-faq');
             if (pageParam === 'blog') this.switchAppTab('tab-blog');
         }
@@ -168,14 +156,6 @@ class ClashFireApp {
         // Set Dynamic Pretty URLs inside Address bar on tab navigation
         if (tabId === 'tab-home') {
             window.history.pushState({}, '', '/');
-        } else if (tabId === 'tab-privacy') {
-            window.history.pushState({}, '', '/privacy-policy');
-        } else if (tabId === 'tab-terms') {
-            window.history.pushState({}, '', '/terms-conditions');
-        } else if (tabId === 'tab-disclaimer') {
-            window.history.pushState({}, '', '/disclaimer');
-        } else if (tabId === 'tab-contact') {
-            window.history.pushState({}, '', '/contact-us');
         } else if (tabId === 'tab-faq') {
             window.history.pushState({}, '', '/faq');
         } else if (tabId === 'tab-blog') {

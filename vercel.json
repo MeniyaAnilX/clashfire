@@ -1,24 +1,9 @@
 {
+  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/free-fire-free-diamonds-2026",
       "destination": "/index.html?post=free-fire-free-diamonds-2026"
-    },
-    {
-      "source": "/privacy-policy",
-      "destination": "/index.html?page=privacy"
-    },
-    {
-      "source": "/terms-conditions",
-      "destination": "/index.html?page=terms"
-    },
-    {
-      "source": "/disclaimer",
-      "destination": "/index.html?page=disclaimer"
-    },
-    {
-      "source": "/contact-us",
-      "destination": "/index.html?page=contact"
     }
   ]
 }
