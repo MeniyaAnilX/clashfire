@@ -91,7 +91,6 @@ class ClashFireApp {
         this.loadGlobalSettings();
         this.loadUserProfile();
         this.checkReferralBonus();
-        this.checkSurveyReward();
 
 
         this.renderDashboard();
@@ -509,26 +508,7 @@ class ClashFireApp {
         } catch(e) { console.error("Referral Sync Error:", e); }
     }
 
-    async checkSurveyReward() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('survey_success') === 'true') {
-            const rewardPoints = parseInt(urlParams.get('reward') || '0');
-            if (rewardPoints > 0) {
-                const txId = urlParams.get('tx_id') || 'survey_' + Date.now();
-                
-                // Anti-Double Reward: check if this transaction was already processed
-                if (localStorage.getItem('CF_SURVEY_TX_' + txId)) return;
 
-                this.user.coins += rewardPoints;
-                await this.saveUserProfile();
-                localStorage.setItem('CF_SURVEY_TX_' + txId, 'true');
-                
-                // Clear URL parameters silently
-                window.history.replaceState({}, document.title, window.location.pathname);
-                this.showToast('SURVEY COMPLETED!', `+${rewardPoints} Diamonds credited successfully!`, 'success');
-            }
-        }
-    }
 
     async saveUserProfile() {
         localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
