@@ -729,7 +729,8 @@ class ClashFireApp {
 
         const refInput = document.getElementById('referral-link-input');
         if (refInput && this.displayUserId) {
-            refInput.value = `${window.location.origin}${window.location.pathname}?ref=${this.displayUserId}`;
+            // Force clean root origin path to prevent appending subpaths like /free-fire-free-diamonds-2026
+            refInput.value = `${window.location.origin}/?ref=${this.displayUserId}`;
         }
 
         const linksContainer = document.getElementById('links-container');
@@ -946,10 +947,10 @@ class ClashFireApp {
     }
 
     shareNative() {
-        const refLink = `${window.location.origin}${window.location.pathname}?ref=${this.displayUserId}`;
+        const refLink = `${window.location.origin}/?ref=${this.displayUserId}`;
         const shareData = {
-            title: 'FFire.xyz - Free Diamonds',
-            text: `🔥 Play FFire.xyz & earn FREE Free Fire Diamonds daily! Join using my link:`,
+            title: 'FreeDiamond.in - Free Diamonds',
+            text: `🔥 Play FreeDiamond.in & earn FREE Free Fire Diamonds daily! Join using my link:`,
             url: refLink
         };
 
