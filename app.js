@@ -93,20 +93,7 @@ class ClashFireApp {
         this.startLiveProofsTicker();
         this.protectAppFromInspect();
 
-        // Check if loading specific blog post from URL slug
-        const urlParams = new URLSearchParams(window.location.search);
-        let postSlug = urlParams.get('post');
-        
-        const cleanPath = window.location.pathname.replace(/^\/+/g, '').trim();
-        
-        if (cleanPath === 'free-fire-free-diamonds-2026') {
-            postSlug = cleanPath;
-        }
 
-        if (postSlug) {
-            this.switchAppTab('tab-blog');
-            this.openBlogPost(postSlug);
-        }
 
         document.addEventListener('visibilitychange', async () => {
             if (document.visibilityState === 'visible') {
@@ -132,44 +119,12 @@ class ClashFireApp {
             if (tabId === 'tab-redeem' && btns[2]) btns[2].classList.add('active');
         }
 
-        // Auto close open blog posts if switching tabs (and reset URL to / or legal sub-path)
-        if (tabId !== 'tab-blog') {
-            this.closeBlogPost(false); // Close sub view without clearing history yet
-        }
-
         // Set Dynamic Pretty URLs inside Address bar on tab navigation
         if (tabId === 'tab-home') {
             window.history.pushState({}, '', '/');
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    openBlogPost(postSlug) {
-        const listView = document.getElementById('blog-list-view');
-        const postView = document.getElementById('blog-post-view');
-        if (listView && postView) {
-            listView.style.display = 'none';
-            postView.style.display = 'block';
-            
-            // Set dynamic routing parameter in URL (Pretty URL format)
-            window.history.pushState({ blogPost: postSlug }, '', `/${postSlug}`);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    }
-
-    closeBlogPost(updateHistory = true) {
-        const listView = document.getElementById('blog-list-view');
-        const postView = document.getElementById('blog-post-view');
-        if (listView && postView) {
-            listView.style.display = 'block';
-            postView.style.display = 'none';
-            
-            if (updateHistory) {
-                // Clear URL parameters and return to root path
-                window.history.pushState({}, '', '/');
-            }
-        }
     }
 
     start3SecPageLoader() {
@@ -494,6 +449,7 @@ class ClashFireApp {
                     referredBy: refCode
                 }, { merge: true });
 
+                localStorage.setItem('REFERRAL_PROCESSED_' + this.deviceId, 'true');
                 this.showToast('WELCOME TO FREEDIAMOND.IN', `Joined via referral link from ${refCode}!`, 'info');
             }
         } catch(e) { console.error("Referral Sync Error:", e); }

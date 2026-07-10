@@ -1,12 +1,10 @@
 {
-  "name": "clashfire-diamond-reward-app",
+  "name": "freediamond-reward-app",
   "version": "1.0.0",
-  "description": "Clash Fire Earning App Frontend and Serverless Postback Integrations",
+  "description": "Free Fire Premium Diamond Earning Platform",
   "main": "index.html",
-  "dependencies": {
-    "node-fetch": "^2.7.0"
-  },
+  "dependencies": {},
   "engines": {
-    "node": "24.x"
+    "node": "20.x"
   }
 }
