@@ -739,6 +739,15 @@ class ClashFireApp {
     }
     executeIsolatedAdScript(containerElement, rawHtmlCode, slotTag = 'slot') {
         if (!containerElement || !rawHtmlCode) return;
+        
+        // Cache Check: If this slot is already running this exact HTML content, skip refreshing
+        const cacheKey = `CF_LAST_AD_CODE_${slotTag}`;
+        if (containerElement.getAttribute('data-ad-loaded') === 'true' && localStorage.getItem(cacheKey) === rawHtmlCode) {
+            return;
+        }
+        
+        localStorage.setItem(cacheKey, rawHtmlCode);
+        containerElement.setAttribute('data-ad-loaded', 'true');
         containerElement.innerHTML = '';
         
         let initialHeight = 90;

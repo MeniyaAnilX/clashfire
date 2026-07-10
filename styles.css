@@ -217,7 +217,7 @@ body {
 .header-left { display: flex; flex-direction: row; align-items: center; gap: 10px; }
 .brand-box { display: flex; align-items: center; gap: 8px; }
 .brand-icon { color: var(--primary-fire); font-size: 1.2rem; }
-.app-name { font-size: 1.35rem; font-weight: 800; letter-spacing: 1px; line-height: 1; }
+.app-name { font-size: 1.15rem; font-weight: 800; letter-spacing: 1px; line-height: 1; }
 .device-tag { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
 .header-right { display: flex; align-items: center; }
 .wallet-badge {
