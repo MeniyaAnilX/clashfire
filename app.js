@@ -982,9 +982,19 @@ class ClashFireApp {
 
     copyReferralLink() {
         const refInput = document.getElementById('referral-link-input');
-        refInput.select();
-        navigator.clipboard.writeText(refInput.value);
-        this.showToast('COPIED!', 'Referral link copied to clipboard!', 'success');
+        if (refInput) {
+            refInput.select();
+            refInput.setSelectionRange(0, 99999); // Mobile compatibility highlight selection range
+            
+            try {
+                navigator.clipboard.writeText(refInput.value);
+            } catch(err) {
+                // Secondary fallback copy trigger
+                document.execCommand('copy');
+            }
+            
+            this.showToast('COPIED!', 'Referral link copied to clipboard!', 'success');
+        }
     }
 
     shareNative() {
