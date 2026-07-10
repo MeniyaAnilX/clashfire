@@ -99,9 +99,18 @@ class ClashFireApp {
         this.startLiveProofsTicker();
         this.protectAppFromInspect();
 
-        // Check if loading specific blog post from URL slug
+        // Check if loading specific blog post from URL slug (supports ?post=slug and pretty /slug format)
         const urlParams = new URLSearchParams(window.location.search);
-        const postSlug = urlParams.get('post');
+        let postSlug = urlParams.get('post');
+        
+        // If query param is empty, check path slug (e.g. /free-fire-free-diamonds-2026)
+        if (!postSlug && window.location.pathname.length > 1) {
+            const cleanPath = window.location.pathname.replace(/^\/+/g, ''); // strip leading slash
+            if (cleanPath === 'free-fire-free-diamonds-2026') {
+                postSlug = cleanPath;
+            }
+        }
+
         if (postSlug) {
             this.switchAppTab('tab-blog');
             this.openBlogPost(postSlug);
@@ -146,8 +155,8 @@ class ClashFireApp {
             listView.style.display = 'none';
             postView.style.display = 'block';
             
-            // Set dynamic routing parameter in URL
-            window.history.pushState({ blogPost: postSlug }, '', `?post=${postSlug}`);
+            // Set dynamic routing parameter in URL (Pretty URL format)
+            window.history.pushState({ blogPost: postSlug }, '', `/${postSlug}`);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }
