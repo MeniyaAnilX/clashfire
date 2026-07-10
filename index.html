@@ -97,7 +97,7 @@
         </header>
 
         <!-- Main Navigation Bar Tabs -->
-        <nav class="main-nav-tabs" style="display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px;">
+        <nav class="main-nav-tabs">
             <button class="tab-btn active" onclick="app.switchAppTab('tab-home', this)">
                 <i class="fa-solid fa-house"></i> HOME
             </button>
@@ -106,12 +106,6 @@
             </button>
             <button class="tab-btn" onclick="app.switchAppTab('tab-redeem', this)">
                 <i class="fa-solid fa-gem"></i> REDEEM
-            </button>
-            <button class="tab-btn" onclick="app.switchAppTab('tab-blog', this)">
-                <i class="fa-solid fa-newspaper"></i> BLOG
-            </button>
-            <button class="tab-btn" onclick="app.switchAppTab('tab-faq', this)">
-                <i class="fa-solid fa-circle-question"></i> FAQ
             </button>
         </nav>
 
@@ -534,6 +528,11 @@
 
         <!-- Footer -->
         <footer class="app-footer">
+            <div class="footer-links" style="display: flex; justify-content: center; gap: 18px; margin-bottom: 10px; font-size: 0.8rem; font-weight: 700;">
+                <a href="javascript:void(0)" onclick="app.switchAppTab('tab-blog')" style="color: var(--accent-cyan); text-decoration: none;"><i class="fa-solid fa-newspaper"></i> BLOG</a>
+                <span style="color: rgba(255,255,255,0.15);">|</span>
+                <a href="javascript:void(0)" onclick="app.switchAppTab('tab-faq')" style="color: var(--accent-cyan); text-decoration: none;"><i class="fa-solid fa-circle-question"></i> FAQ</a>
+            </div>
             <p>&copy; 2026 FreeDiamond.in. All Rights Reserved.</p>
         </footer>
 
