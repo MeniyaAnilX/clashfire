@@ -52,7 +52,7 @@ class ClashFireApp {
         };
         this.dailyVisit = {
             items: [
-                { id: 0, taskId: 1, title: "Daily Visit Task #1", url: "https://ffire.xyz", duration: 15, reward: 10 }
+                { id: 0, taskId: 1, title: "Daily Visit Task #1", url: "https://www.freediamond.in", duration: 15, reward: 10 }
             ]
         };
         this.db = null;
@@ -61,11 +61,11 @@ class ClashFireApp {
 
         // Dynamic Mission Tasks Array (1-indexed task IDs)
         this.dailyLinks = [
-            { id: 0, taskId: 1, title: "Daily Mission Supply #1", url: "https://ffire.xyz/verify.html?task=1" },
-            { id: 1, taskId: 2, title: "Daily Mission Elite #2", url: "https://ffire.xyz/verify.html?task=2" },
-            { id: 2, taskId: 3, title: "Daily Mission Vault #3", url: "https://ffire.xyz/verify.html?task=3" },
-            { id: 3, taskId: 4, title: "Daily Mission Armor #4", url: "https://ffire.xyz/verify.html?task=4" },
-            { id: 4, taskId: 5, title: "Daily Mission Heroic #5", url: "https://ffire.xyz/verify.html?task=5" }
+            { id: 0, taskId: 1, title: "Daily Mission Supply #1", url: "https://www.freediamond.in/verify.html?task=1" },
+            { id: 1, taskId: 2, title: "Daily Mission Elite #2", url: "https://www.freediamond.in/verify.html?task=2" },
+            { id: 2, taskId: 3, title: "Daily Mission Vault #3", url: "https://www.freediamond.in/verify.html?task=3" },
+            { id: 3, taskId: 4, title: "Daily Mission Armor #4", url: "https://www.freediamond.in/verify.html?task=4" },
+            { id: 4, taskId: 5, title: "Daily Mission Heroic #5", url: "https://www.freediamond.in/verify.html?task=5" }
         ];
 
         this.init();
@@ -494,8 +494,7 @@ class ClashFireApp {
                     referredBy: refCode
                 }, { merge: true });
 
-                localStorage.setItem('REFERRAL_PROCESSED_' + this.deviceId, 'true');
-                this.showToast('WELCOME TO FFIRE.XYZ', `Joined via referral link from ${refCode}!`, 'info');
+                this.showToast('WELCOME TO FREEDIAMOND.IN', `Joined via referral link from ${refCode}!`, 'info');
             }
         } catch(e) { console.error("Referral Sync Error:", e); }
     }
@@ -1095,7 +1094,7 @@ class ClashFireApp {
                         }
                     }
                 } else {
-                    // User returned early to FFire.xyz tab - pause timer and warn
+                    // User returned early to freediamond.in tab - pause timer and warn
                     this.dvHasReturned = true; // Set return lock
                     overlayTitle.innerText = "⏱️ TIMER PAUSED";
                     warningText.innerText = "You returned too early! Click the CONTINUE VISIT button to resume the timer.";
@@ -1203,13 +1202,10 @@ class ClashFireApp {
             const ffUidPart2 = Math.floor(10 + getSeededRandom(seedVal + 3) * 90);
             const ffUidDisplay = `${ffUidPart1}****${ffUidPart2}`;
             
-            // 70% probability for 310 Diamonds, 30% for others
-            let diamondPackage = "310 Diamonds";
-            if (getSeededRandom(seedVal + 4) >= 0.7) {
-                const otherPackages = ["520 Diamonds", "1060 Diamonds", "2180 Diamonds", "5600 Diamonds", "11,500 Diamonds"];
-                const idx = Math.floor(getSeededRandom(seedVal + 5) * otherPackages.length);
-                diamondPackage = otherPackages[idx];
-            }
+            // Probabilistic selection among the active package options (520, 1060, 2180, 5600)
+            const otherPackages = ["520 Diamonds", "1060 Diamonds", "2180 Diamonds", "5600 Diamonds"];
+            const idx = Math.floor(getSeededRandom(seedVal + 5) * otherPackages.length);
+            let diamondPackage = otherPackages[idx];
 
             // 70% probability SENT, 30% PENDING
             const isSent = getSeededRandom(seedVal + 6) < 0.7;
