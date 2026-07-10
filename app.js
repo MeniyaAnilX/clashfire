@@ -99,29 +99,19 @@ class ClashFireApp {
         this.startLiveProofsTicker();
         this.protectAppFromInspect();
 
-        // Check if loading specific blog post or faq/blog pages from URL slug
+        // Check if loading specific blog post from URL slug
         const urlParams = new URLSearchParams(window.location.search);
         let postSlug = urlParams.get('post');
-        let pageParam = urlParams.get('page');
         
         const cleanPath = window.location.pathname.replace(/^\/+/g, '').trim();
         
-        if (cleanPath) {
-            if (cleanPath === 'free-fire-free-diamonds-2026') {
-                postSlug = cleanPath;
-            } else if (cleanPath === 'faq') {
-                pageParam = 'faq';
-            } else if (cleanPath === 'blog') {
-                pageParam = 'blog';
-            }
+        if (cleanPath === 'free-fire-free-diamonds-2026') {
+            postSlug = cleanPath;
         }
 
         if (postSlug) {
             this.switchAppTab('tab-blog');
             this.openBlogPost(postSlug);
-        } else if (pageParam) {
-            if (pageParam === 'faq') this.switchAppTab('tab-faq');
-            if (pageParam === 'blog') this.switchAppTab('tab-blog');
         }
 
         document.addEventListener('visibilitychange', async () => {
@@ -156,14 +146,6 @@ class ClashFireApp {
         // Set Dynamic Pretty URLs inside Address bar on tab navigation
         if (tabId === 'tab-home') {
             window.history.pushState({}, '', '/');
-        } else if (tabId === 'tab-faq') {
-            window.history.pushState({}, '', '/faq');
-        } else if (tabId === 'tab-blog') {
-            // Only push root blog path if no post single view is active
-            const listView = document.getElementById('blog-list-view');
-            if (listView && listView.style.display !== 'none') {
-                window.history.pushState({}, '', '/blog');
-            }
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
