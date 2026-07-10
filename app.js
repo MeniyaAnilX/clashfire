@@ -579,9 +579,9 @@ class ClashFireApp {
 
     formatCoins(coins) {
         if (typeof coins !== 'number') coins = parseInt(coins || '0');
-        if (coins <= 999) return coins;
+        if (coins <= 9999) return coins.toLocaleString('en-US'); // Format with thousands comma below 9,999 (e.g. 5,600)
         
-        // Format to 1 decimal place if fractional (e.g., 1500 -> 1.5k, 1000 -> 1k)
+        // Format to 1 decimal place if fractional (e.g., 12500 -> 12.5k)
         const formatted = (coins / 1000).toFixed(1);
         return formatted.endsWith('.0') ? formatted.slice(0, -2) + 'k' : formatted + 'k';
     }
