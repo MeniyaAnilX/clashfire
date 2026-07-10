@@ -532,9 +532,9 @@ class ClashFireApp {
     renderDashboard() {
         document.getElementById('user-coins').innerText = this.user.coins;
         const totalLinks = this.dailyLinks ? this.dailyLinks.length : 0;
-        const badgeElem = document.getElementById('completed-links-badge');
-        if (badgeElem) {
-            badgeElem.innerText = `${this.user.dailyLinkCompletedCount}/${totalLinks} DONE`;
+        const bannerPointsElem = document.getElementById('banner-points');
+        if (bannerPointsElem) {
+            bannerPointsElem.innerText = `${this.user.dailyLinkCompletedCount}/${totalLinks} DONE`;
         }
 
         // Render Dynamic Unlimited Daily Visit Tasks
