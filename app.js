@@ -140,9 +140,9 @@ class ClashFireApp {
             if (tabId === 'tab-redeem' && btns[2]) btns[2].classList.add('active');
         }
 
-        // Auto close open blog posts if switching tabs
+        // Auto close open blog posts if switching tabs (and reset URL to /)
         if (tabId !== 'tab-blog') {
-            this.closeBlogPost(false);
+            this.closeBlogPost(true);
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -169,8 +169,8 @@ class ClashFireApp {
             postView.style.display = 'none';
             
             if (updateHistory) {
-                // Clear URL parameters silently
-                window.history.pushState({}, '', window.location.pathname);
+                // Clear URL parameters and return to root path
+                window.history.pushState({}, '', '/');
             }
         }
     }
