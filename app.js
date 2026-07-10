@@ -34,8 +34,6 @@ class ClashFireApp {
             referralCommissionPercent: 10
         };
         this.integrations = {
-            toroxUrl: localStorage.getItem('CF_CACHE_TOROX_URL') || "https://torox.io",
-            toroxEnabled: true,
             gamezopUrl: "https://www.gamezop.com",
             gamezopReward: 5,
             gamezopEnabled: true,
@@ -50,10 +48,7 @@ class ClashFireApp {
             sponsorUrl: 'https://t.me',
             sponsorBtnText: 'JOIN NOW',
             sponsorIcon: 'telegram',
-            sponsorEnabled: true,
-            cpxAppId: '34050',
-            cpxSecureHash: 'ucHVQYc5kg6SooA56Z2sQBl12wkU61T4',
-            cpxEnabled: false
+            sponsorEnabled: true
         };
         this.dailyVisit = {
             items: [
@@ -244,9 +239,6 @@ class ClashFireApp {
                 this.db.collection("settings").doc("integrations").onSnapshot(doc => {
                     if (doc.exists) {
                         this.integrations = { ...this.integrations, ...doc.data() };
-                        if (this.integrations.toroxUrl) {
-                            localStorage.setItem('CF_CACHE_TOROX_URL', this.integrations.toroxUrl);
-                        }
                         this.renderDashboard();
                     }
                 });
