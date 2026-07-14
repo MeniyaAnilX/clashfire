@@ -1,5 +1,4 @@
 User-agent: *
-Allow: /$
 Disallow: /verify.html
 
 Sitemap: https://www.freediamond.in/sitemap.xml
