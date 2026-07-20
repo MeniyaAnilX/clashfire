@@ -568,9 +568,9 @@ class ClashFireApp {
         if (typeof coins !== 'number') coins = parseInt(coins || '0');
         if (coins <= 9999) return coins.toLocaleString('en-US'); // Format with thousands comma below 9,999 (e.g. 5,600)
         
-        // Format to 1 decimal place if fractional (e.g., 12500 -> 12.5k)
+        // Format to 1 decimal place if fractional (e.g., 12500 -> 12.5K)
         const formatted = (coins / 1000).toFixed(1);
-        return formatted.endsWith('.0') ? formatted.slice(0, -2) + 'k' : formatted + 'k';
+        return formatted.endsWith('.0') ? formatted.slice(0, -2) + 'K' : formatted + 'K';
     }
 
     renderDashboard() {
@@ -733,8 +733,13 @@ class ClashFireApp {
             if (botSlot) { botSlot.classList.add('hidden'); botSlot.innerHTML = ''; }
         }
 
-        if (this.user.freeFireUid) {
-            document.getElementById('ff-uid').value = this.user.freeFireUid;
+        if (this.user.ffUid) {
+            const ffUidElem = document.getElementById('ff-uid');
+            if (ffUidElem) {
+                ffUidElem.value = this.user.ffUid;
+                ffUidElem.readOnly = true;
+                ffUidElem.disabled = true;
+            }
         }
 
         // Dynamically inject Global Popunder if enabled
@@ -1487,6 +1492,8 @@ class ClashFireApp {
                 const recoveryHash = await this.sha256(recoveryCode);
                 const pinHash = dcodeIO.bcrypt.hashSync(pin, 10);
 
+                const today = await this.getSecureServerDate();
+
                 const newAccount = {
                     ffUid: ffUid,
                     email: virtualEmail,
@@ -1500,6 +1507,7 @@ class ClashFireApp {
                     referredDevices: [],
                     completedDailyVisits: {},
                     status: "active",
+                    lastResetDate: today,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
                     ...(accountDoc.exists ? accountDoc.data() : {})

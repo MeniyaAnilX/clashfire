@@ -21,11 +21,11 @@ service cloud.firestore {
                     request.auth != null && request.auth.uid == accountId
                     && (
                       // Case A: Rollover of date (Daily Reset)
-                      request.resource.data.lastResetDate != resource.data.lastResetDate
+                      request.resource.data.get('lastResetDate', '') != resource.data.get('lastResetDate', '')
                       
                       // Case B: Same day updates, verify coin increments match task completion additions
                       || (
-                        request.resource.data.lastResetDate == resource.data.lastResetDate
+                        request.resource.data.get('lastResetDate', '') == resource.data.get('lastResetDate', '')
                         && (
                           // 1. Coins are not modified (e.g. updating profile details, tasks list, referral links)
                           request.resource.data.coins == resource.data.coins
@@ -34,16 +34,16 @@ service cloud.firestore {
                           // MUST add exactly 1 new unique link key to completedLinks
                           || (
                             (request.resource.data.coins == resource.data.coins + 5 || request.resource.data.coins == resource.data.coins + 10)
-                            && request.resource.data.completedLinks.keys().hasAll(resource.data.completedLinks.keys())
-                            && request.resource.data.completedLinks.keys().size() == resource.data.completedLinks.keys().size() + 1
+                            && request.resource.data.completedLinks.keys().hasAll(resource.data.get('completedLinks', {}).keys())
+                            && request.resource.data.completedLinks.keys().size() == resource.data.get('completedLinks', {}).keys().size() + 1
                           )
                           
                           // 3. Claiming a daily visit task (+5 diamonds)
                           // MUST add exactly 1 new unique visit key to completedDailyVisits
                           || (
                             request.resource.data.coins == resource.data.coins + 5
-                            && request.resource.data.completedDailyVisits.keys().hasAll(resource.data.completedDailyVisits.keys())
-                            && request.resource.data.completedDailyVisits.keys().size() == resource.data.completedDailyVisits.keys().size() + 1
+                            && request.resource.data.completedDailyVisits.keys().hasAll(resource.data.get('completedDailyVisits', {}).keys())
+                            && request.resource.data.completedDailyVisits.keys().size() == resource.data.get('completedDailyVisits', {}).keys().size() + 1
                           )
                           
                           // 4. Referral commissions claims
