@@ -405,6 +405,9 @@ class ClashFireApp {
                         localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
                         this.renderDashboard();
                         await this.claimPendingReferralCommissions();
+                    } else {
+                        console.warn("Account document not found. Signing out stale session.");
+                        await this.auth.signOut();
                     }
                 });
                 return;

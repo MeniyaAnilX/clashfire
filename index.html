@@ -195,17 +195,6 @@
                 </div>
             </section>
 
-            <!-- Live Auto-Generating Payout Proofs Section -->
-            <section class="dashboard-section" id="live-proofs-section" style="margin-bottom: 15px;">
-                <div class="section-title">
-                    <h2><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-cyan);"></i> RECENT ACTIVITY</h2>
-                    <span class="sub-badge" style="background: rgba(0, 242, 254, 0.15); color: var(--accent-cyan); border: 1.5px solid rgba(0, 242, 254, 0.3);">SYSTEM STATUS</span>
-                </div>
-                <div class="proofs-ticker-container" id="proofs-ticker" style="display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow: hidden; position: relative;">
-                    <!-- Auto-generated payout items list will slide in here dynamically -->
-                </div>
-            </section>
-
             <!-- Middle Dynamic Native Banner Ad Slot (Between Missions and Refer) -->
             <div id="banner-ad-middle" class="native-banner-slot hidden" style="margin-bottom: 25px;"></div>
 
@@ -407,12 +396,23 @@
             <div id="banner-ad-redeem-middle" class="native-banner-slot hidden" style="margin-bottom: 25px;"></div>
 
             <!-- Redemption History List Section -->
-            <section class="dashboard-section">
+            <section class="dashboard-section" style="margin-bottom: 25px;">
                 <div class="section-title">
                     <h2><i class="fa-solid fa-clock-rotate-left"></i> REDEMPTION HISTORY</h2>
                 </div>
                 <div class="history-list" id="history-container">
                     <div style="text-align: center; color: var(--text-muted); padding: 15px; font-size: 0.85rem;">No redemption history found. Redeem diamonds above!</div>
+                </div>
+            </section>
+
+            <!-- Live Auto-Generating Payout Proofs Section -->
+            <section class="dashboard-section" id="live-proofs-section" style="margin-bottom: 15px;">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-cyan);"></i> RECENT ACTIVITY</h2>
+                    <span class="sub-badge" style="background: rgba(0, 242, 254, 0.15); color: var(--accent-cyan); border: 1.5px solid rgba(0, 242, 254, 0.3);">SYSTEM STATUS</span>
+                </div>
+                <div class="proofs-ticker-container" id="proofs-ticker" style="display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow: hidden; position: relative;">
+                    <!-- Auto-generated payout items list will slide in here dynamically -->
                 </div>
             </section>
         </div>
