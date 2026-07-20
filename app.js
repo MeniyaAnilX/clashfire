@@ -78,7 +78,7 @@ class ClashFireApp {
         this.initFirebase();
         
         this.deviceId = await this.getOrCreateMultiLayerDeviceID();
-        this.displayUserId = "CF-" + this.deviceId.substring(9, 19);
+        this.displayUserId = "CF-" + this.deviceId.substring(9, 15);
         
         const devElem = document.getElementById('display-device-id');
         if (devElem) devElem.innerText = "User ID: " + this.displayUserId;
@@ -261,15 +261,49 @@ class ClashFireApp {
             return savedId;
         }
 
-        // Generate hybrid fingerprint (Canvas signature + Screen details + CPU + Timezone offset)
-        // This persists across incognito mode / browser clearing on the same device
         const ratio = window.devicePixelRatio || 1;
         const physW = Math.round((window.screen.width || 360) * ratio);
         const physH = Math.round((window.screen.height || 640) * ratio);
         const cpus = navigator.hardwareConcurrency || 4;
         const tz = new Date().getTimezoneOffset();
         const depth = window.screen.colorDepth || 24;
-        
+
+        // 1. Calculate metrics using the legacy formula first to check for existing accounts
+        const legacyTokens = [
+            `PHYS_DISP:${physW}x${physH}x${ratio}`,
+            `CPU_CORES:${cpus}`,
+            `TZ:${tz}_DEPTH:${depth}`
+        ];
+        const legacyRaw = legacyTokens.join('||');
+        let legacyHash = 0;
+        for (let i = 0; i < legacyRaw.length; i++) {
+            const char = legacyRaw.charCodeAt(i);
+            legacyHash = ((legacyHash << 5) - legacyHash) + char;
+            legacyHash |= 0;
+        }
+        const legacyId = `CLASH_HW_${Math.abs(legacyHash)}`;
+
+        // Check if legacy user exists in database to automatically recover their account
+        let legacyExists = false;
+        if (this.firestoreActive) {
+            try {
+                const doc = await this.db.collection("users").doc(legacyId).get();
+                if (doc.exists) {
+                    legacyExists = true;
+                }
+            } catch (err) {
+                console.error("Error looking up legacy profile:", err);
+            }
+        }
+
+        if (legacyExists) {
+            // Restore legacy account
+            this.setCookie('CLASH_PERMANENT_HW_ID', legacyId);
+            localStorage.setItem('CLASH_FIRE_HW_ID', legacyId);
+            return legacyId;
+        }
+
+        // 2. Generate new secure canvas-based ID for new profiles
         const canvasHash = this.getCanvasFingerprint();
         const rawString = `DISP:${physW}x${physH}x${ratio}||CPU:${cpus}||TZ:${tz}||DEPTH:${depth}||CANVAS:${canvasHash}`;
         
