@@ -170,18 +170,16 @@
                         </div>
                     </div>
                 </div>
-            </section>
-        </div>
+        <!-- MAIN APP TAB PANES -->
 
-        <!-- TAB 2: TASKS, OFFERWALLS & COMMUNITY PANE -->
-        <!-- TAB 2: MISSIONS PANE (DAILY VISITS & OFFERWALLS) -->
-        <div id="tab-tasks" class="app-tab-pane">
-
+        <!-- TAB 1: EARN MISSIONS PANE -->
+        <div id="tab-earn" class="app-tab-pane active">
+            
             <!-- Dynamic Daily Reset Banner -->
             <div class="banner-card">
                 <div class="banner-left">
                     <span class="banner-label"><i class="fa-solid fa-clock"></i> RESET IN</span>
-                    <span class="banner-title" id="daily-timer-title">Syncing...</span>
+                    <span class="banner-title" id="daily-timer-title">24h Daily Reset</span>
                 </div>
                 <div class="banner-right">
                     <span class="banner-points-badge" id="banner-points">0/6 DONE</span>
@@ -195,7 +193,37 @@
                 </div>
                 <p class="section-desc">Complete daily shortener links to claim free diamonds!</p>
                 <div class="links-list" id="links-container">
-                    <div style="text-align: center; color: var(--text-muted); padding: 15px;">Loading dynamic missions...</div>
+                    <!-- Pre-rendered Static Shell Cards for 100% SEO Crawlability & Zero CLS -->
+                    <div class="link-card">
+                        <div class="link-info">
+                            <div class="link-icon"><i class="fa-solid fa-gem"></i></div>
+                            <div>
+                                <h4>Daily Mission Supply #1</h4>
+                                <p>Complete shortener mission to earn +10 Free Fire Diamonds</p>
+                            </div>
+                        </div>
+                        <button class="btn-primary">START</button>
+                    </div>
+                    <div class="link-card">
+                        <div class="link-info">
+                            <div class="link-icon"><i class="fa-solid fa-gem"></i></div>
+                            <div>
+                                <h4>Daily Mission Supply #2</h4>
+                                <p>Complete shortener mission to earn +10 Free Fire Diamonds</p>
+                            </div>
+                        </div>
+                        <button class="btn-primary">START</button>
+                    </div>
+                    <div class="link-card">
+                        <div class="link-info">
+                            <div class="link-icon"><i class="fa-solid fa-gem"></i></div>
+                            <div>
+                                <h4>Daily Mission Supply #3</h4>
+                                <p>Complete shortener mission to earn +10 Free Fire Diamonds</p>
+                            </div>
+                        </div>
+                        <button class="btn-primary">START</button>
+                    </div>
                 </div>
             </section>
 
@@ -310,7 +338,7 @@
                     <h2><i class="fa-solid fa-clock-rotate-left"></i> REDEMPTION HISTORY</h2>
                 </div>
                 <div class="history-list" id="history-container">
-                    <div style="text-align: center; color: var(--text-muted); padding: 15px; font-size: 0.85rem;">Loading history...</div>
+                    <div style="text-align: center; color: var(--text-muted); padding: 15px; font-size: 0.85rem;">No redemptions yet. Complete daily missions to redeem free diamonds!</div>
                 </div>
             </section>
         </div>
@@ -338,7 +366,6 @@
             </div>
             <p>&copy; 2026 FreeDiamond.in. All Rights Reserved.</p>
         </footer>
-
     </div>
 
     <!-- Redeem Success Modal Popup -->
@@ -378,7 +405,13 @@
         </div>
     </div>
 
-
+    <!-- Noscript Crawler Fallback -->
+    <noscript>
+        <div style="padding: 20px; color: #fff; text-align: center; background: #0a0a0f;">
+            <h2>Free Diamond - Free Fire Diamond Reward App</h2>
+            <p>Free Diamond allows Free Fire players to claim 520, 1060, 2180, and 5600 diamonds directly to their numeric Player UID by completing daily shortener missions and Arcade mini-games.</p>
+        </div>
+    </noscript>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
