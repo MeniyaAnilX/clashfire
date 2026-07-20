@@ -1564,12 +1564,29 @@ class ClashFireApp {
                 const virtualEmail = `${ffUid}@clashfire.in`;
                 const virtualPassword = `clash_pin_${pin}`;
 
-                const userCredential = await this.auth.createUserWithEmailAndPassword(virtualEmail, virtualPassword);
+                let userCredential;
+                let isAlreadyInUse = false;
+
+                try {
+                    userCredential = await this.auth.createUserWithEmailAndPassword(virtualEmail, virtualPassword);
+                } catch (signUpErr) {
+                    if (signUpErr.code === 'auth/email-already-in-use') {
+                        try {
+                            userCredential = await this.auth.signInWithEmailAndPassword(virtualEmail, virtualPassword);
+                            isAlreadyInUse = true;
+                        } catch (signInErr) {
+                            throw new Error("UID or PIN is incorrect.");
+                        }
+                    } else {
+                        throw signUpErr;
+                    }
+                }
+
                 const uid = userCredential.user.uid;
+                const accountDoc = await this.db.collection("accounts").doc(uid).get();
 
                 const recoveryCode = this.generateRecoveryCode();
                 const recoveryHash = await this.sha256(recoveryCode);
-
                 const pinHash = bcrypt.hashSync(pin, 10);
 
                 const newAccount = {
@@ -1586,30 +1603,33 @@ class ClashFireApp {
                     completedDailyVisits: {},
                     status: "active",
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
+                    lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    ...(accountDoc.exists ? accountDoc.data() : {})
                 };
 
                 // Check and perform 1-time migration of legacy profile if available
-                const legacyId = this.getLegacyFingerprintID();
-                const legacyRef = this.db.collection("users").doc(legacyId);
-                const legacySnap = await legacyRef.get();
-                if (legacySnap.exists) {
-                    const legacyData = legacySnap.data();
-                    if (!legacyData.migrated) {
-                        newAccount.coins = parseFloat(legacyData.coins || 0);
-                        newAccount.completedLinks = legacyData.completedLinks || {};
-                        newAccount.dailyLinkCompletedCount = parseInt(legacyData.dailyLinkCompletedCount || 0);
-                        newAccount.redemptionHistory = legacyData.redemptionHistory || [];
-                        newAccount.referredBy = legacyData.referredBy || null;
-                        newAccount.referredDevices = legacyData.referredDevices || [];
-                        newAccount.completedDailyVisits = legacyData.completedDailyVisits || {};
-                        newAccount.lastResetDate = legacyData.lastResetDate || null;
-                        
-                        await legacyRef.update({
-                            migrated: true,
-                            status: "disabled",
-                            migratedTo: uid
-                        });
+                if (!accountDoc.exists) {
+                    const legacyId = this.getLegacyFingerprintID();
+                    const legacyRef = this.db.collection("users").doc(legacyId);
+                    const legacySnap = await legacyRef.get();
+                    if (legacySnap.exists) {
+                        const legacyData = legacySnap.data();
+                        if (!legacyData.migrated) {
+                            newAccount.coins = parseFloat(legacyData.coins || 0);
+                            newAccount.completedLinks = legacyData.completedLinks || {};
+                            newAccount.dailyLinkCompletedCount = parseInt(legacyData.dailyLinkCompletedCount || 0);
+                            newAccount.redemptionHistory = legacyData.redemptionHistory || [];
+                            newAccount.referredBy = legacyData.referredBy || null;
+                            newAccount.referredDevices = legacyData.referredDevices || [];
+                            newAccount.completedDailyVisits = legacyData.completedDailyVisits || {};
+                            newAccount.lastResetDate = legacyData.lastResetDate || null;
+                            
+                            await legacyRef.update({
+                                migrated: true,
+                                status: "disabled",
+                                migratedTo: uid
+                            });
+                        }
                     }
                 }
 
@@ -1619,12 +1639,16 @@ class ClashFireApp {
                 batch.set(bindingRef, { accountId: uid });
                 await batch.commit();
 
-                // Display recovery code
-                document.getElementById('auth-form-container').classList.add('hidden');
-                document.getElementById('recovery-code-value').innerText = recoveryCode;
-                document.getElementById('recovery-code-screen').classList.remove('hidden');
+                if (isAlreadyInUse && accountDoc.exists) {
+                    this.showToast('WELCOME BACK!', `Logged in successfully as UID ${ffUid}`, 'success');
+                } else {
+                    // Display recovery code
+                    document.getElementById('auth-form-container').classList.add('hidden');
+                    document.getElementById('recovery-code-value').innerText = recoveryCode;
+                    document.getElementById('recovery-code-screen').classList.remove('hidden');
 
-                this.showToast('ACCOUNT CREATED!', 'Please save your Recovery Code!', 'success');
+                    this.showToast('ACCOUNT CREATED!', 'Please save your Recovery Code!', 'success');
+                }
             }
         } catch (err) {
             console.error("Auth failed:", err);
