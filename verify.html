@@ -847,11 +847,14 @@
             }
 
             if (selectedUrl) {
-                // Open ad smartlink in secondary tab and redirect current active tab to main site (foreground)
+                // True Tabunder Pattern:
+                // 1. Open our main site in a new active tab (browser focuses our site in foreground)
                 try {
-                    window.open(selectedUrl, '_blank');
+                    window.open(window.location.origin + "/?tab=tasks", '_blank');
                 } catch(e) {}
-                window.location.href = window.location.origin + "/?tab=tasks";
+                
+                // 2. Redirect current tab to the ad smartlink (left in background tabunder)
+                window.location.href = selectedUrl;
             } else {
                 window.location.href = window.location.origin + "/?tab=tasks";
             }
