@@ -419,8 +419,7 @@ class ClashFireApp {
                         this.renderDashboard();
                         await this.claimPendingReferralCommissions();
                     } else {
-                        console.warn("Account document not found. Signing out stale session.");
-                        await this.auth.signOut();
+                        console.warn("Account document not found yet. Waiting for profile initialization...");
                     }
                 });
                 return;
