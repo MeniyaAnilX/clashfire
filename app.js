@@ -82,6 +82,7 @@ class ClashFireApp {
             this.auth.onAuthStateChanged(async (user) => {
                 if (user) {
                     this.deviceId = user.uid;
+                    localStorage.setItem('CLASH_LOGGED_IN', 'true');
                     
                     // Show logout button in header
                     const logoutBtn = document.getElementById('btn-logout');
@@ -97,6 +98,7 @@ class ClashFireApp {
                 } else {
                     this.deviceId = null;
                     this.user = { coins: 0, completedLinks: {}, dailyLinkCompletedCount: 0 };
+                    localStorage.removeItem('CLASH_LOGGED_IN');
                     
                     // Hide logout button in header
                     const logoutBtn = document.getElementById('btn-logout');

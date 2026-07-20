@@ -126,7 +126,7 @@
             <!-- Premium Auth System (UID + PIN login/signup) -->
             <section class="dashboard-section" id="auth-section" style="margin-bottom: 25px;">
                 <script>
-                    if (Object.keys(localStorage).some(key => key.startsWith('firebase:authUser'))) {
+                    if (localStorage.getItem('CLASH_LOGGED_IN') === 'true') {
                         document.getElementById('auth-section').classList.add('hidden');
                     }
                 </script>
