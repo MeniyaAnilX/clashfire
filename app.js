@@ -61,11 +61,11 @@ class ClashFireApp {
 
         // Dynamic Mission Tasks Array (1-indexed task IDs)
         this.dailyLinks = [
-            { id: 0, taskId: 1, title: "Daily Mission Supply #1", url: "https://www.freediamond.in/verify.html?task=1" },
-            { id: 1, taskId: 2, title: "Daily Mission Elite #2", url: "https://www.freediamond.in/verify.html?task=2" },
-            { id: 2, taskId: 3, title: "Daily Mission Vault #3", url: "https://www.freediamond.in/verify.html?task=3" },
-            { id: 3, taskId: 4, title: "Daily Mission Armor #4", url: "https://www.freediamond.in/verify.html?task=4" },
-            { id: 4, taskId: 5, title: "Daily Mission Heroic #5", url: "https://www.freediamond.in/verify.html?task=5" }
+            { id: 0, taskId: 1, title: "Daily Mission Supply #1", url: "https://www.freediamond.in/verify?task=1" },
+            { id: 1, taskId: 2, title: "Daily Mission Elite #2", url: "https://www.freediamond.in/verify?task=2" },
+            { id: 2, taskId: 3, title: "Daily Mission Vault #3", url: "https://www.freediamond.in/verify?task=3" },
+            { id: 3, taskId: 4, title: "Daily Mission Armor #4", url: "https://www.freediamond.in/verify?task=4" },
+            { id: 4, taskId: 5, title: "Daily Mission Heroic #5", url: "https://www.freediamond.in/verify?task=5" }
         ];
 
         this.init();
@@ -74,7 +74,6 @@ class ClashFireApp {
     async init() {
         window.name = 'ClashFireDashboard';
         this.renderDashboard(); // Render static constructor links immediately (no spinner lag)
-        this.start3SecPageLoader();
         this.initFirebase();
         
         this.deviceId = await this.getOrCreateMultiLayerDeviceID();
@@ -125,27 +124,6 @@ class ClashFireApp {
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    start3SecPageLoader() {
-        const overlay = document.getElementById('page-loader-overlay');
-        const fill = document.getElementById('loader-bar-fill');
-        if (!overlay || !fill) return;
-
-        let startTime = Date.now();
-        const duration = 1000; // 1-second ultra-fast loading
-
-        const interval = setInterval(() => {
-            let elapsed = Date.now() - startTime;
-            let percent = Math.min(100, (elapsed / duration) * 100);
-            fill.style.width = percent + '%';
-
-            if (elapsed >= duration) {
-                clearInterval(interval);
-                overlay.style.opacity = '0';
-                setTimeout(() => overlay.classList.add('hidden'), 300);
-            }
-        }, 20);
     }
 
     initFirebase() {
@@ -403,19 +381,18 @@ class ClashFireApp {
                 return;
             }
 
-            // 2. Synchronous iteration over users to find referrer and check array
-            const snapshot = await this.db.collection("users").get();
+            // 2. Query Firestore directly for the user document having this displayUserId (Optimized: N reads to 1)
+            const snapshot = await this.db.collection("users").where("displayUserId", "==", refCode).limit(1).get();
             let referrerDocRef = null;
             let referrerData = null;
             let referrerDeviceId = null;
 
-            for (const doc of snapshot.docs) {
-                const displayId = "CF-" + doc.id.substring(9, 15);
-                if (displayId === refCode && doc.id !== this.deviceId) {
+            if (!snapshot.empty) {
+                const doc = snapshot.docs[0];
+                if (doc.id !== this.deviceId) {
                     referrerDocRef = doc.ref;
                     referrerData = doc.data();
                     referrerDeviceId = doc.id;
-                    break;
                 }
             }
 
@@ -458,6 +435,9 @@ class ClashFireApp {
 
 
     async saveUserProfile() {
+        if (this.displayUserId) {
+            this.user.displayUserId = this.displayUserId;
+        }
         localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
         if (this.firestoreActive) {
             try {
@@ -836,10 +816,15 @@ class ClashFireApp {
         this.user.freeFireUid = uidInput;
         this.showLoader(`PROCESSING ${diamondAmount} DIAMONDS PAYOUT...`);
 
+        // Double-Click / Race Condition Protection
+        const allRedeemBtns = document.querySelectorAll('.packages-grid button, .packages-grid .package-card');
+        allRedeemBtns.forEach(elem => {
+            if (elem.tagName === 'BUTTON') elem.disabled = true;
+            elem.style.pointerEvents = 'none';
+        });
+
         setTimeout(async () => {
-            this.user.coins -= costPoints;
             const reqId = "REQ_" + Date.now();
-            
             const redemptionItem = {
                 id: reqId,
                 diamonds: diamondAmount,
@@ -849,31 +834,74 @@ class ClashFireApp {
                 date: new Date().toLocaleDateString()
             };
 
-            if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
-            this.user.redemptionHistory.push(redemptionItem);
-
-            await this.saveUserProfile();
-            this.renderDashboard();
-            this.hideLoader();
+            let transactionSuccess = false;
 
             if (this.firestoreActive) {
                 try {
-                    await this.db.collection("redemptions").doc(reqId).set({
-                        reqId: reqId,
-                        deviceId: this.deviceId,
-                        freeFireUid: uidInput,
-                        diamondAmount: diamondAmount,
-                        pointsDeducted: costPoints,
-                        timestamp: new Date().toISOString(),
-                        date: new Date().toLocaleDateString(),
-                        status: "PENDING"
+                    const userDocRef = this.db.collection("users").doc(this.deviceId);
+                    const redeemDocRef = this.db.collection("redemptions").doc(reqId);
+
+                    await this.db.runTransaction(async (transaction) => {
+                        const userDoc = await transaction.get(userDocRef);
+                        if (!userDoc.exists) {
+                            throw new Error("User document does not exist in database!");
+                        }
+                        const currentCoins = parseInt(userDoc.data().coins || 0);
+                        if (currentCoins < costPoints) {
+                            throw new Error("Insufficient balance in database!");
+                        }
+
+                        // Deduct coins inside transaction
+                        transaction.update(userDocRef, {
+                            coins: currentCoins - costPoints,
+                            freeFireUid: uidInput,
+                            redemptionHistory: firebase.firestore.FieldValue.arrayUnion(redemptionItem)
+                        });
+
+                        // Create redemption record inside transaction
+                        transaction.set(redeemDocRef, {
+                            reqId: reqId,
+                            deviceId: this.deviceId,
+                            freeFireUid: uidInput,
+                            diamondAmount: diamondAmount,
+                            pointsDeducted: costPoints,
+                            timestamp: new Date().toISOString(),
+                            date: new Date().toLocaleDateString(),
+                            status: "PENDING"
+                        });
                     });
-                } catch (e) { console.error(e); }
+
+                    transactionSuccess = true;
+                } catch (e) {
+                    console.error("Atomic Redemption Transaction Failed:", e);
+                    this.showToast('REDEMPTION FAILED', e.message || 'Database error occurred. Please try again!', 'error');
+                }
+            } else {
+                // Offline fallback (mock system mode)
+                transactionSuccess = true;
             }
 
-            document.getElementById('modal-amount').innerText = `${diamondAmount} Diamonds`;
-            document.getElementById('modal-uid').innerText = uidInput;
-            document.getElementById('redeem-modal').classList.remove('hidden');
+            if (transactionSuccess) {
+                // Update local user object coins and history
+                this.user.coins -= costPoints;
+                if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
+                this.user.redemptionHistory.push(redemptionItem);
+
+                await this.saveUserProfile();
+                this.renderDashboard();
+
+                document.getElementById('modal-amount').innerText = `${diamondAmount} Diamonds`;
+                document.getElementById('modal-uid').innerText = uidInput;
+                document.getElementById('redeem-modal').classList.remove('hidden');
+            }
+
+            this.hideLoader();
+
+            // Re-enable click actions
+            allRedeemBtns.forEach(elem => {
+                if (elem.tagName === 'BUTTON') elem.disabled = false;
+                elem.style.pointerEvents = 'auto';
+            });
 
         }, 2000);
     }
@@ -1130,7 +1158,7 @@ class ClashFireApp {
         localStorage.setItem("CF_ACTIVE_TOKEN_TASK_" + taskId, JSON.stringify(token));
 
         // Open the admin-configured sponsor shortener URL directly in a new tab.
-        let targetUrl = link.url || (window.location.origin + "/verify.html?task=" + taskId);
+        let targetUrl = link.url || (window.location.origin + "/verify?task=" + taskId);
         if (targetUrl && !/^https?:\/\//i.test(targetUrl)) {
             targetUrl = "https://" + targetUrl;
         }

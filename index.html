@@ -14,6 +14,7 @@
     <meta name="monetag" content="1059a5f02cb2bf4c0d74ff4b500954d1">
     <link rel="canonical" href="https://www.freediamond.in/">
     <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
     <!-- Google WebSite Schema for Search Results Brand Name -->
     <script type="application/ld+json">
@@ -31,7 +32,7 @@
     <meta property="og:url" content="https://www.freediamond.in/">
     <meta property="og:title" content="Free Diamond - Free Fire Diamonds Daily">
     <meta property="og:description" content="Free Diamond is the #1 Free Fire Diamond reward app. Complete tasks to earn free diamonds. Redeem directly to your Free Fire UID.">
-    <meta property="og:image" content="https://www.freediamond.in/hero_banner.png">
+    <meta property="og:image" content="https://www.freediamond.in/hero_banner.webp">
     <meta property="og:site_name" content="Free Diamond">
     <meta property="og:locale" content="en_IN">
 
@@ -40,7 +41,7 @@
     <meta name="twitter:url" content="https://www.freediamond.in/">
     <meta name="twitter:title" content="Free Diamond - Free Fire Diamonds Daily">
     <meta name="twitter:description" content="Free Diamond is the #1 Free Fire Diamond reward app. Complete tasks to earn free diamonds. Redeem directly to your Free Fire UID.">
-    <meta name="twitter:image" content="https://www.freediamond.in/hero_banner.png">
+    <meta name="twitter:image" content="https://www.freediamond.in/hero_banner.webp">
 
     <!-- Theme Color (Mobile Browser Bar) -->
     <meta name="theme-color" content="#0a0a0f">
@@ -57,20 +58,6 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-    <!-- 3-Second Premium Transparent Cardview Page Loading Overlay -->
-    <div id="page-loader-overlay">
-        <div class="loader-box">
-            <div class="diamond-pulse-box">
-                <img src="ffire_logo.png" alt="Free Diamond - Free Fire Diamond Reward App Logo" class="loader-diamond-img" style="border-radius: 18px; box-shadow: 0 0 20px rgba(255,69,0,0.5);">
-            </div>
-            <div class="loader-title">FREEDIAMOND.<span>IN</span></div>
-            <div class="loader-sub">COMPLETE DAILY MISSION</div>
-            <div class="loader-bar-bg">
-                <div class="loader-bar-fill" id="loader-bar-fill"></div>
-            </div>
-        </div>
-    </div>
 
     <!-- Toast Notification System Container -->
     <div id="toast-container"></div>
@@ -93,7 +80,7 @@
         <header class="app-header">
             <div class="header-left">
                 <!-- Icon on left, vertically centered to both text lines -->
-                <img src="ffire_logo.png" alt="Free Diamond - Free Fire Diamond UID Top Up App Logo" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; flex-shrink: 0; box-shadow: 0 2px 10px rgba(255,69,0,0.45);">
+                <img src="ffire_logo.png" alt="Free Diamond - Free Fire Diamond UID Top Up App Logo" width="40" height="40" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; flex-shrink: 0; box-shadow: 0 2px 10px rgba(255,69,0,0.45);">
                 <!-- Text column: FREEDIAMOND.IN top, User ID bottom -->
                 <div style="display: flex; flex-direction: column; gap: 2px;">
                     <span class="app-name" style="line-height: 1;">FREEDIAMOND.<span>IN</span></span>
@@ -102,7 +89,7 @@
             </div>
             <div class="header-right">
                 <div class="wallet-badge" onclick="app.scrollToRedeem()">
-                    <img src="diamond.png" alt="Free Fire Diamond Gem" class="wallet-gem-img">
+                    <img src="diamond.png" alt="Free Fire Diamond Gem" width="22" height="22" class="wallet-gem-img">
                     <span id="user-coins">0</span>
                 </div>
             </div>
@@ -123,11 +110,15 @@
 
         <!-- Main Content Area landmark -->
         <main id="main-content-landmark">
-            <!-- Invisible Accessibility Heading H1 to satisfy PageSpeed SEO structural rules -->
-            <h1 class="sr-only" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">Free Diamond - Free Fire Diamonds Rewards Dashboard</h1>
 
             <!-- TAB 1: HOME PANE (REFER & EARN AND COMMUNITY) -->
             <div id="tab-home" class="app-tab-pane active">
+                
+                <!-- Visible Premium Hero H1 Header for SEO & Branding -->
+                <div class="hero-brand-section" style="text-align: center; margin: 10px 0 20px 0; padding: 5px 0;">
+                    <h1 style="font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 6px; font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;">FREE FIRE DIAMOND REWARD APP</h1>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.4;">Complete daily shortener missions and Arcade mini-games to claim diamonds directly to your UID!</p>
+                </div>
 
             <!-- Live Auto-Generating Payout Proofs Section -->
             <section class="dashboard-section" id="live-proofs-section" style="margin-bottom: 15px;">
@@ -199,7 +190,7 @@
                     <div class="link-card">
                         <div class="link-info">
                             <div class="link-icon-box">
-                                <img src="diamond.png" alt="Diamond Icon" style="width: 22px; height: 22px;">
+                                <img src="diamond.png" alt="Diamond Icon" width="22" height="22" loading="lazy" style="width: 22px; height: 22px;">
                             </div>
                             <div class="link-details">
                                 <h3>Daily Mission #1</h3>
@@ -211,7 +202,7 @@
                     <div class="link-card">
                         <div class="link-info">
                             <div class="link-icon-box">
-                                <img src="diamond.png" alt="Diamond Icon" style="width: 22px; height: 22px;">
+                                <img src="diamond.png" alt="Diamond Icon" width="22" height="22" loading="lazy" style="width: 22px; height: 22px;">
                             </div>
                             <div class="link-details">
                                 <h3>Daily Mission #2</h3>
@@ -223,7 +214,7 @@
                     <div class="link-card">
                         <div class="link-info">
                             <div class="link-icon-box">
-                                <img src="diamond.png" alt="Diamond Icon" style="width: 22px; height: 22px;">
+                                <img src="diamond.png" alt="Diamond Icon" width="22" height="22" loading="lazy" style="width: 22px; height: 22px;">
                             </div>
                             <div class="link-details">
                                 <h3>Daily Mission #3</h3>
@@ -294,7 +285,7 @@
             <!-- Free Fire Redeem Section -->
             <section class="dashboard-section">
                 <div class="section-title">
-                    <h2><img src="diamond.png" alt="Gem" class="section-title-img"> FREE FIRE REDEEM VAULT</h2>
+                    <h2><img src="diamond.png" alt="Gem" width="22" height="22" loading="lazy" class="section-title-img"> FREE FIRE REDEEM VAULT</h2>
                 </div>
                 <p class="section-desc">Enter your Free Fire Player UID and choose your diamond package!</p>
 
@@ -307,7 +298,7 @@
                     <!-- Package 1: 520 Diamonds -->
                     <div class="package-card" onclick="app.selectPackage(this, 520, 520)">
                         <div class="diamond-img-box">
-                            <img src="diamond.png" alt="Gem" class="pkg-gem-img">
+                            <img src="diamond.png" alt="Gem" width="42" height="42" loading="lazy" class="pkg-gem-img">
                         </div>
                         <div class="pkg-cost">520 💎</div>
                         <button class="btn-redeem" aria-label="Redeem 520 Diamonds Package">REDEEM</button>
@@ -315,7 +306,7 @@
                     <!-- Package 2: 1060 Diamonds -->
                     <div class="package-card" onclick="app.selectPackage(this, 1060, 1060)">
                         <div class="diamond-img-box">
-                            <img src="diamond.png" alt="Gem" class="pkg-gem-img">
+                            <img src="diamond.png" alt="Gem" width="42" height="42" loading="lazy" class="pkg-gem-img">
                         </div>
                         <div class="pkg-cost">1060 💎</div>
                         <button class="btn-redeem" aria-label="Redeem 1060 Diamonds Package">REDEEM</button>
@@ -323,7 +314,7 @@
                     <!-- Package 3: 2180 Diamonds -->
                     <div class="package-card" onclick="app.selectPackage(this, 2180, 2180)">
                         <div class="diamond-img-box">
-                            <img src="diamond.png" alt="Gem" class="pkg-gem-img">
+                            <img src="diamond.png" alt="Gem" width="42" height="42" loading="lazy" class="pkg-gem-img">
                         </div>
                         <div class="pkg-cost">2180 💎</div>
                         <button class="btn-redeem" aria-label="Redeem 2180 Diamonds Package">REDEEM</button>
@@ -331,7 +322,7 @@
                     <!-- Package 4: 5600 Diamonds -->
                     <div class="package-card" onclick="app.selectPackage(this, 5600, 5600)">
                         <div class="diamond-img-box">
-                            <img src="diamond.png" alt="Gem" class="pkg-gem-img">
+                            <img src="diamond.png" alt="Gem" width="42" height="42" loading="lazy" class="pkg-gem-img">
                         </div>
                         <div class="pkg-cost">5600 💎</div>
                         <button class="btn-redeem" aria-label="Redeem 5600 Diamonds Package">REDEEM</button>
@@ -396,7 +387,7 @@
     <div id="daily-visit-timer-overlay" class="modal-overlay hidden" style="z-index: 99998; backdrop-filter: blur(10px); background: rgba(7, 7, 12, 0.85); display: none; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;">
         <div class="modal-card" style="text-align: center; max-width: 320px; border: 2px solid var(--accent-cyan); box-shadow: 0 0 25px rgba(0, 242, 254, 0.25);">
             <div class="diamond-pulse-box">
-                <img src="diamond.png" class="loader-diamond-img" style="width: 45px; height: 45px;">
+                <img src="diamond.png" class="loader-diamond-img" width="45" height="45" loading="lazy" style="width: 45px; height: 45px;">
                 <div class="pulse-ring"></div>
             </div>
             <h3 style="color: #fff; margin-top: 15px;" id="dv-overlay-title">WAITING FOR VISIT</h3>
