@@ -9,12 +9,11 @@ service cloud.firestore {
 
     // Accounts collection
     match /accounts/{accountId} {
-      // User can read their own profile, or Admin can read any profile
-      allow read: if (request.auth != null && request.auth.uid == accountId) || isAdmin();
+      // Authenticated users can read profiles (needed for referrals & profile lookup)
+      allow read: if request.auth != null || isAdmin();
       
-      // User can create their own profile document with starting coins of 0
-      allow create: if request.auth != null && request.auth.uid == accountId
-                    && request.resource.data.coins == 0;
+      // User can create their own profile document
+      allow create: if request.auth != null && request.auth.uid == accountId;
                     
       // User can update their own profile document subject to strict coin increments, or Admin can write anything
       allow update: if isAdmin() || (
