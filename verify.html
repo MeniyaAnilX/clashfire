@@ -842,8 +842,8 @@
             }
 
             if (selectedUrl) {
-                // If dashboard is already open as parent window, bring it to front and open ad in current tab (background)
-                if (window.opener) {
+                // If main site is open in parent tab, focus parent and convert current tab to ad
+                if (window.opener && !window.opener.closed) {
                     try {
                         window.opener.focus();
                         window.location.href = selectedUrl;
@@ -851,10 +851,10 @@
                     } catch(e) {}
                 }
                 
-                // Otherwise, open dashboard in a new tab (foreground) and redirect current tab to ad (background)
+                // If no parent window, open ad in a new tab and redirect current tab back to main site (single tab)
                 try {
-                    window.open(window.location.origin + "/?tab=tasks", '_blank');
-                    window.location.href = selectedUrl;
+                    window.open(selectedUrl, '_blank');
+                    window.location.href = window.location.origin + "/?tab=tasks";
                     return;
                 } catch(e) {
                     window.location.href = selectedUrl;
@@ -862,7 +862,7 @@
                 }
             }
 
-            if (window.opener) {
+            if (window.opener && !window.opener.closed) {
                 try { window.opener.focus(); } catch(e){}
                 window.close();
             } else {
