@@ -1492,7 +1492,6 @@ class ClashFireApp {
                     referredBy: null,
                     referredDevices: [],
                     completedDailyVisits: {},
-                    status: "active",
                     lastResetDate: today,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
