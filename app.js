@@ -1543,7 +1543,9 @@ class ClashFireApp {
                 // Write new account and binding
                 const batch = this.db.batch();
                 batch.set(this.db.collection("accounts").doc(uid), newAccount);
-                batch.set(bindingRef, { accountId: uid });
+                if (!bindingDoc.exists) {
+                    batch.set(bindingRef, { accountId: uid });
+                }
                 await batch.commit();
 
                 if (isAlreadyInUse && accountDoc.exists) {
