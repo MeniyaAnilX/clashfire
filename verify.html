@@ -841,34 +841,17 @@
                 }
             }
 
-            if (selectedUrl) {
-                // Scenario 1: If main site is open in parent tab, focus parent (front) and convert current tab to ad (background)
-                if (window.opener && !window.opener.closed) {
-                    try {
-                        window.opener.focus();
-                        window.location.href = selectedUrl;
-                        return;
-                    } catch(e) {}
-                }
-                
-                // Scenario 2: If no parent window, open ad in background tab and redirect current tab back to main site (front)
-                try {
-                    const adWin = window.open(selectedUrl, '_blank');
-                    if (adWin) {
-                        try { adWin.blur(); } catch(e){}
-                    }
-                    window.focus();
-                    window.location.href = window.location.origin + "/?tab=tasks";
-                    return;
-                } catch(e) {
-                    window.location.href = selectedUrl;
-                    return;
-                }
+            // Close old opener window if open to maintain exactly ONE main site tab
+            if (window.opener && !window.opener.closed) {
+                try { window.opener.close(); } catch(e) {}
             }
 
-            if (window.opener && !window.opener.closed) {
-                try { window.opener.focus(); } catch(e){}
-                window.close();
+            if (selectedUrl) {
+                // Open ad smartlink in secondary tab and redirect current active tab to main site (foreground)
+                try {
+                    window.open(selectedUrl, '_blank');
+                } catch(e) {}
+                window.location.href = window.location.origin + "/?tab=tasks";
             } else {
                 window.location.href = window.location.origin + "/?tab=tasks";
             }
