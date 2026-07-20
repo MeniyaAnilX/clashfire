@@ -1457,7 +1457,7 @@ class ClashFireApp {
             const migratedAccount = {
                 ...accountData,
                 email: virtualEmail,
-                pinHash: bcrypt.hashSync(newPin, 10),
+                pinHash: dcodeIO.bcrypt.hashSync(newPin, 10),
                 recoveryCodeHash: newRecoveryHash,
                 lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
             };
@@ -1534,7 +1534,7 @@ class ClashFireApp {
                 }
 
                 const accountData = accountDoc.data();
-                const pinMatch = bcrypt.compareSync(pin, accountData.pinHash);
+                const pinMatch = dcodeIO.bcrypt.compareSync(pin, accountData.pinHash);
 
                 if (!pinMatch) {
                     let failed = parseInt(localStorage.getItem(attemptsKey) || '0') + 1;
@@ -1587,7 +1587,7 @@ class ClashFireApp {
 
                 const recoveryCode = this.generateRecoveryCode();
                 const recoveryHash = await this.sha256(recoveryCode);
-                const pinHash = bcrypt.hashSync(pin, 10);
+                const pinHash = dcodeIO.bcrypt.hashSync(pin, 10);
 
                 const newAccount = {
                     ffUid: ffUid,
