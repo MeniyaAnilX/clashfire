@@ -1426,20 +1426,18 @@ class ClashFireApp {
 
             if (bindingDoc.exists) {
                 // === LOGIN EXISTING ===
-                const accountId = bindingDoc.data().accountId;
-                const accountDoc = await this.db.collection("accounts").doc(accountId).get();
+                const virtualEmail = `${ffUid}@clashfire.in`;
+                const virtualPassword = `clash_pin_${pin}`;
 
-                if (!accountDoc.exists) {
-                    this.showToast('AUTH FAILED', 'UID or PIN is incorrect.', 'error');
-                    this.hideLoader();
-                    if (submitBtn) submitBtn.disabled = false;
-                    return;
-                }
+                try {
+                    await this.auth.signInWithEmailAndPassword(virtualEmail, virtualPassword);
 
-                const accountData = accountDoc.data();
-                const pinMatch = dcodeIO.bcrypt.compareSync(pin, accountData.pinHash);
-
-                if (!pinMatch) {
+                    // Success: Clear failed attempts
+                    localStorage.removeItem(attemptsKey);
+                    localStorage.removeItem(lockKey);
+                    
+                    this.showToast('WELCOME BACK!', `Logged in successfully as UID ${ffUid}`, 'success');
+                } catch (signInErr) {
                     let failed = parseInt(localStorage.getItem(attemptsKey) || '0') + 1;
                     localStorage.setItem(attemptsKey, failed);
                     if (failed >= 5) {
@@ -1452,16 +1450,6 @@ class ClashFireApp {
                     if (submitBtn) submitBtn.disabled = false;
                     return;
                 }
-
-                // Authenticate Firebase Auth Session using dynamic email
-                const userEmail = accountData.email || `${ffUid}@clashfire.in`;
-                await this.auth.signInWithEmailAndPassword(userEmail, `clash_pin_${pin}`);
-
-                // Success: Clear failed attempts
-                localStorage.removeItem(attemptsKey);
-                localStorage.removeItem(lockKey);
-                
-                this.showToast('WELCOME BACK!', `Logged in successfully as UID ${ffUid}`, 'success');
             } else {
                 // === SIGNUP NEW ===
                 const virtualEmail = `${ffUid}@clashfire.in`;
