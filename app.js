@@ -83,8 +83,8 @@ class ClashFireApp {
         if (devElem) devElem.innerText = "User ID: " + this.displayUserId;
 
         this.loadGlobalSettings();
-        this.loadUserProfile();
-        this.checkReferralBonus();
+        await this.loadUserProfile();
+        await this.checkReferralBonus();
 
 
         this.renderDashboard();
@@ -224,31 +224,15 @@ class ClashFireApp {
             return savedId;
         }
 
-        let hardwareTokens = [];
-        // 1. Physical Screen Pixels (Width & Height scaled by devicePixelRatio)
-        const ratio = window.devicePixelRatio || 1;
-        const physW = Math.round((window.screen.width || 360) * ratio);
-        const physH = Math.round((window.screen.height || 640) * ratio);
-        hardwareTokens.push(`PHYS_DISP:${physW}x${physH}x${ratio}`);
-
-        // 2. Physical CPU Concurrency Cores
-        const cpus = navigator.hardwareConcurrency || 4;
-        hardwareTokens.push(`CPU_CORES:${cpus}`);
-
-        // 3. Physical Timezone Offset & Color Depth
-        const tz = new Date().getTimezoneOffset();
-        const depth = window.screen.colorDepth || 24;
-        hardwareTokens.push(`TZ:${tz}_DEPTH:${depth}`);
-
-        const rawString = hardwareTokens.join('||');
-        let hash = 0;
-        for (let i = 0; i < rawString.length; i++) {
-            const char = rawString.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash |= 0;
+        // Generate a cryptographically secure random 128-bit hex UUID (Option A)
+        const array = new Uint32Array(4);
+        window.crypto.getRandomValues(array);
+        let randomToken = '';
+        for (let i = 0; i < array.length; i++) {
+            randomToken += array[i].toString(16).padStart(8, '0');
         }
-
-        const finalId = `CLASH_HW_${Math.abs(hash)}`;
+        
+        const finalId = `CLASH_HW_${randomToken}`;
         this.setCookie('CLASH_PERMANENT_HW_ID', finalId);
         localStorage.setItem('CLASH_FIRE_HW_ID', finalId);
         return finalId;
@@ -305,6 +289,12 @@ class ClashFireApp {
                     if (doc.exists) {
                         const data = doc.data();
                         this.user = { ...this.user, ...data };
+                        
+                        // Automatic backfill check for legacy profiles
+                        if (!data.displayUserId && this.displayUserId) {
+                            await docRef.update({ displayUserId: this.displayUserId });
+                        }
+
                         if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
                         if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
                         if (!this.user.referredDevices) this.user.referredDevices = [];
@@ -328,6 +318,7 @@ class ClashFireApp {
                         this.renderDashboard();
                     } else {
                         this.user = {
+                            displayUserId: this.displayUserId,
                             coins: 0,
                             freeFireUid: '',
                             dailyLinkCompletedCount: 0,
@@ -443,12 +434,12 @@ class ClashFireApp {
 
 
 
-    async saveUserProfile() {
+    async saveUserProfile(skipRemote = false) {
         if (this.displayUserId) {
             this.user.displayUserId = this.displayUserId;
         }
         localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
-        if (this.firestoreActive) {
+        if (this.firestoreActive && !skipRemote) {
             try {
                 await this.db.collection("users").doc(this.deviceId).set(this.user, { merge: true });
             } catch (err) { console.error(err); }
@@ -886,8 +877,8 @@ class ClashFireApp {
                     this.showToast('REDEMPTION FAILED', e.message || 'Database error occurred. Please try again!', 'error');
                 }
             } else {
-                // Offline fallback (mock system mode)
-                transactionSuccess = true;
+                // Reject package redemptions if Firestore is offline
+                this.showToast('OFFLINE ERROR', 'Database service is currently offline. Please check your internet connection or disable ad-blockers and try again!', 'error');
             }
 
             if (transactionSuccess) {
@@ -896,7 +887,7 @@ class ClashFireApp {
                 if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
                 this.user.redemptionHistory.push(redemptionItem);
 
-                await this.saveUserProfile();
+                await this.saveUserProfile(true); // skip remote Firestore update since the transaction already updated it
                 this.renderDashboard();
 
                 document.getElementById('modal-amount').innerText = `${diamondAmount} Diamonds`;

@@ -194,7 +194,7 @@
 
     <!-- Reward Badge -->
     <div class="reward-badge">
-        <img src="diamond.png" alt="Diamond" style="width:22px;height:22px;object-fit:contain;">
+        <img src="diamond.png" alt="Diamond" width="22" height="22" style="width:22px;height:22px;object-fit:contain;">
         <span id="reward-amt">+5 Diamonds</span>
     </div>
 
@@ -750,16 +750,15 @@
                                 const commissionCoins = parseFloat((totalDailyMissionsReward * (commPercent / 100)).toFixed(2));
 
                                 if (commissionCoins > 0) {
-                                    const snapshot = await db.collection("users").get();
-                                    for (const doc of snapshot.docs) {
-                                        const displayId = "CF-" + doc.id.substring(9, 15);
-                                        if (displayId === refCode && doc.id !== deviceId) {
+                                    const snapshot = await db.collection("users").where("displayUserId", "==", refCode).limit(1).get();
+                                    if (!snapshot.empty) {
+                                        const doc = snapshot.docs[0];
+                                        if (doc.id !== deviceId) {
                                             const refData = doc.data();
                                             const newCoins = parseFloat(((refData.coins || 0) + commissionCoins).toFixed(2));
                                             await doc.ref.update({ coins: newCoins });
                                             await db.collection("users").doc(deviceId).update({ lastReferralCommissionDate: todayResetKey });
-                                            console.log(`Referral commission +${commissionCoins} credited to ${displayId}`);
-                                            break;
+                                            console.log(`Referral commission +${commissionCoins} credited to ${refCode}`);
                                         }
                                     }
                                 }
