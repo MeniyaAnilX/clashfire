@@ -84,7 +84,7 @@
                 <!-- Text column: FREEDIAMOND.IN top, User ID bottom -->
                 <div style="display: flex; flex-direction: column; gap: 5px;">
                     <span class="app-name" style="line-height: 1;">FREEDIAMOND.<span>IN</span></span>
-                    <span class="device-tag" id="display-device-id" style="margin: 0; line-height: 1;">User ID: Loading...</span>
+                    <span class="device-tag" id="display-device-id" style="margin: 0; line-height: 1;">UID: Loading...</span>
                 </div>
             </div>
             <div class="header-right" style="display: flex; align-items: center; gap: 8px;">
@@ -102,7 +102,11 @@
             if (localStorage.getItem('CLASH_LOGGED_IN') === 'true') {
                 const lastUid = localStorage.getItem('CLASH_LAST_FF_UID');
                 if (lastUid) {
-                    document.getElementById('display-device-id').innerText = "User ID: " + lastUid;
+                    document.getElementById('display-device-id').innerText = "UID: " + lastUid;
+                }
+                const lastCoins = localStorage.getItem('CLASH_LAST_COINS');
+                if (lastCoins) {
+                    document.getElementById('user-coins').innerText = lastCoins;
                 }
                 const logoutBtn = document.getElementById('btn-logout');
                 if (logoutBtn) logoutBtn.classList.remove('hidden');

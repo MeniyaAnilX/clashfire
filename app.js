@@ -100,6 +100,7 @@ class ClashFireApp {
                     this.user = { coins: 0, completedLinks: {}, dailyLinkCompletedCount: 0 };
                     localStorage.removeItem('CLASH_LOGGED_IN');
                     localStorage.removeItem('CLASH_LAST_FF_UID');
+                    localStorage.removeItem('CLASH_LAST_COINS');
                     
                     // Hide logout button in header
                     const logoutBtn = document.getElementById('btn-logout');
@@ -110,7 +111,7 @@ class ClashFireApp {
                     if (authSection) authSection.classList.remove('hidden');
 
                     const devElem = document.getElementById('display-device-id');
-                    if (devElem) devElem.innerText = "User ID: Not Logged In";
+                    if (devElem) devElem.innerText = "UID: Not Logged In";
 
                     this.renderDashboard();
                 }
@@ -123,7 +124,7 @@ class ClashFireApp {
             });
         } else {
             const devElem = document.getElementById('display-device-id');
-            if (devElem) devElem.innerText = "Database Offline";
+            if (devElem) devElem.innerText = "UID: Database Offline";
         }
 
         this.renderDashboard(); // Render static constructor links immediately (no spinner lag)
@@ -412,6 +413,8 @@ class ClashFireApp {
                             this.user.completedDailyVisits = {};
                         }
                         
+                        const formattedCoins = this.formatCoins(this.user.coins);
+                        localStorage.setItem('CLASH_LAST_COINS', formattedCoins);
                         localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
                         this.renderDashboard();
                         await this.claimPendingReferralCommissions();
