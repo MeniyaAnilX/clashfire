@@ -828,15 +828,8 @@
                         selectedUrl = randomSlot.url;
                         localStorage.setItem(randomSlot.key, (randomSlot.current + 1).toString());
                     } else {
-                        // Fallback: If capped slots are exhausted, pick any active slot so return clicks always trigger ad impression!
-                        const activeSlots = [];
-                        if (window.smartlinkUrl1) activeSlots.push(window.smartlinkUrl1);
-                        if (window.smartlinkUrl2) activeSlots.push(window.smartlinkUrl2);
-                        if (window.smartlinkUrl3) activeSlots.push(window.smartlinkUrl3);
-                        if (window.smartlinkUrl4) activeSlots.push(window.smartlinkUrl4);
-                        if (activeSlots.length > 0) {
-                            selectedUrl = activeSlots[Math.floor(Math.random() * activeSlots.length)];
-                        }
+                        // All links have reached their 24h daily cap limit - stop serving capped links for today
+                        selectedUrl = '';
                     }
                 }
             }
