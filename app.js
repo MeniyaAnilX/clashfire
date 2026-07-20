@@ -1137,7 +1137,7 @@ class ClashFireApp {
                 targetUrl = "https://" + targetUrl;
             }
 
-            window.open(targetUrl, '_blank', 'noopener,noreferrer');
+            window.open(targetUrl, '_blank');
             this.showToast('VISIT STARTED', 'Stay on the visited tab and wait for countdown!', 'info');
 
             this.dvTimerId = setInterval(() => {
@@ -1198,7 +1198,7 @@ class ClashFireApp {
             targetUrl = "https://" + targetUrl;
         }
 
-        window.open(targetUrl, '_blank', 'noopener,noreferrer');
+        window.open(targetUrl, '_blank');
         this.showToast('VISIT RESUMED', 'Timer resumed! Stay on the sponsor page.', 'info');
     }
 
@@ -1256,7 +1256,7 @@ class ClashFireApp {
         if (targetUrl && !/^https?:\/\//i.test(targetUrl)) {
             targetUrl = "https://" + targetUrl;
         }
-        window.open(targetUrl, '_blank', 'noopener,noreferrer');
+        window.open(targetUrl, '_blank');
         this.showToast('MISSION STARTED', 'Please complete the shortener link to verify and claim diamonds!', 'info');
     }
 
