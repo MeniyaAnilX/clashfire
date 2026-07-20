@@ -111,6 +111,12 @@ class ClashFireApp {
 
                     this.renderDashboard();
                 }
+
+                // Execute delayed tab switching now that auth status is finalized
+                if (this.pendingTab) {
+                    this.switchAppTab(this.pendingTab);
+                    this.pendingTab = null;
+                }
             });
         } else {
             const devElem = document.getElementById('display-device-id');
@@ -122,13 +128,11 @@ class ClashFireApp {
         this.startLiveProofsTicker();
         this.protectAppFromInspect();
 
-        // Read URL query parameter to support direct landing on specific tab
+        // Read URL query parameter to support direct landing on specific tab (delayed until auth state load completes)
         const urlParams = new URLSearchParams(window.location.search);
         const activeTab = urlParams.get('tab');
-        if (activeTab === 'tasks') {
-            this.switchAppTab('tab-tasks');
-        } else if (activeTab === 'redeem') {
-            this.switchAppTab('tab-redeem');
+        if (activeTab === 'tasks' || activeTab === 'redeem') {
+            this.pendingTab = 'tab-' + activeTab;
         }
 
         document.addEventListener('visibilitychange', async () => {
