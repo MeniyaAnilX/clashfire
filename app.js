@@ -74,21 +74,50 @@ class ClashFireApp {
 
     async init() {
         window.name = 'ClashFireDashboard';
-        this.renderDashboard(); // Render static constructor links immediately (no spinner lag)
         this.initFirebase();
-        
-        this.deviceId = await this.getOrCreateMultiLayerDeviceID();
-        this.displayUserId = "CF-" + this.deviceId.substring(9, 15);
-        
-        const devElem = document.getElementById('display-device-id');
-        if (devElem) devElem.innerText = "User ID: " + this.displayUserId;
-
         this.loadGlobalSettings();
-        await this.loadUserProfile();
-        await this.checkReferralBonus();
 
+        // Listen for Firebase Auth state changes
+        if (this.firestoreActive) {
+            this.auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    this.deviceId = user.uid;
+                    
+                    // Show logout button in header
+                    const logoutBtn = document.getElementById('btn-logout');
+                    if (logoutBtn) logoutBtn.classList.remove('hidden');
 
-        this.renderDashboard();
+                    // Hide auth form section on homepage
+                    const authSection = document.getElementById('auth-section');
+                    if (authSection) authSection.classList.add('hidden');
+
+                    // Load user data securely
+                    await this.loadUserProfile();
+                    await this.checkReferralBonus();
+                } else {
+                    this.deviceId = null;
+                    this.user = { coins: 0, completedLinks: {}, dailyLinkCompletedCount: 0 };
+                    
+                    // Hide logout button in header
+                    const logoutBtn = document.getElementById('btn-logout');
+                    if (logoutBtn) logoutBtn.classList.add('hidden');
+
+                    // Show auth form section on homepage
+                    const authSection = document.getElementById('auth-section');
+                    if (authSection) authSection.classList.remove('hidden');
+
+                    const devElem = document.getElementById('display-device-id');
+                    if (devElem) devElem.innerText = "User ID: Not Logged In";
+
+                    this.renderDashboard();
+                }
+            });
+        } else {
+            const devElem = document.getElementById('display-device-id');
+            if (devElem) devElem.innerText = "Database Offline";
+        }
+
+        this.renderDashboard(); // Render static constructor links immediately (no spinner lag)
         this.startCountdownTimer();
         this.startLiveProofsTicker();
         this.protectAppFromInspect();
@@ -102,10 +131,8 @@ class ClashFireApp {
             this.switchAppTab('tab-redeem');
         }
 
-
-
         document.addEventListener('visibilitychange', async () => {
-            if (document.visibilityState === 'visible') {
+            if (document.visibilityState === 'visible' && this.deviceId) {
                 await this.loadUserProfile();
                 this.renderDashboard();
             }
@@ -113,6 +140,20 @@ class ClashFireApp {
     }
 
     switchAppTab(tabId, btnElem) {
+        // Logged-out user tab redirection block with scroll-to-focus on login card
+        if (!this.deviceId && (tabId === 'tab-tasks' || tabId === 'tab-redeem')) {
+            this.showToast('AUTHENTICATION REQUIRED', 'Enter your Free Fire UID and PIN to continue.', 'error');
+            const authSection = document.getElementById('auth-section');
+            if (authSection) {
+                authSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(() => {
+                    const uidInput = document.getElementById('auth-ff-uid');
+                    if (uidInput) uidInput.focus();
+                }, 500);
+            }
+            return;
+        }
+
         document.querySelectorAll('.app-tab-pane').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.main-nav-tabs .tab-btn').forEach(el => el.classList.remove('active'));
         
@@ -141,9 +182,11 @@ class ClashFireApp {
             if (typeof firebase !== 'undefined' && firebase.initializeApp) {
                 firebase.initializeApp(firebaseConfig);
                 this.db = firebase.firestore();
+                this.auth = firebase.auth();
+                this.functions = firebase.functions();
                 this.firestoreActive = true;
             }
-        } catch (e) { console.warn(e.message); }
+        } catch (e) { console.warn("Firebase Init Error: ", e.message); this.firestoreActive = false; }
     }
 
     async loadGlobalSettings() {
@@ -261,49 +304,15 @@ class ClashFireApp {
             return savedId;
         }
 
+        // Generate hybrid fingerprint (Canvas signature + Screen details + CPU + Timezone offset)
+        // This persists across incognito mode / browser clearing on the same device
         const ratio = window.devicePixelRatio || 1;
         const physW = Math.round((window.screen.width || 360) * ratio);
         const physH = Math.round((window.screen.height || 640) * ratio);
         const cpus = navigator.hardwareConcurrency || 4;
         const tz = new Date().getTimezoneOffset();
         const depth = window.screen.colorDepth || 24;
-
-        // 1. Calculate metrics using the legacy formula first to check for existing accounts
-        const legacyTokens = [
-            `PHYS_DISP:${physW}x${physH}x${ratio}`,
-            `CPU_CORES:${cpus}`,
-            `TZ:${tz}_DEPTH:${depth}`
-        ];
-        const legacyRaw = legacyTokens.join('||');
-        let legacyHash = 0;
-        for (let i = 0; i < legacyRaw.length; i++) {
-            const char = legacyRaw.charCodeAt(i);
-            legacyHash = ((legacyHash << 5) - legacyHash) + char;
-            legacyHash |= 0;
-        }
-        const legacyId = `CLASH_HW_${Math.abs(legacyHash)}`;
-
-        // Check if legacy user exists in database to automatically recover their account
-        let legacyExists = false;
-        if (this.firestoreActive) {
-            try {
-                const doc = await this.db.collection("users").doc(legacyId).get();
-                if (doc.exists) {
-                    legacyExists = true;
-                }
-            } catch (err) {
-                console.error("Error looking up legacy profile:", err);
-            }
-        }
-
-        if (legacyExists) {
-            // Restore legacy account
-            this.setCookie('CLASH_PERMANENT_HW_ID', legacyId);
-            localStorage.setItem('CLASH_FIRE_HW_ID', legacyId);
-            return legacyId;
-        }
-
-        // 2. Generate new secure canvas-based ID for new profiles
+        
         const canvasHash = this.getCanvasFingerprint();
         const rawString = `DISP:${physW}x${physH}x${ratio}||CPU:${cpus}||TZ:${tz}||DEPTH:${depth}||CANVAS:${canvasHash}`;
         
@@ -364,7 +373,7 @@ class ClashFireApp {
 
         if (this.firestoreActive) {
             try {
-                const docRef = this.db.collection("users").doc(this.deviceId);
+                const docRef = this.db.collection("accounts").doc(this.deviceId);
                 
                 // Unsubscribe from any active listener first to prevent duplication leaks
                 if (this.userListenerUnsubscribe) {
@@ -377,48 +386,24 @@ class ClashFireApp {
                         const data = doc.data();
                         this.user = { ...this.user, ...data };
                         
-                        // Automatic backfill check for legacy profiles
-                        if (!data.displayUserId && this.displayUserId) {
-                            await docRef.update({ displayUserId: this.displayUserId });
-                        }
+                        this.displayUserId = data.ffUid;
+                        const devElem = document.getElementById('display-device-id');
+                        if (devElem) devElem.innerText = "UID: " + this.displayUserId;
 
                         if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
                         if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
                         if (!this.user.referredDevices) this.user.referredDevices = [];
                         if (!this.user.completedDailyVisits || Array.isArray(this.user.completedDailyVisits)) this.user.completedDailyVisits = {};
                         
-                        // Check date reset logic inside snapshot
+                        // Check date reset logic inside snapshot (applied locally for UI freshness)
                         if (this.user.lastResetDate !== today) {
                             this.user.dailyLinkCompletedCount = 0;
                             this.user.completedLinks = {};
                             this.user.completedDailyVisits = {};
-                            this.user.lastResetDate = today;
-                            await docRef.update({
-                                dailyLinkCompletedCount: 0,
-                                completedLinks: {},
-                                completedDailyVisits: {},
-                                lastResetDate: today
-                            });
                         }
                         
                         localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
                         this.renderDashboard();
-                    } else {
-                        this.user = {
-                            displayUserId: this.displayUserId,
-                            coins: 0,
-                            freeFireUid: '',
-                            dailyLinkCompletedCount: 0,
-                            completedLinks: {},
-                            redemptionHistory: [],
-                            lastResetDate: today,
-                            referredBy: null,
-                            referralClaimed: false,
-                            referredDevices: [],
-                            completedDailyVisits: {}
-                        };
-                        localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
-                        await docRef.set(this.user);
                     }
                 });
                 return;
@@ -776,20 +761,7 @@ class ClashFireApp {
     openSponsorChannel() {
         const url = this.integrations.sponsorUrl || "https://t.me";
         window.open(url, '_blank', 'noopener,noreferrer');
-        this.showToast('COMMUNITY LAUNCHED', 'Claiming community diamond bonus...', 'info');
-
-        if (!localStorage.getItem('CF_COMMUNITY_CLAIMED')) {
-            localStorage.setItem('CF_COMMUNITY_CLAIMED', 'true');
-            setTimeout(() => {
-                const bonus = parseInt(this.integrations.sponsorReward || 10);
-                this.user.coins += bonus;
-                this.saveUserProfile();
-                this.renderDashboard();
-                this.showToast('BONUS CREDITED!', `+${bonus} Diamonds credited for joining community!`, 'success');
-            }, 3000);
-        } else {
-            this.showToast('ALREADY CLAIMED', 'You have already claimed your community bonus!', 'info');
-        }
+        this.showToast('COMMUNITY LAUNCHED', 'Welcome to our official community!', 'success');
     }
     executeIsolatedAdScript(containerElement, rawHtmlCode, slotTag = 'slot') {
         if (!containerElement || !rawHtmlCode) return;
@@ -874,18 +846,15 @@ class ClashFireApp {
     launchGamezop() {
         const url = this.integrations.gamezopUrl || "https://www.gamezop.com";
         window.open(url, '_blank', 'noopener,noreferrer');
-        this.showToast('GAMEZOP LAUNCHED', 'Play games active for 3 mins to claim reward!', 'info');
-        
-        setTimeout(() => {
-            const gzReward = this.integrations.gamezopReward || 5;
-            this.user.coins += gzReward;
-            this.saveUserProfile();
-            this.renderDashboard();
-            this.showToast('GAMEPLAY BONUS!', `+${gzReward} Diamonds credited for active gameplay!`, 'success');
-        }, 180000); // 3-minute verified gameplay
+        this.showToast('GAMEZOP LAUNCHED', 'Play games for active entertainment!', 'success');
     }
 
     async selectPackage(cardElem, diamondAmount, costPoints) {
+        if (!this.deviceId) {
+            this.showToast('AUTHENTICATION REQUIRED', 'Please login first to redeem rewards.', 'error');
+            return;
+        }
+
         const uidInput = document.getElementById('ff-uid').value.trim();
         
         // Strict Free Fire UID Validation: Must be between 7 and 13 digits
@@ -900,7 +869,11 @@ class ClashFireApp {
             return;
         }
 
-        this.user.freeFireUid = uidInput;
+        if (!this.firestoreActive) {
+            this.showToast('OFFLINE ERROR', 'Database service is offline. Please check your network and try again.', 'error');
+            return;
+        }
+
         this.showLoader(`PROCESSING ${diamondAmount} DIAMONDS PAYOUT...`);
 
         // Double-Click / Race Condition Protection
@@ -911,75 +884,27 @@ class ClashFireApp {
         });
 
         setTimeout(async () => {
-            const reqId = "REQ_" + Date.now();
-            const redemptionItem = {
-                id: reqId,
-                diamonds: diamondAmount,
-                points: costPoints,
-                ffUid: uidInput,
-                status: "PENDING",
-                date: new Date().toLocaleDateString()
-            };
+            try {
+                const createRedemptionRequest = this.functions.httpsCallable('createRedemptionRequest');
+                const result = await createRedemptionRequest({
+                    diamondAmount: diamondAmount,
+                    costPoints: costPoints,
+                    uidInput: uidInput
+                });
 
-            let transactionSuccess = false;
+                if (result.data && result.data.success) {
+                    this.user.coins = parseFloat((this.user.coins - costPoints).toFixed(2));
+                    this.renderDashboard();
 
-            if (this.firestoreActive) {
-                try {
-                    const userDocRef = this.db.collection("users").doc(this.deviceId);
-                    const redeemDocRef = this.db.collection("redemptions").doc(reqId);
-
-                    await this.db.runTransaction(async (transaction) => {
-                        const userDoc = await transaction.get(userDocRef);
-                        if (!userDoc.exists) {
-                            throw new Error("User document does not exist in database!");
-                        }
-                        const currentCoins = parseInt(userDoc.data().coins || 0);
-                        if (currentCoins < costPoints) {
-                            throw new Error("Insufficient balance in database!");
-                        }
-
-                        // Deduct coins inside transaction
-                        transaction.update(userDocRef, {
-                            coins: currentCoins - costPoints,
-                            freeFireUid: uidInput,
-                            redemptionHistory: firebase.firestore.FieldValue.arrayUnion(redemptionItem)
-                        });
-
-                        // Create redemption record inside transaction
-                        transaction.set(redeemDocRef, {
-                            reqId: reqId,
-                            deviceId: this.deviceId,
-                            freeFireUid: uidInput,
-                            diamondAmount: diamondAmount,
-                            pointsDeducted: costPoints,
-                            timestamp: new Date().toISOString(),
-                            date: new Date().toLocaleDateString(),
-                            status: "PENDING"
-                        });
-                    });
-
-                    transactionSuccess = true;
-                } catch (e) {
-                    console.error("Atomic Redemption Transaction Failed:", e);
-                    this.showToast('REDEMPTION FAILED', e.message || 'Database error occurred. Please try again!', 'error');
+                    document.getElementById('modal-amount').innerText = `${diamondAmount} Diamonds`;
+                    document.getElementById('modal-uid').innerText = uidInput;
+                    document.getElementById('redeem-modal').classList.remove('hidden');
+                } else {
+                    this.showToast('REDEMPTION FAILED', 'Failed to submit redemption request.', 'error');
                 }
-            } else {
-                // Reject package redemptions if Firestore is offline
-                this.showToast('OFFLINE ERROR', 'Database service is currently offline. Please check your internet connection or disable ad-blockers and try again!', 'error');
-            }
-
-            if (transactionSuccess) {
-                // Update local user object coins and history
-                this.user.coins -= costPoints;
-                if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
-                this.user.redemptionHistory.push(redemptionItem);
-
-                await this.saveUserProfile(true); // skip remote Firestore update since the transaction already updated it
-                this.renderDashboard();
-
-                document.getElementById('modal-amount').innerText = `${diamondAmount} Diamonds`;
-                document.getElementById('modal-uid').innerText = uidInput;
-                document.getElementById('redeem-modal').classList.remove('hidden');
+            } catch (e) {
+                console.error("Redemption transaction failed:", e);
+                this.showToast('REDEMPTION FAILED', e.message || 'Database error occurred. Please try again!', 'error');
             }
 
             this.hideLoader();
@@ -989,8 +914,7 @@ class ClashFireApp {
                 if (elem.tagName === 'BUTTON') elem.disabled = false;
                 elem.style.pointerEvents = 'auto';
             });
-
-        }, 2000);
+        }, 1500);
     }
 
     copyReferralLink() {
@@ -1351,6 +1275,184 @@ class ClashFireApp {
                 return false;
             }
         });
+    }
+
+    // Show loading spinner
+    showLoader(message) {
+        const loader = document.getElementById('global-loader');
+        const loaderMsg = document.getElementById('loader-message');
+        if (loader) {
+            if (loaderMsg && message) loaderMsg.innerText = message;
+            loader.classList.remove('hidden');
+        }
+    }
+
+    // Hide loading spinner
+    hideLoader() {
+        const loader = document.getElementById('global-loader');
+        if (loader) loader.classList.add('hidden');
+    }
+
+    // PIN Recovery handlers
+    showPinRecovery(event) {
+        if (event) event.preventDefault();
+        document.getElementById('auth-form-container').classList.add('hidden');
+        document.getElementById('pin-recovery-screen').classList.remove('hidden');
+    }
+
+    cancelPinRecovery() {
+        document.getElementById('auth-form-container').classList.remove('hidden');
+        document.getElementById('pin-recovery-screen').classList.add('hidden');
+    }
+
+    async handleRecoverySubmit(event) {
+        if (event) event.preventDefault();
+        
+        const ffUid = document.getElementById('recovery-ff-uid').value.trim();
+        const recoveryCode = document.getElementById('recovery-code-input').value.trim();
+        const newPin = document.getElementById('recovery-new-pin').value.trim();
+        
+        if (!/^\d{7,13}$/.test(ffUid)) {
+            this.showToast('INVALID UID', 'UID must be a number between 7 and 13 digits.', 'error');
+            return;
+        }
+        if (!/^\d{6}$/.test(newPin)) {
+            this.showToast('INVALID PIN', 'PIN must be exactly 6 digits.', 'error');
+            return;
+        }
+
+        const submitBtn = document.getElementById('recovery-submit-btn');
+        if (submitBtn) submitBtn.disabled = true;
+        this.showLoader("RESETTING PIN...");
+
+        try {
+            const resetPinWithRecoveryCode = this.functions.httpsCallable('resetPinWithRecoveryCode');
+            const result = await resetPinWithRecoveryCode({
+                ffUid: ffUid,
+                recoveryCode: recoveryCode,
+                newPin: newPin
+            });
+
+            if (result.data && result.data.success) {
+                this.showToast('PIN RESET SUCCESS', 'Your PIN has been updated successfully. Please login now.', 'success');
+                this.cancelPinRecovery();
+            } else {
+                this.showToast('RESET FAILED', 'Invalid recovery code or account details.', 'error');
+            }
+        } catch (err) {
+            console.error("Recovery failed:", err);
+            this.showToast('RESET FAILED', err.message || 'Verification failed.', 'error');
+        }
+
+        this.hideLoader();
+        if (submitBtn) submitBtn.disabled = false;
+    }
+
+    // Login/Signup handlers
+    async handleAuthSubmit(event) {
+        if (event) event.preventDefault();
+
+        const ffUid = document.getElementById('auth-ff-uid').value.trim();
+        const pin = document.getElementById('auth-pin').value.trim();
+
+        if (!/^\d{7,13}$/.test(ffUid)) {
+            this.showToast('INVALID UID', 'UID must be a number between 7 and 13 digits.', 'error');
+            return;
+        }
+        if (!/^\d{6}$/.test(pin)) {
+            this.showToast('INVALID PIN', 'PIN must be exactly 6 digits.', 'error');
+            return;
+        }
+
+        const submitBtn = document.getElementById('auth-submit-btn');
+        if (submitBtn) submitBtn.disabled = true;
+        this.showLoader("AUTHENTICATING...");
+
+        try {
+            const legacyId = this.getLegacyFingerprintID();
+            const loginOrSignUp = this.functions.httpsCallable('loginOrSignUp');
+            const result = await loginOrSignUp({
+                ffUid: ffUid,
+                pin: pin,
+                legacyDeviceId: legacyId
+            });
+
+            if (result.data && result.data.success) {
+                const customToken = result.data.customToken;
+                
+                // Sign in using custom token
+                await this.auth.signInWithCustomToken(customToken);
+
+                // If signup generated a recovery code, show it
+                if (result.data.recoveryCode) {
+                    document.getElementById('auth-form-container').classList.add('hidden');
+                    document.getElementById('recovery-code-value').innerText = result.data.recoveryCode;
+                    document.getElementById('recovery-code-screen').classList.remove('hidden');
+                    
+                    // Show a toast prompting them to save recovery code
+                    this.showToast('ACCOUNT CREATED!', 'Please save your Recovery Code!', 'success');
+                } else {
+                    this.showToast('WELCOME BACK!', `Logged in successfully as UID ${ffUid}`, 'success');
+                }
+            } else {
+                this.showToast('AUTH FAILED', 'UID or PIN is incorrect.', 'error');
+            }
+        } catch (err) {
+            console.error("Auth failed:", err);
+            // Generic message for security as requested
+            this.showToast('AUTH FAILED', 'UID or PIN is incorrect.', 'error');
+        }
+
+        this.hideLoader();
+        if (submitBtn) submitBtn.disabled = false;
+    }
+
+    dismissRecoveryScreen() {
+        document.getElementById('recovery-code-screen').classList.add('hidden');
+        document.getElementById('auth-form-container').classList.remove('hidden');
+    }
+
+    async handleLogout() {
+        try {
+            this.showLoader("LOGGING OUT...");
+            await this.auth.signOut();
+            localStorage.removeItem('CLASH_USER_DATA_' + this.deviceId);
+            this.showToast('LOGGED OUT', 'You have been logged out successfully.', 'info');
+        } catch(e) {
+            console.error("Logout error:", e);
+        }
+        this.hideLoader();
+    }
+
+    getLegacyFingerprintID() {
+        let savedId = this.getCookie('CLASH_PERMANENT_HW_ID') || localStorage.getItem('CLASH_FIRE_HW_ID');
+        if (savedId && savedId.startsWith('CLASH_HW_') && savedId.length < 25) {
+            // Legacy IDs are shorter, UUIDs are 32 chars long hex
+            return savedId;
+        }
+        
+        // Otherwise calculate it using old metrics formula
+        let hardwareTokens = [];
+        const ratio = window.devicePixelRatio || 1;
+        const physW = Math.round((window.screen.width || 360) * ratio);
+        const physH = Math.round((window.screen.height || 640) * ratio);
+        hardwareTokens.push(`PHYS_DISP:${physW}x${physH}x${ratio}`);
+
+        const cpus = navigator.hardwareConcurrency || 4;
+        hardwareTokens.push(`CPU_CORES:${cpus}`);
+
+        const tz = new Date().getTimezoneOffset();
+        const depth = window.screen.colorDepth || 24;
+        hardwareTokens.push(`TZ:${tz}_DEPTH:${depth}`);
+
+        const rawString = hardwareTokens.join('||');
+        let hash = 0;
+        for (let i = 0; i < rawString.length; i++) {
+            const char = rawString.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash |= 0;
+        }
+        return `CLASH_HW_${Math.abs(hash)}`;
     }
 }
 

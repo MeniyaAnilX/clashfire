@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Accounts collection
+    match /accounts/{accountId} {
+      // User can only read their own profile document
+      allow read: if request.auth != null && request.auth.uid == accountId;
+      // All modifications (coins, completed tasks, history) must be done securely via Cloud Functions
+      allow write: if false;
+    }
+
+    // FF UID Bindings (Lookup map)
+    match /ffUidBindings/{hashedFFUid} {
+      // Completely hidden from direct frontend access
+      allow read, write: if false;
+    }
+
+    // Redemptions collection
+    match /redemptions/{redemptionId} {
+      // User can read their own redemption requests
+      allow read: if request.auth != null && resource.data.accountId == request.auth.uid;
+      // Creation and updates are handled securely via Cloud Functions
+      allow write: if false;
+    }
+
+    // Legacy users collection (For migration lookup)
+    match /users/{deviceId} {
+      // Allow read for migration verification; block client-side writes
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Settings (Missions, Daily Visits, Global variables)
+    match /settings/{settingId} {
+      // Publicly readable for app layout and settings initialization; block writes
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

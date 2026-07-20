@@ -84,14 +84,17 @@
                 <!-- Text column: FREEDIAMOND.IN top, User ID bottom -->
                 <div style="display: flex; flex-direction: column; gap: 2px;">
                     <span class="app-name" style="line-height: 1;">FREEDIAMOND.<span>IN</span></span>
-                    <span class="device-tag" id="display-device-id" style="margin: 0; line-height: 1;">User ID: Active</span>
+                    <span class="device-tag" id="display-device-id" style="margin: 0; line-height: 1;">User ID: Loading...</span>
                 </div>
             </div>
-            <div class="header-right">
+            <div class="header-right" style="display: flex; align-items: center; gap: 8px;">
                 <div class="wallet-badge" onclick="app.scrollToRedeem()">
                     <img src="diamond.png" alt="Free Fire Diamond Gem" width="22" height="22" class="wallet-gem-img">
                     <span id="user-coins">0</span>
                 </div>
+                <button id="btn-logout" class="hidden" onclick="app.handleLogout()" style="background: rgba(255,23,68,0.15); color: #ff1744; border: 1px solid rgba(255,23,68,0.3); border-radius: 8px; padding: 6px 10px; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; height: 32px; box-sizing: border-box; margin: 0;">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
             </div>
         </header>
 
@@ -160,6 +163,78 @@
                             <span id="ref-stat-reward" style="font-size: 1.2rem; font-weight: bold; color: var(--accent-gold);">10% Rate</span>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- Premium Auth System (UID + PIN login/signup) -->
+            <section class="dashboard-section" id="auth-section">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-user-shield" style="color: var(--accent-gold);"></i> ACCESS YOUR WALLET</h2>
+                    <span class="sub-badge" id="auth-status-badge" style="background: rgba(255, 215, 0, 0.15); color: var(--accent-gold); border: 1.5px solid rgba(255, 215, 0, 0.3);">LOGIN / SIGNUP</span>
+                </div>
+                <p class="section-desc" id="auth-desc-message" style="margin-bottom: 15px;">Enter your Free Fire UID and PIN to access your missions, referrals, and redeem vault.</p>
+
+                <!-- Logged Out Auth Form -->
+                <div id="auth-form-container">
+                    <form id="auth-form" onsubmit="app.handleAuthSubmit(event)" style="display: flex; flex-direction: column; gap: 15px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 16px; margin: 0;">
+                        
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 6px; text-align: left;">
+                            <label for="auth-ff-uid" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;"><i class="fa-solid fa-gamepad"></i> FREE FIRE PLAYER UID</label>
+                            <input type="text" id="auth-ff-uid" placeholder="Enter numeric UID e.g. 123456789" required autocomplete="off" style="width: 100%; padding: 12px; border-radius: 8px; border: 1.5px solid rgba(255, 255, 255, 0.1); background: rgba(0, 0, 0, 0.3); color: #fff; font-family: inherit; box-sizing: border-box;">
+                        </div>
+
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 6px; text-align: left;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <label for="auth-pin" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin: 0;"><i class="fa-solid fa-key"></i> 6-DIGIT PIN</label>
+                                <a href="#" onclick="app.showPinRecovery(event)" style="font-size: 0.75rem; color: var(--accent-cyan); text-decoration: none; font-weight: 600;">Forgot PIN?</a>
+                            </div>
+                            <input type="password" id="auth-pin" maxlength="6" placeholder="Enter 6-digit PIN" required autocomplete="off" style="width: 100%; padding: 12px; border-radius: 8px; border: 1.5px solid rgba(255, 255, 255, 0.1); background: rgba(0, 0, 0, 0.3); color: #fff; font-family: inherit; letter-spacing: 2px; text-align: center; font-size: 1.1rem; box-sizing: border-box;">
+                        </div>
+
+                        <button type="submit" id="auth-submit-btn" class="btn-primary" style="background: linear-gradient(135deg, var(--accent-gold), #ff9100); color: #020617; font-weight: 800; padding: 14px; width: 100%; border-radius: 8px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin: 5px 0 0 0;">
+                            <i class="fa-solid fa-right-to-bracket"></i> CONTINUE TO ACCOUNT
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Recovery Code Display Screen (Shown only once upon signup) -->
+                <div id="recovery-code-screen" class="hidden" style="background: rgba(0, 242, 254, 0.05); border: 1.5px dashed var(--accent-cyan); padding: 22px; border-radius: 16px; text-align: center; margin-top: 15px;">
+                    <i class="fa-solid fa-circle-check" style="font-size: 2rem; color: var(--accent-cyan); margin-bottom: 10px; display: block;"></i>
+                    <h3 style="color: #fff; margin-bottom: 8px; font-size: 1.1rem;">REGISTRATION SUCCESSFUL!</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Please take a screenshot of this recovery code. It is required if you forget your PIN. It will never be shown again!</p>
+                    <div id="recovery-code-value" style="font-size: 1.5rem; font-weight: 800; color: var(--accent-gold); letter-spacing: 2px; background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.08);">
+                        FD-XXXX-XXXX
+                    </div>
+                    <button class="btn-primary" style="padding: 10px 20px; font-size: 0.8rem; margin: 0 auto;" onclick="app.dismissRecoveryScreen()">
+                        I HAVE SAVED IT
+                    </button>
+                </div>
+
+                <!-- Pin Reset / Recovery Screen -->
+                <div id="pin-recovery-screen" class="hidden" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 16px; margin-top: 15px;">
+                    <h3 style="color: #fff; margin-bottom: 12px; font-size: 1rem; text-align: left;"><i class="fa-solid fa-arrow-rotate-left" style="color: var(--accent-cyan);"></i> RESET ACCOUNT PIN</h3>
+                    <form id="recovery-form" onsubmit="app.handleRecoverySubmit(event)" style="display: flex; flex-direction: column; gap: 12px; margin: 0;">
+                        
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 4px; text-align: left;">
+                            <label for="recovery-ff-uid" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 2px;">FREE FIRE PLAYER UID</label>
+                            <input type="text" id="recovery-ff-uid" placeholder="Enter registered UID" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; box-sizing: border-box;">
+                        </div>
+
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 4px; text-align: left;">
+                            <label for="recovery-code-input" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 2px;">RECOVERY CODE (FD-XXXX-XXXX)</label>
+                            <input type="text" id="recovery-code-input" placeholder="e.g. FD-8K4M-72PX" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; box-sizing: border-box;">
+                        </div>
+
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 4px; text-align: left;">
+                            <label for="recovery-new-pin" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 2px;">NEW 6-DIGIT PIN</label>
+                            <input type="password" id="recovery-new-pin" maxlength="6" placeholder="Enter new 6-digit PIN" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; text-align: center; letter-spacing: 2px; box-sizing: border-box;">
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 5px;">
+                            <button type="button" class="btn-share" style="margin: 0; padding: 10px; flex-grow: 1; font-size: 0.8rem; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.08);" onclick="app.cancelPinRecovery()">CANCEL</button>
+                            <button type="submit" id="recovery-submit-btn" class="btn-primary" style="margin: 0; padding: 10px; flex-grow: 2; font-size: 0.8rem; background: linear-gradient(135deg, var(--accent-cyan), #00b0ff); color: #020617; border: none; font-weight: bold;">RESET PIN</button>
+                        </div>
+                    </form>
                 </div>
             </section>
         </div>
@@ -417,6 +492,9 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-functions-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check-compat.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
