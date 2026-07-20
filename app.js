@@ -246,6 +246,7 @@ class ClashFireApp {
                 this.db.collection("settings").doc("dailyvisit").onSnapshot(doc => {
                     if (doc.exists) {
                         const data = doc.data();
+                        this.dailyVisit.enabled = (data.enabled === true || data.enabled === 'true');
                         if (data.items && Array.isArray(data.items)) {
                             this.dailyVisit.items = data.items;
                         } else if (data.url) {
@@ -635,8 +636,9 @@ class ClashFireApp {
         const dvSection = document.getElementById('daily-visit-section');
         const dvContainer = document.getElementById('daily-visit-container');
         if (dvContainer && dvSection) {
+            const isDvEnabled = (this.dailyVisit && (this.dailyVisit.enabled === true || this.dailyVisit.enabled === 'true'));
             const hasItems = this.dailyVisit && this.dailyVisit.items && this.dailyVisit.items.length > 0;
-            if (hasItems) {
+            if (isDvEnabled && hasItems) {
                 dvSection.style.display = 'block';
                 dvContainer.innerHTML = '';
 
