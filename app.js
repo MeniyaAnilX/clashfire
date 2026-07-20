@@ -75,7 +75,14 @@ class ClashFireApp {
     async init() {
         window.name = 'ClashFireDashboard';
         this.initFirebase();
-        this.loadGlobalSettings();
+        // Auto-capture referral code from URL into sessionStorage immediately
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refParam = urlParams.get('ref');
+            if (refParam) {
+                sessionStorage.setItem('CF_PENDING_REF', refParam.trim());
+            }
+        } catch(e){}
 
         // Listen for Firebase Auth state changes
         if (this.firestoreActive) {
@@ -550,7 +557,8 @@ class ClashFireApp {
 
     async checkReferralBonus() {
         const urlParams = new URLSearchParams(window.location.search);
-        const refCode = urlParams.get('ref');
+        let refCode = urlParams.get('ref') || sessionStorage.getItem('CF_PENDING_REF');
+        if (refCode) refCode = refCode.trim();
         
         if (!refCode || refCode === this.displayUserId) return;
 
@@ -674,13 +682,20 @@ class ClashFireApp {
         }
 
         // Render Referral Statistics Dynamically
-        const refCount = (this.user.referredDevices || []).length;
         const refPercent = (this.globalSettings.referralCommissionPercent || 10);
 
         const countElem = document.getElementById('ref-stat-count');
         const rewardElem = document.getElementById('ref-stat-reward');
-        if (countElem) countElem.innerText = refCount;
+        if (countElem) countElem.innerText = (this.user.referredDevices || []).length;
         if (rewardElem) rewardElem.innerText = refPercent + "% Rate";
+
+        // Query Firestore live count of referred users
+        if (this.firestoreActive && this.displayUserId) {
+            this.db.collection("accounts").where("referredBy", "==", this.displayUserId).get().then(snap => {
+                const liveCount = snap.size;
+                if (countElem) countElem.innerText = liveCount;
+            }).catch(()=>{});
+        }
 
         const gzLabel = document.getElementById('gamezop-reward-label');
         if (gzLabel) gzLabel.innerText = `Play 3 Mins = +${this.integrations.gamezopReward || 5} Diamonds`;
@@ -1512,6 +1527,20 @@ class ClashFireApp {
                 const today = await this.getSecureServerDate();
                 const userState = await this.getUserStateLocation();
 
+                // Capture pending referral code from URL or sessionStorage
+                let validatedRefCode = null;
+                try {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    let targetRef = urlParams.get('ref') || sessionStorage.getItem('CF_PENDING_REF');
+                    if (targetRef && targetRef.trim() !== ffUid) {
+                        targetRef = targetRef.trim();
+                        const refSnap = await this.db.collection("accounts").where("ffUid", "==", targetRef).limit(1).get();
+                        if (!refSnap.empty) {
+                            validatedRefCode = targetRef;
+                        }
+                    }
+                } catch(e){}
+
                 const newAccount = {
                     ffUid: ffUid,
                     email: virtualEmail,
@@ -1521,7 +1550,8 @@ class ClashFireApp {
                     completedLinks: {},
                     dailyLinkCompletedCount: 0,
                     redemptionHistory: [],
-                    referredBy: null,
+                    referredBy: validatedRefCode,
+                    referralClaimed: validatedRefCode ? true : false,
                     referredDevices: [],
                     completedDailyVisits: {},
                     lastResetDate: today,
