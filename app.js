@@ -1628,7 +1628,7 @@ class ClashFireApp {
             }
         } catch (err) {
             console.error("Auth failed:", err);
-            this.showToast('AUTH FAILED', 'UID or PIN is incorrect.', 'error');
+            this.showToast('AUTH FAILED', err.message || 'UID or PIN is incorrect.', 'error');
         }
 
         this.hideLoader();
