@@ -1367,17 +1367,6 @@ class ClashFireApp {
         return hashHex;
     }
 
-    generateRecoveryCode() {
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        let part1 = "";
-        let part2 = "";
-        for (let i = 0; i < 4; i++) {
-            part1 += chars.charAt(Math.floor(Math.random() * chars.length));
-            part2 += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return `FD-${part1}-${part2}`;
-    }
-
     // Show loading spinner
     showLoader(message) {
         const loader = document.getElementById('global-loader');
@@ -1488,8 +1477,6 @@ class ClashFireApp {
                 const uid = userCredential.user.uid;
                 const accountDoc = await this.db.collection("accounts").doc(uid).get();
 
-                const recoveryCode = this.generateRecoveryCode();
-                const recoveryHash = await this.sha256(recoveryCode);
                 const pinHash = dcodeIO.bcrypt.hashSync(pin, 10);
 
                 const today = await this.getSecureServerDate();
@@ -1498,7 +1485,6 @@ class ClashFireApp {
                     ffUid: ffUid,
                     email: virtualEmail,
                     pinHash: pinHash,
-                    recoveryCodeHash: recoveryHash,
                     coins: 0,
                     completedLinks: {},
                     dailyLinkCompletedCount: 0,
