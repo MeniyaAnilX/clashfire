@@ -1380,109 +1380,7 @@ class ClashFireApp {
     // PIN Recovery handlers
     showPinRecovery(event) {
         if (event) event.preventDefault();
-        document.getElementById('auth-form-container').classList.add('hidden');
-        document.getElementById('pin-recovery-screen').classList.remove('hidden');
-    }
-
-    cancelPinRecovery() {
-        document.getElementById('auth-form-container').classList.remove('hidden');
-        document.getElementById('pin-recovery-screen').classList.add('hidden');
-    }
-
-    async handleRecoverySubmit(event) {
-        if (event) event.preventDefault();
-        
-        const ffUid = document.getElementById('recovery-ff-uid').value.trim();
-        const recoveryCode = document.getElementById('recovery-code-input').value.trim();
-        const newPin = document.getElementById('recovery-new-pin').value.trim();
-        
-        if (!/^\d{7,13}$/.test(ffUid)) {
-            this.showToast('INVALID UID', 'UID must be a number between 7 and 13 digits.', 'error');
-            return;
-        }
-        if (!/^\d{6}$/.test(newPin)) {
-            this.showToast('INVALID PIN', 'PIN must be exactly 6 digits.', 'error');
-            return;
-        }
-
-        const submitBtn = document.getElementById('recovery-submit-btn');
-        if (submitBtn) submitBtn.disabled = true;
-        this.showLoader("RESETTING PIN...");
-
-        try {
-            const hashedUid = await this.sha256(ffUid);
-            const bindingRef = this.db.collection("ffUidBindings").doc(hashedUid);
-            const bindingDoc = await bindingRef.get();
-
-            if (!bindingDoc.exists) {
-                this.showToast('RESET FAILED', 'UID is not registered.', 'error');
-                this.hideLoader();
-                if (submitBtn) submitBtn.disabled = false;
-                return;
-            }
-
-            const oldAccountId = bindingDoc.data().accountId;
-            const oldAccountRef = this.db.collection("accounts").doc(oldAccountId);
-            const oldAccountSnap = await oldAccountRef.get();
-
-            if (!oldAccountSnap.exists) {
-                this.showToast('RESET FAILED', 'Account data not found.', 'error');
-                this.hideLoader();
-                if (submitBtn) submitBtn.disabled = false;
-                return;
-            }
-
-            const accountData = oldAccountSnap.data();
-            const inputHash = await this.sha256(recoveryCode.trim());
-
-            if (accountData.recoveryCodeHash !== inputHash) {
-                this.showToast('RESET FAILED', 'Invalid recovery code.', 'error');
-                this.hideLoader();
-                if (submitBtn) submitBtn.disabled = false;
-                return;
-            }
-
-            // Create new auth user with dynamic email and new PIN
-            const virtualEmail = `${ffUid}_reset_${Date.now()}@clashfire.in`;
-            const virtualPassword = `clash_pin_${newPin}`;
-
-            const userCredential = await this.auth.createUserWithEmailAndPassword(virtualEmail, virtualPassword);
-            const newAccountId = userCredential.user.uid;
-
-            // Generate new recovery code
-            const newRecoveryCode = this.generateRecoveryCode();
-            const newRecoveryHash = await this.sha256(newRecoveryCode);
-
-            // Copy old data, update email, PIN hash, and recovery hash
-            const migratedAccount = {
-                ...accountData,
-                email: virtualEmail,
-                pinHash: dcodeIO.bcrypt.hashSync(newPin, 10),
-                recoveryCodeHash: newRecoveryHash,
-                lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            // Write to accounts, bindings, and delete old doc
-            const batch = this.db.batch();
-            batch.set(this.db.collection("accounts").doc(newAccountId), migratedAccount);
-            batch.set(bindingRef, { accountId: newAccountId });
-            batch.delete(oldAccountRef);
-            await batch.commit();
-
-            // Display new recovery code
-            this.cancelPinRecovery();
-            document.getElementById('auth-form-container').classList.add('hidden');
-            document.getElementById('recovery-code-value').innerText = newRecoveryCode;
-            document.getElementById('recovery-code-screen').classList.remove('hidden');
-
-            this.showToast('PIN RESET SUCCESS', 'Your PIN has been updated. Please save your new recovery code.', 'success');
-        } catch (err) {
-            console.error("Recovery failed:", err);
-            this.showToast('RESET FAILED', err.message || 'Verification failed.', 'error');
-        }
-
-        this.hideLoader();
-        if (submitBtn) submitBtn.disabled = false;
+        this.showToast('FORGOT PIN?', 'If you forgot your PIN, please contact support through the "Contact Us" form at the bottom of the page.', 'info');
     }
 
     // Login/Signup handlers
@@ -1642,12 +1540,7 @@ class ClashFireApp {
                 if (isAlreadyInUse && accountDoc.exists) {
                     this.showToast('WELCOME BACK!', `Logged in successfully as UID ${ffUid}`, 'success');
                 } else {
-                    // Display recovery code
-                    document.getElementById('auth-form-container').classList.add('hidden');
-                    document.getElementById('recovery-code-value').innerText = recoveryCode;
-                    document.getElementById('recovery-code-screen').classList.remove('hidden');
-
-                    this.showToast('ACCOUNT CREATED!', 'Please save your Recovery Code!', 'success');
+                    this.showToast('ACCOUNT CREATED!', 'Your account has been created successfully!', 'success');
                 }
             }
         } catch (err) {
@@ -1657,11 +1550,6 @@ class ClashFireApp {
 
         this.hideLoader();
         if (submitBtn) submitBtn.disabled = false;
-    }
-
-    dismissRecoveryScreen() {
-        document.getElementById('recovery-code-screen').classList.add('hidden');
-        document.getElementById('auth-form-container').classList.remove('hidden');
     }
 
     async handleLogout() {
