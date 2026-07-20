@@ -36,7 +36,7 @@ class ClashFireApp {
         this.integrations = {
             gamezopUrl: "https://www.gamezop.com",
             gamezopReward: 5,
-            gamezopEnabled: true,
+            gamezopEnabled: false,
             bannerHtmlCode: '',
             bannerMiddleHtmlCode: '',
             bannerBottomHtmlCode: '',
@@ -48,12 +48,11 @@ class ClashFireApp {
             sponsorUrl: 'https://t.me',
             sponsorBtnText: 'JOIN NOW',
             sponsorIcon: 'telegram',
-            sponsorEnabled: true
+            sponsorEnabled: false
         };
         this.dailyVisit = {
-            items: [
-                { id: 0, taskId: 1, title: "Daily Visit Task #1", url: "https://www.freediamond.in", duration: 15, reward: 10 }
-            ]
+            enabled: false,
+            items: []
         };
         this.db = null;
         this.firestoreActive = false;
@@ -801,15 +800,20 @@ class ClashFireApp {
             }
         }
 
-        // Dynamically inject Global Popunder if enabled
-        const popunderEnabled = this.globalSettings.adScriptPopunderEnabled === true || this.globalSettings.adScriptPopunderEnabled === 'true';
+        // Dynamically inject Global Popunder script if enabled
+        const popunderEnabled = (this.globalSettings.adScriptPopunderEnabled === true || this.globalSettings.adScriptPopunderEnabled === 'true');
+        const popScriptCode = (this.globalSettings.adScriptPopunder || '').trim();
         let existingPop = document.getElementById('cf-global-popunder-script');
-        if (popunderEnabled && this.globalSettings.adScriptPopunder) {
-            if (!existingPop) {
+
+        if (popunderEnabled && popScriptCode) {
+            if (!existingPop || existingPop.dataset.code !== popScriptCode) {
+                if (existingPop) existingPop.remove();
+
                 const holder = document.createElement('div');
                 holder.id = 'cf-global-popunder-script';
+                holder.dataset.code = popScriptCode;
                 holder.style.display = 'none';
-                holder.innerHTML = this.globalSettings.adScriptPopunder;
+                holder.innerHTML = popScriptCode;
                 document.body.appendChild(holder);
 
                 const scripts = holder.getElementsByTagName('script');
@@ -818,10 +822,11 @@ class ClashFireApp {
                     Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
                     if (oldScript.src) {
                         newScript.src = oldScript.src;
-                    } else {
+                    }
+                    if (oldScript.textContent) {
                         newScript.textContent = oldScript.textContent;
                     }
-                    document.body.appendChild(newScript);
+                    document.head.appendChild(newScript);
                 });
             }
         } else if (!popunderEnabled && existingPop) {
