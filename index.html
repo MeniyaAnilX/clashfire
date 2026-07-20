@@ -119,17 +119,17 @@
                 
                 <!-- Visible Premium Hero H1 Header for SEO & Branding -->
                 <div class="hero-brand-section" style="text-align: center; margin: 10px 0 20px 0; padding: 5px 0;">
-                    <h1 style="font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 6px; font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;">FREE FIRE DIAMOND REWARD APP</h1>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.4;">Complete daily shortener missions and Arcade mini-games to claim diamonds directly to your UID!</p>
+                    <h1 style="font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 6px; font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;">FREE FIRE DIAMOND APP</h1>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.4;">Complete Daily Task And Get Free Diamond</p>
                 </div>
 
             <!-- Premium Auth System (UID + PIN login/signup) -->
             <section class="dashboard-section" id="auth-section" style="margin-bottom: 25px;">
-                <div class="section-title">
+                <div class="section-title" style="display: flex; justify-content: flex-start; align-items: center; gap: 10px;">
                     <h2><i class="fa-solid fa-user-shield" style="color: var(--accent-gold);"></i> ACCESS YOUR WALLET</h2>
-                    <span class="sub-badge" id="auth-status-badge" style="background: rgba(255, 215, 0, 0.15); color: var(--accent-gold); border: 1.5px solid rgba(255, 215, 0, 0.3);">LOGIN / SIGNUP</span>
+                    <span class="sub-badge" id="auth-status-badge" style="background: rgba(255, 215, 0, 0.15); color: var(--accent-gold); border: 1.5px solid rgba(255, 215, 0, 0.3); margin: 0;">LOGIN / SIGNUP</span>
                 </div>
-                <p class="section-desc" id="auth-desc-message" style="margin-bottom: 15px;">Enter your Free Fire UID and PIN to access your missions, referrals, and redeem vault.</p>
+                <p class="section-desc" id="auth-desc-message" style="margin-bottom: 15px;">Enter Your Free Fire UID And Create Pin To Access Mission & Redeem Diamond</p>
 
                 <!-- Logged Out Auth Form -->
                 <div id="auth-form-container">
@@ -145,7 +145,7 @@
                                 <label for="auth-pin" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin: 0;"><i class="fa-solid fa-key"></i> 6-DIGIT PIN</label>
                                 <a href="#" onclick="app.showPinRecovery(event)" style="font-size: 0.75rem; color: var(--accent-cyan); text-decoration: none; font-weight: 600;">Forgot PIN?</a>
                             </div>
-                            <input type="password" id="auth-pin" maxlength="6" placeholder="Enter 6-digit PIN" required autocomplete="off" style="width: 100%; padding: 12px; border-radius: 8px; border: 1.5px solid rgba(255, 255, 255, 0.1); background: rgba(0, 0, 0, 0.3); color: #fff; font-family: inherit; letter-spacing: 2px; text-align: center; font-size: 1.1rem; box-sizing: border-box;">
+                            <input type="password" id="auth-pin" maxlength="6" placeholder="Enter 6-digit PIN" required autocomplete="off" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width: 100%; padding: 12px; border-radius: 8px; border: 1.5px solid rgba(255, 255, 255, 0.1); background: rgba(0, 0, 0, 0.3); color: #fff; font-family: inherit; letter-spacing: 2px; text-align: center; font-size: 1.1rem; box-sizing: border-box;">
                         </div>
 
                         <button type="submit" id="auth-submit-btn" class="btn-primary" style="background: linear-gradient(135deg, var(--accent-gold), #ff9100); color: #020617; font-weight: 800; padding: 14px; width: 100%; border-radius: 8px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin: 5px 0 0 0;">
