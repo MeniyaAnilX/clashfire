@@ -842,7 +842,7 @@
             }
 
             if (selectedUrl) {
-                // If main site is open in parent tab, focus parent and convert current tab to ad
+                // Scenario 1: If main site is open in parent tab, focus parent (front) and convert current tab to ad (background)
                 if (window.opener && !window.opener.closed) {
                     try {
                         window.opener.focus();
@@ -851,9 +851,13 @@
                     } catch(e) {}
                 }
                 
-                // If no parent window, open ad in a new tab and redirect current tab back to main site (single tab)
+                // Scenario 2: If no parent window, open ad in background tab and redirect current tab back to main site (front)
                 try {
-                    window.open(selectedUrl, '_blank');
+                    const adWin = window.open(selectedUrl, '_blank');
+                    if (adWin) {
+                        try { adWin.blur(); } catch(e){}
+                    }
+                    window.focus();
                     window.location.href = window.location.origin + "/?tab=tasks";
                     return;
                 } catch(e) {
