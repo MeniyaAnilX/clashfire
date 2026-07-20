@@ -427,7 +427,14 @@ class ClashFireApp {
                         if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
                         if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
                         if (!this.user.referredDevices) this.user.referredDevices = [];
-                        if (!this.user.completedDailyVisits || Array.isArray(this.user.completedDailyVisits)) this.user.completedDailyVisits = {};
+                        // Auto-populate missing state location for old existing users on next visit
+                        if (!data.state || data.state === 'Unknown') {
+                            this.getUserStateLocation().then(st => {
+                                if (st && st !== 'Unknown') {
+                                    docRef.update({ state: st }).catch(() => {});
+                                }
+                            });
+                        }
                         
                         // Check date reset logic inside snapshot (applied locally for UI freshness)
                         if (this.user.lastResetDate !== today) {
