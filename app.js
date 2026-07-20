@@ -216,6 +216,42 @@ class ClashFireApp {
         return null;
     }
 
+    getCanvasFingerprint() {
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 200;
+            canvas.height = 50;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return '';
+            
+            // Draw shapes and colors to trigger hardware rendering paths
+            ctx.fillStyle = '#f60';
+            ctx.fillRect(10, 10, 100, 30);
+            ctx.fillStyle = '#069';
+            ctx.font = '16px "Outfit", Arial';
+            ctx.textBaseline = 'top';
+            ctx.fillText('ClashFire_HW_2026', 15, 12);
+            
+            // Draw a subtle transparent overlay to catch subpixel differences
+            ctx.fillStyle = 'rgba(102, 204, 0, 0.4)';
+            ctx.beginPath();
+            ctx.arc(60, 25, 15, 0, Math.PI * 2, true);
+            ctx.closePath();
+            ctx.fill();
+            
+            const dataUrl = canvas.toDataURL();
+            let hash = 0;
+            for (let i = 0; i < dataUrl.length; i++) {
+                const char = dataUrl.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash |= 0;
+            }
+            return Math.abs(hash).toString(16);
+        } catch (e) {
+            return '';
+        }
+    }
+
     async getOrCreateMultiLayerDeviceID() {
         let savedId = this.getCookie('CLASH_PERMANENT_HW_ID') || localStorage.getItem('CLASH_FIRE_HW_ID');
         if (savedId) {
@@ -224,15 +260,26 @@ class ClashFireApp {
             return savedId;
         }
 
-        // Generate a cryptographically secure random 128-bit hex UUID (Option A)
-        const array = new Uint32Array(4);
-        window.crypto.getRandomValues(array);
-        let randomToken = '';
-        for (let i = 0; i < array.length; i++) {
-            randomToken += array[i].toString(16).padStart(8, '0');
+        // Generate hybrid fingerprint (Canvas signature + Screen details + CPU + Timezone offset)
+        // This persists across incognito mode / browser clearing on the same device
+        const ratio = window.devicePixelRatio || 1;
+        const physW = Math.round((window.screen.width || 360) * ratio);
+        const physH = Math.round((window.screen.height || 640) * ratio);
+        const cpus = navigator.hardwareConcurrency || 4;
+        const tz = new Date().getTimezoneOffset();
+        const depth = window.screen.colorDepth || 24;
+        
+        const canvasHash = this.getCanvasFingerprint();
+        const rawString = `DISP:${physW}x${physH}x${ratio}||CPU:${cpus}||TZ:${tz}||DEPTH:${depth}||CANVAS:${canvasHash}`;
+        
+        let hash = 0;
+        for (let i = 0; i < rawString.length; i++) {
+            const char = rawString.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash |= 0;
         }
         
-        const finalId = `CLASH_HW_${randomToken}`;
+        const finalId = `CLASH_HW_${Math.abs(hash)}`;
         this.setCookie('CLASH_PERMANENT_HW_ID', finalId);
         localStorage.setItem('CLASH_FIRE_HW_ID', finalId);
         return finalId;
