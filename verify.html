@@ -784,7 +784,7 @@
             let selectedUrl = '';
 
             if (window.smartlinkEnabled) {
-                // Get current UTC date (e.g. "2026-07-02")
+                // Get current UTC date (e.g. "2026-07-20")
                 const todayUTC = new Date().toISOString().split('T')[0];
                 const lastResetDate = localStorage.getItem('CF_SLOTS_UTC_RESET_DATE');
                 
@@ -832,22 +832,38 @@
                         const randomSlot = availableSlots[Math.floor(Math.random() * availableSlots.length)];
                         selectedUrl = randomSlot.url;
                         localStorage.setItem(randomSlot.key, (randomSlot.current + 1).toString());
+                    } else {
+                        // Fallback: If capped slots are exhausted, pick any active slot so return clicks always trigger ad impression!
+                        const activeSlots = [];
+                        if (window.smartlinkUrl1) activeSlots.push(window.smartlinkUrl1);
+                        if (window.smartlinkUrl2) activeSlots.push(window.smartlinkUrl2);
+                        if (window.smartlinkUrl3) activeSlots.push(window.smartlinkUrl3);
+                        if (window.smartlinkUrl4) activeSlots.push(window.smartlinkUrl4);
+                        if (activeSlots.length > 0) {
+                            selectedUrl = activeSlots[Math.floor(Math.random() * activeSlots.length)];
+                        }
                     }
                 }
             }
 
             if (selectedUrl) {
                 try {
-                    window.open(window.location.origin + "/index.html", 'ClashFireDashboard');
+                    // Open Ad Smartlink in new tab (allowed 100% by mobile browsers on direct click gesture)
+                    window.open(selectedUrl, '_blank');
+                    // Navigate current tab back to dashboard cleanly
+                    window.location.href = window.location.origin + "/";
+                    return;
+                } catch(e) {
                     window.location.href = selectedUrl;
                     return;
-                } catch(e){}
+                }
             }
 
             if (window.opener) {
+                try { window.opener.focus(); } catch(e){}
                 window.close();
             } else {
-                window.open(window.location.origin + "/index.html", 'ClashFireDashboard');
+                window.location.href = window.location.origin + "/";
             }
         }
 
