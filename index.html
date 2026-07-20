@@ -83,7 +83,7 @@
                 <img src="ffire_logo.png" alt="Free Diamond - Free Fire Diamond UID Top Up App Logo" width="40" height="40" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; flex-shrink: 0; box-shadow: 0 2px 10px rgba(255,69,0,0.45);">
                 <!-- Text column: FREEDIAMOND.IN top, User ID bottom -->
                 <div style="display: flex; flex-direction: column; gap: 2px;">
-                    <span class="app-name" style="line-height: 1;">FREEDIAMOND.<span>IN</span></span>
+                    <span class="app-name" style="line-height: 1;">FDIAMOND</span>
                     <span class="device-tag" id="display-device-id" style="margin: 0; line-height: 1;">User ID: Loading...</span>
                 </div>
             </div>
@@ -125,6 +125,11 @@
 
             <!-- Premium Auth System (UID + PIN login/signup) -->
             <section class="dashboard-section" id="auth-section" style="margin-bottom: 25px;">
+                <script>
+                    if (Object.keys(localStorage).some(key => key.startsWith('firebase:authUser'))) {
+                        document.getElementById('auth-section').classList.add('hidden');
+                    }
+                </script>
                 <div class="section-title" style="display: flex; justify-content: flex-start; align-items: center; gap: 10px;">
                     <h2 style="color: var(--accent-gold);"><i class="fa-solid fa-user-shield"></i> LOGIN / SIGNUP</h2>
                 </div>
