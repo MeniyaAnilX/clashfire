@@ -34,6 +34,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-functions-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
 
     <style>
         :root {
@@ -688,42 +689,73 @@
 
             try {
                 const today = await getSecureServerDate();
-                const claimFn = firebase.functions().httpsCallable('claimTaskReward');
-                const result = await claimFn({
-                    taskId: taskId,
-                    rewardAmt: rewardAmt,
-                    today: today
+                const myAccountRef = db.collection("accounts").doc(deviceId);
+
+                let finalCoins = 0;
+
+                await db.runTransaction(async (transaction) => {
+                    const mySnap = await transaction.get(myAccountRef);
+                    if (!mySnap.exists) {
+                        throw new Error("User account not found.");
+                    }
+
+                    const accountData = mySnap.data();
+                    let currentCompleted = { ...(accountData.completedLinks || {}) };
+                    let dailyCount = parseInt(accountData.dailyLinkCompletedCount || 0);
+
+                    // Reset count/links if date has rolled over
+                    if (accountData.lastResetDate !== today) {
+                        currentCompleted = {};
+                        dailyCount = 0;
+                    }
+
+                    // Check if already completed today
+                    if (currentCompleted[taskId]) {
+                        throw new Error("already-claimed");
+                    }
+
+                    // Enforce that we add exactly 5 or 10 coins based on rewardAmt
+                    const addAmt = rewardAmt === 10 ? 10 : 5;
+                    const currentCoins = parseFloat(accountData.coins || 0);
+                    finalCoins = parseFloat((currentCoins + addAmt).toFixed(2));
+
+                    currentCompleted[taskId] = true;
+                    dailyCount += 1;
+
+                    transaction.update(myAccountRef, {
+                        coins: finalCoins,
+                        completedLinks: currentCompleted,
+                        dailyLinkCompletedCount: dailyCount,
+                        lastResetDate: today,
+                        lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
                 });
 
-                if (result.data && result.data.success) {
-                    // Update local cache
-                    let localUserData = { coins: result.data.newCoins, completedLinks: {} };
-                    const saved = localStorage.getItem('CLASH_USER_DATA_' + deviceId);
-                    if (saved) {
-                        try {
-                            localUserData = JSON.parse(saved);
-                        } catch(e){}
-                    }
-                    localUserData.coins = result.data.newCoins;
-                    if (!localUserData.completedLinks || Array.isArray(localUserData.completedLinks)) {
-                        localUserData.completedLinks = {};
-                    }
-                    localUserData.completedLinks[taskId] = true;
-                    localUserData.dailyLinkCompletedCount = (localUserData.dailyLinkCompletedCount || 0) + 1;
-                    localUserData.lastResetDate = today;
-
-                    localStorage.setItem('CLASH_USER_DATA_' + deviceId, JSON.stringify(localUserData));
-
-                    // Burn token keys
-                    localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
-                    localStorage.removeItem("CF_STEP1_DONE_TASK_" + taskId);
-                } else {
-                    throw new Error("Invalid backend transaction response.");
+                // Update local storage cache
+                let localUserData = { coins: finalCoins, completedLinks: {} };
+                const saved = localStorage.getItem('CLASH_USER_DATA_' + deviceId);
+                if (saved) {
+                    try {
+                        localUserData = JSON.parse(saved);
+                    } catch(e){}
                 }
+                localUserData.coins = finalCoins;
+                if (!localUserData.completedLinks || Array.isArray(localUserData.completedLinks)) {
+                    localUserData.completedLinks = {};
+                }
+                localUserData.completedLinks[taskId] = true;
+                localUserData.dailyLinkCompletedCount = (localUserData.dailyLinkCompletedCount || 0) + 1;
+                localUserData.lastResetDate = today;
+
+                localStorage.setItem('CLASH_USER_DATA_' + deviceId, JSON.stringify(localUserData));
+
+                // Burn tokens
+                localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
+                localStorage.removeItem("CF_STEP1_DONE_TASK_" + taskId);
             } catch (e) {
                 localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
                 localStorage.removeItem("CF_STEP1_DONE_TASK_" + taskId);
-                if (e.message && e.message.includes("already-exists")) {
+                if (e.message && (e.message.includes("already-claimed") || e.message.includes("already-exists"))) {
                     showError('<i class="fa-solid fa-circle-exclamation" style="color:#ffd700;"></i>', 'ALREADY CLAIMED!', 'You have already claimed reward for this mission today.');
                 } else {
                     console.error("Task claim failed:", e);

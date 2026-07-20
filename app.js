@@ -404,6 +404,7 @@ class ClashFireApp {
                         
                         localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
                         this.renderDashboard();
+                        await this.claimPendingReferralCommissions();
                     }
                 });
                 return;
@@ -429,19 +430,92 @@ class ClashFireApp {
         }
     }
 
+    async claimPendingReferralCommissions() {
+        if (!this.firestoreActive || !this.deviceId || !this.displayUserId) return;
+
+        try {
+            const today = await this.getSecureServerDate();
+            // Query for all referees who joined using my displayUserId (referredBy == displayUserId)
+            const snapshot = await this.db.collection("accounts").where("referredBy", "==", this.displayUserId).get();
+            if (snapshot.empty) return;
+
+            let totalRequiredMissions = 5;
+            try {
+                const linksDoc = await this.db.collection("settings").doc("links").get();
+                if (linksDoc.exists && linksDoc.data().items && Array.isArray(linksDoc.data().items)) {
+                    totalRequiredMissions = linksDoc.data().items.length;
+                }
+            } catch(e){}
+
+            let commissionToClaim = 0;
+            const updatedClaimedMap = { ...(this.user.claimedReferralCommissions || {}) };
+            let claimedAny = false;
+
+            snapshot.forEach(doc => {
+                const refData = doc.data();
+                const refId = doc.id;
+
+                // Check if this referee has completed all links today
+                const refereeResetDate = refData.lastResetDate;
+                const completedCount = Object.keys(refData.completedLinks || {}).length;
+
+                if (refereeResetDate === today && completedCount >= totalRequiredMissions) {
+                    const claimKey = `${refId}_${today}`;
+                    if (!updatedClaimedMap[claimKey]) {
+                        let commPercent = 10;
+                        try {
+                            if (this.globalSettings && this.globalSettings.referralCommissionPercent !== undefined) {
+                                commPercent = parseInt(this.globalSettings.referralCommissionPercent);
+                            }
+                        } catch(e){}
+
+                        const totalDailyMissionsReward = totalRequiredMissions * 5; // Reward per link is 5
+                        const commissionCoins = parseFloat((totalDailyMissionsReward * (commPercent / 100)).toFixed(2));
+                        
+                        if (commissionCoins > 0) {
+                            commissionToClaim += commissionCoins;
+                            updatedClaimedMap[claimKey] = true;
+                            claimedAny = true;
+                        }
+                    }
+                }
+            });
+
+            if (claimedAny && commissionToClaim > 0) {
+                const myAccountRef = this.db.collection("accounts").doc(this.deviceId);
+                await this.db.runTransaction(async (transaction) => {
+                    const mySnap = await transaction.get(myAccountRef);
+                    if (!mySnap.exists) return;
+                    
+                    const currentCoins = parseFloat(mySnap.data().coins || 0);
+                    const newCoins = parseFloat((currentCoins + commissionToClaim).toFixed(2));
+
+                    transaction.update(myAccountRef, {
+                        coins: newCoins,
+                        claimedReferralCommissions: updatedClaimedMap
+                    });
+                });
+
+                this.showToast('REFERRAL COMMISSION!', `+${commissionToClaim} Diamonds claimed from referred friends!`, 'success');
+            }
+        } catch (err) {
+            console.error("Error claiming referral commissions:", err);
+        }
+    }
+
     async checkReferralBonus() {
         const urlParams = new URLSearchParams(window.location.search);
         const refCode = urlParams.get('ref');
         
         if (!refCode || refCode === this.displayUserId) return;
 
-        if (!this.firestoreActive) return;
+        if (!this.firestoreActive || !this.deviceId) return;
 
         try {
-            const myDocRef = this.db.collection("users").doc(this.deviceId);
+            const myDocRef = this.db.collection("accounts").doc(this.deviceId);
             const myDoc = await myDocRef.get();
 
-            // 1. Strictly block if this device has already claimed a referral or has been referred previously
+            // 1. Strictly block if this user has already claimed a referral or has been referred previously
             if (myDoc.exists) {
                 const myData = myDoc.data();
                 if (myData.referralClaimed === true || myData.referredBy) {
@@ -453,68 +527,37 @@ class ClashFireApp {
                 return;
             }
 
-            // 2. Query Firestore directly for the user document having this displayUserId (Optimized: N reads to 1)
-            const snapshot = await this.db.collection("users").where("displayUserId", "==", refCode).limit(1).get();
-            let referrerDocRef = null;
-            let referrerData = null;
-            let referrerDeviceId = null;
-
-            if (!snapshot.empty) {
-                const doc = snapshot.docs[0];
-                if (doc.id !== this.deviceId) {
-                    referrerDocRef = doc.ref;
-                    referrerData = doc.data();
-                    referrerDeviceId = doc.id;
-                }
+            // 2. Query Firestore directly to check if referrer exists by their ffUid
+            const snapshot = await this.db.collection("accounts").where("ffUid", "==", refCode).limit(1).get();
+            if (snapshot.empty) {
+                return; // Referrer doesn't exist
             }
 
-            if (referrerDocRef && referrerData) {
-                // Check Cross-Referral / Mutual Loop: If my device has already referred this referrer, BLOCK!
-                const myReferredDevices = (myDoc.exists && myDoc.data().referredDevices) ? myDoc.data().referredDevices : [];
-                if (myReferredDevices.includes(referrerDeviceId) || referrerData.referredBy === this.displayUserId) {
-                    return; // Strictly block mutual cross-referral loop!
-                }
-
-                const referredDevices = referrerData.referredDevices || [];
-                
-                // 3. Check if my device ID is already in referrer's referredDevices array
-                if (referredDevices.includes(this.deviceId)) {
-                    return; // Hard-blocked! Already referred by this user.
-                }
-
-                referredDevices.push(this.deviceId);
-
-                // 4. Update referrer referredDevices array in Firestore
-                await referrerDocRef.update({
-                    referredDevices: referredDevices
-                });
-
-                // 5. Permanently lock my own device profile in Firestore as referred
-                this.user.referralClaimed = true;
-                this.user.referredBy = refCode;
-
-                await myDocRef.set({
-                    referralClaimed: true,
-                    referredBy: refCode
-                }, { merge: true });
-
-                localStorage.setItem('REFERRAL_PROCESSED_' + this.deviceId, 'true');
-                this.showToast('WELCOME TO FREEDIAMOND.IN', `Joined via referral link from ${refCode}!`, 'info');
+            const referrerDoc = snapshot.docs[0];
+            if (referrerDoc.id === this.deviceId) {
+                return; // Block self-referral
             }
+
+            // 3. Update only my own document (referredBy = refCode). Referrer will read referees on login.
+            this.user.referralClaimed = true;
+            this.user.referredBy = refCode;
+
+            await myDocRef.update({
+                referralClaimed: true,
+                referredBy: refCode
+            });
+
+            localStorage.setItem('REFERRAL_PROCESSED_' + this.deviceId, 'true');
+            this.showToast('WELCOME TO FREEDIAMOND.IN', `Joined via referral link from ${refCode}!`, 'info');
         } catch(e) { console.error("Referral Sync Error:", e); }
     }
 
-
-
     async saveUserProfile(skipRemote = false) {
-        if (this.displayUserId) {
-            this.user.displayUserId = this.displayUserId;
-        }
         localStorage.setItem('CLASH_USER_DATA_' + this.deviceId, JSON.stringify(this.user));
-        if (this.firestoreActive && !skipRemote) {
+        if (this.firestoreActive && !skipRemote && this.deviceId) {
             try {
-                await this.db.collection("users").doc(this.deviceId).set(this.user, { merge: true });
-            } catch (err) { console.error(err); }
+                await this.db.collection("accounts").doc(this.deviceId).set(this.user, { merge: true });
+            } catch (err) { console.error("Error saving profile remote:", err); }
         }
     }
 
@@ -885,23 +928,42 @@ class ClashFireApp {
 
         setTimeout(async () => {
             try {
-                const createRedemptionRequest = this.functions.httpsCallable('createRedemptionRequest');
-                const result = await createRedemptionRequest({
-                    diamondAmount: diamondAmount,
-                    costPoints: costPoints,
-                    uidInput: uidInput
+                const myAccountRef = this.db.collection("accounts").doc(this.deviceId);
+                const redemptionRef = this.db.collection("redemptions").doc();
+
+                await this.db.runTransaction(async (transaction) => {
+                    const mySnap = await transaction.get(myAccountRef);
+                    if (!mySnap.exists) {
+                        throw new Error("User account not found.");
+                    }
+
+                    const currentCoins = parseFloat(mySnap.data().coins || 0);
+                    if (currentCoins < costPoints) {
+                        throw new Error("Insufficient balance.");
+                    }
+
+                    const newCoins = parseFloat((currentCoins - costPoints).toFixed(2));
+
+                    // 1. Deduct cost from account document
+                    transaction.update(myAccountRef, {
+                        coins: newCoins
+                    });
+
+                    // 2. Create the redemption request document
+                    transaction.set(redemptionRef, {
+                        accountId: this.deviceId,
+                        ffUid: uidInput,
+                        diamonds: diamondAmount,
+                        cost: costPoints,
+                        status: "pending",
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
                 });
 
-                if (result.data && result.data.success) {
-                    this.user.coins = parseFloat((this.user.coins - costPoints).toFixed(2));
-                    this.renderDashboard();
-
-                    document.getElementById('modal-amount').innerText = `${diamondAmount} Diamonds`;
-                    document.getElementById('modal-uid').innerText = uidInput;
-                    document.getElementById('redeem-modal').classList.remove('hidden');
-                } else {
-                    this.showToast('REDEMPTION FAILED', 'Failed to submit redemption request.', 'error');
-                }
+                // Success!
+                document.getElementById('modal-amount').innerText = `${diamondAmount} Diamonds`;
+                document.getElementById('modal-uid').innerText = uidInput;
+                document.getElementById('redeem-modal').classList.remove('hidden');
             } catch (e) {
                 console.error("Redemption transaction failed:", e);
                 this.showToast('REDEMPTION FAILED', e.message || 'Database error occurred. Please try again!', 'error');
@@ -1277,6 +1339,25 @@ class ClashFireApp {
         });
     }
 
+    async sha256(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
+
+    generateRecoveryCode() {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let part1 = "";
+        let part2 = "";
+        for (let i = 0; i < 4; i++) {
+            part1 += chars.charAt(Math.floor(Math.random() * chars.length));
+            part2 += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return `FD-${part1}-${part2}`;
+    }
+
     // Show loading spinner
     showLoader(message) {
         const loader = document.getElementById('global-loader');
@@ -1326,19 +1407,72 @@ class ClashFireApp {
         this.showLoader("RESETTING PIN...");
 
         try {
-            const resetPinWithRecoveryCode = this.functions.httpsCallable('resetPinWithRecoveryCode');
-            const result = await resetPinWithRecoveryCode({
-                ffUid: ffUid,
-                recoveryCode: recoveryCode,
-                newPin: newPin
-            });
+            const hashedUid = await this.sha256(ffUid);
+            const bindingRef = this.db.collection("ffUidBindings").doc(hashedUid);
+            const bindingDoc = await bindingRef.get();
 
-            if (result.data && result.data.success) {
-                this.showToast('PIN RESET SUCCESS', 'Your PIN has been updated successfully. Please login now.', 'success');
-                this.cancelPinRecovery();
-            } else {
-                this.showToast('RESET FAILED', 'Invalid recovery code or account details.', 'error');
+            if (!bindingDoc.exists) {
+                this.showToast('RESET FAILED', 'UID is not registered.', 'error');
+                this.hideLoader();
+                if (submitBtn) submitBtn.disabled = false;
+                return;
             }
+
+            const oldAccountId = bindingDoc.data().accountId;
+            const oldAccountRef = this.db.collection("accounts").doc(oldAccountId);
+            const oldAccountSnap = await oldAccountRef.get();
+
+            if (!oldAccountSnap.exists) {
+                this.showToast('RESET FAILED', 'Account data not found.', 'error');
+                this.hideLoader();
+                if (submitBtn) submitBtn.disabled = false;
+                return;
+            }
+
+            const accountData = oldAccountSnap.data();
+            const inputHash = await this.sha256(recoveryCode.trim());
+
+            if (accountData.recoveryCodeHash !== inputHash) {
+                this.showToast('RESET FAILED', 'Invalid recovery code.', 'error');
+                this.hideLoader();
+                if (submitBtn) submitBtn.disabled = false;
+                return;
+            }
+
+            // Create new auth user with dynamic email and new PIN
+            const virtualEmail = `${ffUid}_reset_${Date.now()}@clashfire.in`;
+            const virtualPassword = `clash_pin_${newPin}`;
+
+            const userCredential = await this.auth.createUserWithEmailAndPassword(virtualEmail, virtualPassword);
+            const newAccountId = userCredential.user.uid;
+
+            // Generate new recovery code
+            const newRecoveryCode = this.generateRecoveryCode();
+            const newRecoveryHash = await this.sha256(newRecoveryCode);
+
+            // Copy old data, update email, PIN hash, and recovery hash
+            const migratedAccount = {
+                ...accountData,
+                email: virtualEmail,
+                pinHash: bcrypt.hashSync(newPin, 10),
+                recoveryCodeHash: newRecoveryHash,
+                lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            // Write to accounts, bindings, and delete old doc
+            const batch = this.db.batch();
+            batch.set(this.db.collection("accounts").doc(newAccountId), migratedAccount);
+            batch.set(bindingRef, { accountId: newAccountId });
+            batch.delete(oldAccountRef);
+            await batch.commit();
+
+            // Display new recovery code
+            this.cancelPinRecovery();
+            document.getElementById('auth-form-container').classList.add('hidden');
+            document.getElementById('recovery-code-value').innerText = newRecoveryCode;
+            document.getElementById('recovery-code-screen').classList.remove('hidden');
+
+            this.showToast('PIN RESET SUCCESS', 'Your PIN has been updated. Please save your new recovery code.', 'success');
         } catch (err) {
             console.error("Recovery failed:", err);
             this.showToast('RESET FAILED', err.message || 'Verification failed.', 'error');
@@ -1364,42 +1498,133 @@ class ClashFireApp {
             return;
         }
 
+        // Brute force check (client-side lock)
+        const attemptsKey = 'CF_FAILED_ATTEMPTS_' + ffUid;
+        const lockKey = 'CF_LOCKED_UNTIL_' + ffUid;
+        const now = Date.now();
+        const lockedUntil = parseInt(localStorage.getItem(lockKey) || '0');
+        if (lockedUntil > now) {
+            const minsLeft = Math.ceil((lockedUntil - now) / 60000);
+            this.showToast('TOO MANY ATTEMPTS', `Account locked. Try again in ${minsLeft} minutes.`, 'error');
+            return;
+        }
+
         const submitBtn = document.getElementById('auth-submit-btn');
         if (submitBtn) submitBtn.disabled = true;
         this.showLoader("AUTHENTICATING...");
 
         try {
-            const legacyId = this.getLegacyFingerprintID();
-            const loginOrSignUp = this.functions.httpsCallable('loginOrSignUp');
-            const result = await loginOrSignUp({
-                ffUid: ffUid,
-                pin: pin,
-                legacyDeviceId: legacyId
-            });
+            const hashedUid = await this.sha256(ffUid);
+            const bindingRef = this.db.collection("ffUidBindings").doc(hashedUid);
+            const bindingDoc = await bindingRef.get();
 
-            if (result.data && result.data.success) {
-                const customToken = result.data.customToken;
-                
-                // Sign in using custom token
-                await this.auth.signInWithCustomToken(customToken);
+            if (bindingDoc.exists) {
+                // === LOGIN EXISTING ===
+                const accountId = bindingDoc.data().accountId;
+                const accountDoc = await this.db.collection("accounts").doc(accountId).get();
 
-                // If signup generated a recovery code, show it
-                if (result.data.recoveryCode) {
-                    document.getElementById('auth-form-container').classList.add('hidden');
-                    document.getElementById('recovery-code-value').innerText = result.data.recoveryCode;
-                    document.getElementById('recovery-code-screen').classList.remove('hidden');
-                    
-                    // Show a toast prompting them to save recovery code
-                    this.showToast('ACCOUNT CREATED!', 'Please save your Recovery Code!', 'success');
-                } else {
-                    this.showToast('WELCOME BACK!', `Logged in successfully as UID ${ffUid}`, 'success');
+                if (!accountDoc.exists) {
+                    this.showToast('AUTH FAILED', 'UID or PIN is incorrect.', 'error');
+                    this.hideLoader();
+                    if (submitBtn) submitBtn.disabled = false;
+                    return;
                 }
+
+                const accountData = accountDoc.data();
+                const pinMatch = bcrypt.compareSync(pin, accountData.pinHash);
+
+                if (!pinMatch) {
+                    let failed = parseInt(localStorage.getItem(attemptsKey) || '0') + 1;
+                    localStorage.setItem(attemptsKey, failed);
+                    if (failed >= 5) {
+                        localStorage.setItem(lockKey, Date.now() + 15 * 60000);
+                        this.showToast('ACCOUNT LOCKED', 'Too many failed attempts. Locked for 15 minutes.', 'error');
+                    } else {
+                        this.showToast('AUTH FAILED', 'UID or PIN is incorrect.', 'error');
+                    }
+                    this.hideLoader();
+                    if (submitBtn) submitBtn.disabled = false;
+                    return;
+                }
+
+                // Authenticate Firebase Auth Session using dynamic email
+                const userEmail = accountData.email || `${ffUid}@clashfire.in`;
+                await this.auth.signInWithEmailAndPassword(userEmail, `clash_pin_${pin}`);
+
+                // Success: Clear failed attempts
+                localStorage.removeItem(attemptsKey);
+                localStorage.removeItem(lockKey);
+                
+                this.showToast('WELCOME BACK!', `Logged in successfully as UID ${ffUid}`, 'success');
             } else {
-                this.showToast('AUTH FAILED', 'UID or PIN is incorrect.', 'error');
+                // === SIGNUP NEW ===
+                const virtualEmail = `${ffUid}@clashfire.in`;
+                const virtualPassword = `clash_pin_${pin}`;
+
+                const userCredential = await this.auth.createUserWithEmailAndPassword(virtualEmail, virtualPassword);
+                const uid = userCredential.user.uid;
+
+                const recoveryCode = this.generateRecoveryCode();
+                const recoveryHash = await this.sha256(recoveryCode);
+
+                const pinHash = bcrypt.hashSync(pin, 10);
+
+                const newAccount = {
+                    ffUid: ffUid,
+                    email: virtualEmail,
+                    pinHash: pinHash,
+                    recoveryCodeHash: recoveryHash,
+                    coins: 0,
+                    completedLinks: {},
+                    dailyLinkCompletedCount: 0,
+                    redemptionHistory: [],
+                    referredBy: null,
+                    referredDevices: [],
+                    completedDailyVisits: {},
+                    status: "active",
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                // Check and perform 1-time migration of legacy profile if available
+                const legacyId = this.getLegacyFingerprintID();
+                const legacyRef = this.db.collection("users").doc(legacyId);
+                const legacySnap = await legacyRef.get();
+                if (legacySnap.exists) {
+                    const legacyData = legacySnap.data();
+                    if (!legacyData.migrated) {
+                        newAccount.coins = parseFloat(legacyData.coins || 0);
+                        newAccount.completedLinks = legacyData.completedLinks || {};
+                        newAccount.dailyLinkCompletedCount = parseInt(legacyData.dailyLinkCompletedCount || 0);
+                        newAccount.redemptionHistory = legacyData.redemptionHistory || [];
+                        newAccount.referredBy = legacyData.referredBy || null;
+                        newAccount.referredDevices = legacyData.referredDevices || [];
+                        newAccount.completedDailyVisits = legacyData.completedDailyVisits || {};
+                        newAccount.lastResetDate = legacyData.lastResetDate || null;
+                        
+                        await legacyRef.update({
+                            migrated: true,
+                            status: "disabled",
+                            migratedTo: uid
+                        });
+                    }
+                }
+
+                // Write new account and binding
+                const batch = this.db.batch();
+                batch.set(this.db.collection("accounts").doc(uid), newAccount);
+                batch.set(bindingRef, { accountId: uid });
+                await batch.commit();
+
+                // Display recovery code
+                document.getElementById('auth-form-container').classList.add('hidden');
+                document.getElementById('recovery-code-value').innerText = recoveryCode;
+                document.getElementById('recovery-code-screen').classList.remove('hidden');
+
+                this.showToast('ACCOUNT CREATED!', 'Please save your Recovery Code!', 'success');
             }
         } catch (err) {
             console.error("Auth failed:", err);
-            // Generic message for security as requested
             this.showToast('AUTH FAILED', 'UID or PIN is incorrect.', 'error');
         }
 
@@ -1427,11 +1652,9 @@ class ClashFireApp {
     getLegacyFingerprintID() {
         let savedId = this.getCookie('CLASH_PERMANENT_HW_ID') || localStorage.getItem('CLASH_FIRE_HW_ID');
         if (savedId && savedId.startsWith('CLASH_HW_') && savedId.length < 25) {
-            // Legacy IDs are shorter, UUIDs are 32 chars long hex
             return savedId;
         }
         
-        // Otherwise calculate it using old metrics formula
         let hardwareTokens = [];
         const ratio = window.devicePixelRatio || 1;
         const physW = Math.round((window.screen.width || 360) * ratio);

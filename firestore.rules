@@ -6,29 +6,54 @@ service cloud.firestore {
     match /accounts/{accountId} {
       // User can only read their own profile document
       allow read: if request.auth != null && request.auth.uid == accountId;
-      // All modifications (coins, completed tasks, history) must be done securely via Cloud Functions
-      allow write: if false;
+      
+      // User can create their own profile document with starting coins of 0
+      allow create: if request.auth != null && request.auth.uid == accountId
+                    && request.resource.data.coins == 0;
+                    
+      // User can update their own profile document, subject to strict coin assertion rules
+      allow update: if request.auth != null && request.auth.uid == accountId
+                    && (
+                      // Case 1: Coins are not modified (e.g. updating profile details, tasks list, referral links)
+                      request.resource.data.coins == resource.data.coins
+                      
+                      // Case 2: Claiming a daily link task (+5 or +10 diamonds)
+                      || request.resource.data.coins == resource.data.coins + 5
+                      || request.resource.data.coins == resource.data.coins + 10
+                      
+                      // Case 3: Referral commissions claims (+2.50 or other small decimal points)
+                      // We allow small increments up to 10 points to support flexible referral commission claiming
+                      || (request.resource.data.coins > resource.data.coins && request.resource.data.coins <= resource.data.coins + 10)
+                      
+                      // Case 4: Redeeming packages (cost deductions)
+                      || request.resource.data.coins == resource.data.coins - 520
+                      || request.resource.data.coins == resource.data.coins - 1060
+                      || request.resource.data.coins == resource.data.coins - 2180
+                      || request.resource.data.coins == resource.data.coins - 5600
+                    );
     }
 
     // FF UID Bindings (Lookup map)
     match /ffUidBindings/{hashedFFUid} {
-      // Completely hidden from direct frontend access
-      allow read, write: if false;
+      // Readable for registration and login lookups; writable during account creation
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
     }
 
     // Redemptions collection
     match /redemptions/{redemptionId} {
       // User can read their own redemption requests
       allow read: if request.auth != null && resource.data.accountId == request.auth.uid;
-      // Creation and updates are handled securely via Cloud Functions
-      allow write: if false;
+      // Creation is allowed only if they own the request record
+      allow create: if request.auth != null && request.resource.data.accountId == request.auth.uid;
+      allow update, delete: if false;
     }
 
     // Legacy users collection (For migration lookup)
     match /users/{deviceId} {
-      // Allow read for migration verification; block client-side writes
-      allow read: if true;
-      allow write: if false;
+      // Allow read for migration verification; and write to flag migration status
+      allow read, write: if true;
     }
 
     // Settings (Missions, Daily Visits, Global variables)

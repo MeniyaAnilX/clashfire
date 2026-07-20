@@ -123,51 +123,8 @@
                     <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.4;">Complete daily shortener missions and Arcade mini-games to claim diamonds directly to your UID!</p>
                 </div>
 
-            <!-- Live Auto-Generating Payout Proofs Section -->
-            <section class="dashboard-section" id="live-proofs-section" style="margin-bottom: 15px;">
-                <div class="section-title">
-                    <h2><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-cyan);"></i> RECENT ACTIVITY</h2>
-                    <span class="sub-badge" style="background: rgba(0, 242, 254, 0.15); color: var(--accent-cyan); border: 1.5px solid rgba(0, 242, 254, 0.3);">SYSTEM STATUS</span>
-                </div>
-                <div class="proofs-ticker-container" id="proofs-ticker" style="display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow: hidden; position: relative;">
-                    <!-- Auto-generated payout items list will slide in here dynamically -->
-                </div>
-            </section>
-
-            <!-- Middle Dynamic Native Banner Ad Slot (Between Missions and Refer) -->
-            <div id="banner-ad-middle" class="native-banner-slot hidden" style="margin-bottom: 25px;"></div>
-
-            <!-- Refer & Earn Section -->
-            <section class="dashboard-section">
-                <div class="section-title">
-                    <h2><i class="fa-solid fa-users"></i> REFER & EARN</h2>
-                </div>
-                <p class="section-desc">Share your link with friends and get daily commission on their completed missions (after completed all daily mission)!</p>
-                
-                <div class="referral-box">
-                    <label for="referral-link-input" class="sr-only" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">Your Referral Link</label>
-                    <div class="referral-input-wrap">
-                        <input type="text" id="referral-link-input" readonly value="https://www.freediamond.in/?ref=Active">
-                        <button class="btn-primary" onclick="app.copyReferralLink()"><i class="fa-solid fa-copy"></i> COPY</button>
-                    </div>
-                    <button class="btn-share" onclick="app.shareNative()"><i class="fa-solid fa-share-nodes"></i> SHARE</button>
-                    
-                    <!-- Referral Stats Grid Dashboard -->
-                    <div class="referral-stats-dashboard" style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div class="ref-stat-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 10px; border-radius: 8px; text-align: center;">
-                            <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Successful Invites</span>
-                            <span id="ref-stat-count" style="font-size: 1.2rem; font-weight: bold; color: var(--accent-cyan);">0</span>
-                        </div>
-                        <div class="ref-stat-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 10px; border-radius: 8px; text-align: center;">
-                            <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Commission Rate</span>
-                            <span id="ref-stat-reward" style="font-size: 1.2rem; font-weight: bold; color: var(--accent-gold);">10% Rate</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
             <!-- Premium Auth System (UID + PIN login/signup) -->
-            <section class="dashboard-section" id="auth-section">
+            <section class="dashboard-section" id="auth-section" style="margin-bottom: 25px;">
                 <div class="section-title">
                     <h2><i class="fa-solid fa-user-shield" style="color: var(--accent-gold);"></i> ACCESS YOUR WALLET</h2>
                     <span class="sub-badge" id="auth-status-badge" style="background: rgba(255, 215, 0, 0.15); color: var(--accent-gold); border: 1.5px solid rgba(255, 215, 0, 0.3);">LOGIN / SIGNUP</span>
@@ -235,6 +192,49 @@
                             <button type="submit" id="recovery-submit-btn" class="btn-primary" style="margin: 0; padding: 10px; flex-grow: 2; font-size: 0.8rem; background: linear-gradient(135deg, var(--accent-cyan), #00b0ff); color: #020617; border: none; font-weight: bold;">RESET PIN</button>
                         </div>
                     </form>
+                </div>
+            </section>
+
+            <!-- Live Auto-Generating Payout Proofs Section -->
+            <section class="dashboard-section" id="live-proofs-section" style="margin-bottom: 15px;">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-cyan);"></i> RECENT ACTIVITY</h2>
+                    <span class="sub-badge" style="background: rgba(0, 242, 254, 0.15); color: var(--accent-cyan); border: 1.5px solid rgba(0, 242, 254, 0.3);">SYSTEM STATUS</span>
+                </div>
+                <div class="proofs-ticker-container" id="proofs-ticker" style="display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow: hidden; position: relative;">
+                    <!-- Auto-generated payout items list will slide in here dynamically -->
+                </div>
+            </section>
+
+            <!-- Middle Dynamic Native Banner Ad Slot (Between Missions and Refer) -->
+            <div id="banner-ad-middle" class="native-banner-slot hidden" style="margin-bottom: 25px;"></div>
+
+            <!-- Refer & Earn Section -->
+            <section class="dashboard-section">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-users"></i> REFER & EARN</h2>
+                </div>
+                <p class="section-desc">Share your link with friends and get daily commission on their completed missions (after completed all daily mission)!</p>
+                
+                <div class="referral-box">
+                    <label for="referral-link-input" class="sr-only" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">Your Referral Link</label>
+                    <div class="referral-input-wrap">
+                        <input type="text" id="referral-link-input" readonly value="https://www.freediamond.in/?ref=Active">
+                        <button class="btn-primary" onclick="app.copyReferralLink()"><i class="fa-solid fa-copy"></i> COPY</button>
+                    </div>
+                    <button class="btn-share" onclick="app.shareNative()"><i class="fa-solid fa-share-nodes"></i> SHARE</button>
+                    
+                    <!-- Referral Stats Grid Dashboard -->
+                    <div class="referral-stats-dashboard" style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="ref-stat-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 10px; border-radius: 8px; text-align: center;">
+                            <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Successful Invites</span>
+                            <span id="ref-stat-count" style="font-size: 1.2rem; font-weight: bold; color: var(--accent-cyan);">0</span>
+                        </div>
+                        <div class="ref-stat-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 10px; border-radius: 8px; text-align: center;">
+                            <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Commission Rate</span>
+                            <span id="ref-stat-reward" style="font-size: 1.2rem; font-weight: bold; color: var(--accent-gold);">10% Rate</span>
+                        </div>
+                    </div>
                 </div>
             </section>
         </div>
@@ -495,6 +495,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-functions-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
