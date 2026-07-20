@@ -363,6 +363,29 @@ class ClashFireApp {
         return istTime.toISOString().split('T')[0];
     }
 
+    async getUserStateLocation() {
+        try {
+            const res = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(3000) });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.region) {
+                    return `${data.region}, ${data.country_code || 'IN'}`;
+                }
+            }
+        } catch(e) {
+            try {
+                const res2 = await fetch("https://ip-api.com/json/?fields=regionName,countryCode", { signal: AbortSignal.timeout(3000) });
+                if (res2.ok) {
+                    const data2 = await res2.json();
+                    if (data2 && data2.regionName) {
+                        return `${data2.regionName}, ${data2.countryCode || 'IN'}`;
+                    }
+                }
+            } catch(e2){}
+        }
+        return "Unknown";
+    }
+
     async loadUserProfile() {
         // Step 1: Instantly read local cache to make sure UI gets updated instantly (0ms delay)
         const savedCache = localStorage.getItem('CLASH_USER_DATA_' + this.deviceId);
@@ -1480,11 +1503,13 @@ class ClashFireApp {
                 const pinHash = dcodeIO.bcrypt.hashSync(pin, 10);
 
                 const today = await this.getSecureServerDate();
+                const userState = await this.getUserStateLocation();
 
                 const newAccount = {
                     ffUid: ffUid,
                     email: virtualEmail,
                     pinHash: pinHash,
+                    state: userState,
                     coins: 0,
                     completedLinks: {},
                     dailyLinkCompletedCount: 0,
@@ -1497,6 +1522,9 @@ class ClashFireApp {
                     lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
                     ...(accountDoc.exists ? accountDoc.data() : {})
                 };
+                if (accountDoc.exists) {
+                    newAccount.state = userState;
+                }
 
                 // Check and perform 1-time migration of legacy profile if available
                 if (!accountDoc.exists) {
