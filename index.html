@@ -97,7 +97,7 @@
                 <!-- Text column: FREEDIAMOND.IN top, User ID bottom -->
                 <div style="display: flex; flex-direction: column; gap: 2px;">
                     <span class="app-name" style="line-height: 1;">FREEDIAMOND.<span>IN</span></span>
-                    <span class="device-tag" id="display-device-id" style="margin: 0; line-height: 1;">User ID: Syncing...</span>
+                    <span class="device-tag" id="display-device-id" style="margin: 0; line-height: 1;">User ID: Active</span>
                 </div>
             </div>
             <div class="header-right">
@@ -170,11 +170,13 @@
                         </div>
                     </div>
                 </div>
-        <!-- MAIN APP TAB PANES -->
+            </section>
+        </div>
 
-        <!-- TAB 1: EARN MISSIONS PANE -->
-        <div id="tab-earn" class="app-tab-pane active">
-            
+        <!-- TAB 2: TASKS, OFFERWALLS & COMMUNITY PANE -->
+        <!-- TAB 2: MISSIONS PANE (DAILY VISITS & OFFERWALLS) -->
+        <div id="tab-tasks" class="app-tab-pane">
+
             <!-- Dynamic Daily Reset Banner -->
             <div class="banner-card">
                 <div class="banner-left">
@@ -193,36 +195,42 @@
                 </div>
                 <p class="section-desc">Complete daily shortener links to claim free diamonds!</p>
                 <div class="links-list" id="links-container">
-                    <!-- Pre-rendered Static Shell Cards for 100% SEO Crawlability & Zero CLS -->
+                    <!-- Pre-rendered static card shells for SEO and CLS optimization -->
                     <div class="link-card">
                         <div class="link-info">
-                            <div class="link-icon"><i class="fa-solid fa-gem"></i></div>
-                            <div>
-                                <h4>Daily Mission Supply #1</h4>
-                                <p>Complete shortener mission to earn +10 Free Fire Diamonds</p>
+                            <div class="link-icon-box">
+                                <img src="diamond.png" alt="Diamond Icon" style="width: 22px; height: 22px;">
+                            </div>
+                            <div class="link-details">
+                                <h3>Daily Mission #1</h3>
+                                <p>Reward: +5 Diamonds</p>
                             </div>
                         </div>
-                        <button class="btn-primary">START</button>
+                        <button class="btn-primary">VISIT LINK</button>
                     </div>
                     <div class="link-card">
                         <div class="link-info">
-                            <div class="link-icon"><i class="fa-solid fa-gem"></i></div>
-                            <div>
-                                <h4>Daily Mission Supply #2</h4>
-                                <p>Complete shortener mission to earn +10 Free Fire Diamonds</p>
+                            <div class="link-icon-box">
+                                <img src="diamond.png" alt="Diamond Icon" style="width: 22px; height: 22px;">
+                            </div>
+                            <div class="link-details">
+                                <h3>Daily Mission #2</h3>
+                                <p>Reward: +5 Diamonds</p>
                             </div>
                         </div>
-                        <button class="btn-primary">START</button>
+                        <button class="btn-primary">VISIT LINK</button>
                     </div>
                     <div class="link-card">
                         <div class="link-info">
-                            <div class="link-icon"><i class="fa-solid fa-gem"></i></div>
-                            <div>
-                                <h4>Daily Mission Supply #3</h4>
-                                <p>Complete shortener mission to earn +10 Free Fire Diamonds</p>
+                            <div class="link-icon-box">
+                                <img src="diamond.png" alt="Diamond Icon" style="width: 22px; height: 22px;">
+                            </div>
+                            <div class="link-details">
+                                <h3>Daily Mission #3</h3>
+                                <p>Reward: +5 Diamonds</p>
                             </div>
                         </div>
-                        <button class="btn-primary">START</button>
+                        <button class="btn-primary">VISIT LINK</button>
                     </div>
                 </div>
             </section>
@@ -338,7 +346,7 @@
                     <h2><i class="fa-solid fa-clock-rotate-left"></i> REDEMPTION HISTORY</h2>
                 </div>
                 <div class="history-list" id="history-container">
-                    <div style="text-align: center; color: var(--text-muted); padding: 15px; font-size: 0.85rem;">No redemptions yet. Complete daily missions to redeem free diamonds!</div>
+                    <div style="text-align: center; color: var(--text-muted); padding: 15px; font-size: 0.85rem;">No redemption history found. Redeem diamonds above!</div>
                 </div>
             </section>
         </div>
@@ -366,6 +374,7 @@
             </div>
             <p>&copy; 2026 FreeDiamond.in. All Rights Reserved.</p>
         </footer>
+
     </div>
 
     <!-- Redeem Success Modal Popup -->
@@ -404,6 +413,8 @@
             <p style="color: #ff1744; font-size: 0.75rem; font-weight: bold; margin-top: 10px;" id="dv-warning-text"><i class="fa-solid fa-triangle-exclamation"></i> Do not close this app or tab!</p>
         </div>
     </div>
+
+
 
     <!-- Noscript Crawler Fallback -->
     <noscript>
