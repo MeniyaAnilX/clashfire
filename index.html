@@ -82,7 +82,7 @@
                 <!-- Icon on left, vertically centered to both text lines -->
                 <img src="ffire_logo.png" alt="Free Diamond - Free Fire Diamond UID Top Up App Logo" width="40" height="40" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; flex-shrink: 0; box-shadow: 0 2px 10px rgba(255,69,0,0.45);">
                 <!-- Text column: FREEDIAMOND.IN top, User ID bottom -->
-                <div style="display: flex; flex-direction: column; gap: 2px;">
+                <div style="display: flex; flex-direction: column; gap: 5px;">
                     <span class="app-name" style="line-height: 1;">FREEDIAMOND.<span>IN</span></span>
                     <span class="device-tag" id="display-device-id" style="margin: 0; line-height: 1;">User ID: Loading...</span>
                 </div>
@@ -97,6 +97,17 @@
                 </button>
             </div>
         </header>
+
+        <script>
+            if (localStorage.getItem('CLASH_LOGGED_IN') === 'true') {
+                const lastUid = localStorage.getItem('CLASH_LAST_FF_UID');
+                if (lastUid) {
+                    document.getElementById('display-device-id').innerText = "User ID: " + lastUid;
+                }
+                const logoutBtn = document.getElementById('btn-logout');
+                if (logoutBtn) logoutBtn.classList.remove('hidden');
+            }
+        </script>
 
         <!-- Main Navigation Bar Tabs -->
         <nav class="main-nav-tabs">

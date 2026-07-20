@@ -99,6 +99,7 @@ class ClashFireApp {
                     this.deviceId = null;
                     this.user = { coins: 0, completedLinks: {}, dailyLinkCompletedCount: 0 };
                     localStorage.removeItem('CLASH_LOGGED_IN');
+                    localStorage.removeItem('CLASH_LAST_FF_UID');
                     
                     // Hide logout button in header
                     const logoutBtn = document.getElementById('btn-logout');
@@ -393,8 +394,11 @@ class ClashFireApp {
                         this.user = { ...this.user, ...data };
                         
                         this.displayUserId = data.ffUid;
+                        if (this.displayUserId) {
+                            localStorage.setItem('CLASH_LAST_FF_UID', this.displayUserId);
+                        }
                         const devElem = document.getElementById('display-device-id');
-                        if (devElem) devElem.innerText = "UID: " + this.displayUserId;
+                        if (devElem) devElem.innerText = "UID: " + (this.displayUserId || '');
 
                         if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
                         if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};

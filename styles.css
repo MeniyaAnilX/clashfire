@@ -194,8 +194,8 @@ body {
 .header-left { display: flex; flex-direction: row; align-items: center; gap: 10px; }
 .brand-box { display: flex; align-items: center; gap: 8px; }
 .brand-icon { color: var(--primary-fire); font-size: 1.2rem; }
-.app-name { font-size: 1.15rem; font-weight: 800; letter-spacing: 1px; line-height: 1; }
-.device-tag { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+.app-name { font-size: 1.25rem; font-weight: 800; letter-spacing: 1px; line-height: 1; }
+.device-tag { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
 .header-right { display: flex; align-items: center; }
 .wallet-badge {
     background: rgba(0, 0, 0, 0.7); border: 1.5px solid var(--accent-gold);
@@ -337,11 +337,11 @@ body {
         margin-top: 6px;
     }
     .app-name {
-        font-size: 0.82rem;
+        font-size: 0.9rem;
         letter-spacing: 0.2px;
     }
     .device-tag {
-        font-size: 0.62rem;
+        font-size: 0.68rem;
     }
     .wallet-badge {
         font-size: 0.95rem;
