@@ -92,6 +92,15 @@ class ClashFireApp {
         this.startLiveProofsTicker();
         this.protectAppFromInspect();
 
+        // Read URL query parameter to support direct landing on specific tab
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('tab');
+        if (activeTab === 'tasks') {
+            this.switchAppTab('tab-tasks');
+        } else if (activeTab === 'redeem') {
+            this.switchAppTab('tab-redeem');
+        }
+
 
 
         document.addEventListener('visibilitychange', async () => {

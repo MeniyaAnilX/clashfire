@@ -850,8 +850,8 @@
                 try {
                     // Open Ad Smartlink in new tab (allowed 100% by mobile browsers on direct click gesture)
                     window.open(selectedUrl, '_blank');
-                    // Navigate current tab back to dashboard cleanly
-                    window.location.href = window.location.origin + "/";
+                    // Navigate current tab back to dashboard cleanly (on the Missions tab)
+                    window.location.href = window.location.origin + "/?tab=tasks";
                     return;
                 } catch(e) {
                     window.location.href = selectedUrl;
@@ -863,7 +863,7 @@
                 try { window.opener.focus(); } catch(e){}
                 window.close();
             } else {
-                window.location.href = window.location.origin + "/";
+                window.location.href = window.location.origin + "/?tab=tasks";
             }
         }
 
