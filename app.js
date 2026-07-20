@@ -58,6 +58,7 @@ class ClashFireApp {
         this.db = null;
         this.firestoreActive = false;
         this.dvHasReturned = false;
+        this.userListenerUnsubscribe = null;
 
         // Dynamic Mission Tasks Array (1-indexed task IDs)
         this.dailyLinks = [
@@ -77,7 +78,7 @@ class ClashFireApp {
         this.initFirebase();
         
         this.deviceId = await this.getOrCreateMultiLayerDeviceID();
-        this.displayUserId = "CF-" + this.deviceId.substring(9, 15);
+        this.displayUserId = "CF-" + this.deviceId.substring(9, 19);
         
         const devElem = document.getElementById('display-device-id');
         if (devElem) devElem.innerText = "User ID: " + this.displayUserId;
@@ -331,8 +332,13 @@ class ClashFireApp {
             try {
                 const docRef = this.db.collection("users").doc(this.deviceId);
                 
+                // Unsubscribe from any active listener first to prevent duplication leaks
+                if (this.userListenerUnsubscribe) {
+                    this.userListenerUnsubscribe();
+                }
+
                 // Realtime subscription for instant dashboard updates
-                docRef.onSnapshot(async doc => {
+                this.userListenerUnsubscribe = docRef.onSnapshot(async doc => {
                     if (doc.exists) {
                         const data = doc.data();
                         this.user = { ...this.user, ...data };
@@ -735,7 +741,7 @@ class ClashFireApp {
 
     openSponsorChannel() {
         const url = this.integrations.sponsorUrl || "https://t.me";
-        window.open(url, '_blank');
+        window.open(url, '_blank', 'noopener,noreferrer');
         this.showToast('COMMUNITY LAUNCHED', 'Claiming community diamond bonus...', 'info');
 
         if (!localStorage.getItem('CF_COMMUNITY_CLAIMED')) {
@@ -833,7 +839,7 @@ class ClashFireApp {
 
     launchGamezop() {
         const url = this.integrations.gamezopUrl || "https://www.gamezop.com";
-        window.open(url, '_blank');
+        window.open(url, '_blank', 'noopener,noreferrer');
         this.showToast('GAMEZOP LAUNCHED', 'Play games active for 3 mins to claim reward!', 'info');
         
         setTimeout(() => {
@@ -1090,7 +1096,7 @@ class ClashFireApp {
                 targetUrl = "https://" + targetUrl;
             }
 
-            window.open(targetUrl, '_blank');
+            window.open(targetUrl, '_blank', 'noopener,noreferrer');
             this.showToast('VISIT STARTED', 'Stay on the visited tab and wait for countdown!', 'info');
 
             this.dvTimerId = setInterval(() => {
@@ -1151,7 +1157,7 @@ class ClashFireApp {
             targetUrl = "https://" + targetUrl;
         }
 
-        window.open(targetUrl, '_blank');
+        window.open(targetUrl, '_blank', 'noopener,noreferrer');
         this.showToast('VISIT RESUMED', 'Timer resumed! Stay on the sponsor page.', 'info');
     }
 
@@ -1209,7 +1215,7 @@ class ClashFireApp {
         if (targetUrl && !/^https?:\/\//i.test(targetUrl)) {
             targetUrl = "https://" + targetUrl;
         }
-        window.open(targetUrl, '_blank');
+        window.open(targetUrl, '_blank', 'noopener,noreferrer');
         this.showToast('MISSION STARTED', 'Please complete the shortener link to verify and claim diamonds!', 'info');
     }
 

@@ -684,46 +684,47 @@
             document.getElementById('status-title').innerText = 'CREDITING WALLET...';
             document.getElementById('status-desc').innerText = '';
 
-            let userData = null;
-            const saved = localStorage.getItem('CLASH_USER_DATA_' + deviceId);
-            if (saved) userData = JSON.parse(saved);
-
             if (db) {
                 try {
                     const docRef = db.collection("users").doc(deviceId);
-                    const doc = await docRef.get();
-                    if (doc.exists) userData = doc.data();
-                } catch(e){}
-            }
+                    
+                    // Fetch secure server time
+                    const today = await getSecureServerDate();
 
-            if (!userData) userData = { coins: 0, completedLinks: {}, dailyLinkCompletedCount: 0 };
-            if (!userData.completedLinks || Array.isArray(userData.completedLinks)) userData.completedLinks = {};
-
-            if (userData.completedLinks[taskId]) {
-                localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
-                localStorage.removeItem("CF_STEP1_DONE_TASK_" + taskId);
-                showError('<i class="fa-solid fa-circle-exclamation" style="color:#ffd700;"></i>', 'ALREADY CLAIMED!', 'You have already claimed reward for this mission today.');
-                return;
-            }
-
-            // Fetch secure server time
-            const today = await getSecureServerDate();
-
-            // Credit reward & burn tokens
-            localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
-            localStorage.removeItem("CF_STEP1_DONE_TASK_" + taskId);
-            userData.completedLinks[taskId] = true;
-            userData.coins = (userData.coins || 0) + rewardAmt;
-            userData.dailyLinkCompletedCount = (userData.dailyLinkCompletedCount || 0) + 1;
-            userData.lastResetDate = today;
-
-            localStorage.setItem('CLASH_USER_DATA_' + deviceId, JSON.stringify(userData));
-
-            if (db) {
-                try {
-                    await db.collection("users").doc(deviceId).set(userData, { merge: true });
-
-                    // Referral Commission (only when ALL missions done)
+                    const transactionResult = await db.runTransaction(async (transaction) => {
+                        const doc = await transaction.get(docRef);
+                        let currentData = doc.exists ? doc.data() : { coins: 0, completedLinks: {}, dailyLinkCompletedCount: 0 };
+                        if (!currentData.completedLinks || Array.isArray(currentData.completedLinks)) {
+                            currentData.completedLinks = {};
+                        }
+                        
+                        // Check if task already claimed inside transaction
+                        if (currentData.completedLinks[taskId]) {
+                            throw new Error("ALREADY_CLAIMED");
+                        }
+                        
+                        // Initialize values safely
+                        const currentCoins = parseFloat(currentData.coins || 0);
+                        const currentCount = parseInt(currentData.dailyLinkCompletedCount || 0);
+                        
+                        currentData.completedLinks[taskId] = true;
+                        currentData.coins = parseFloat((currentCoins + rewardAmt).toFixed(2));
+                        currentData.dailyLinkCompletedCount = currentCount + 1;
+                        currentData.lastResetDate = today;
+                        
+                        transaction.set(docRef, currentData, { merge: true });
+                        return currentData;
+                    });
+                    
+                    // Transaction completed successfully, update local cache
+                    const userData = transactionResult;
+                    localStorage.setItem('CLASH_USER_DATA_' + deviceId, JSON.stringify(userData));
+                    
+                    // Burn token keys
+                    localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
+                    localStorage.removeItem("CF_STEP1_DONE_TASK_" + taskId);
+                    
+                    // Trigger referral logic if applicable
                     if (userData.referredBy) {
                         const refCode = userData.referredBy;
                         let totalRequiredMissions = 5;
@@ -765,7 +766,20 @@
                             }
                         }
                     }
-                } catch(e){ console.error("Verify save err:", e); }
+                } catch (e) {
+                    localStorage.removeItem("CF_ACTIVE_TOKEN_TASK_" + taskId);
+                    localStorage.removeItem("CF_STEP1_DONE_TASK_" + taskId);
+                    if (e.message === "ALREADY_CLAIMED") {
+                        showError('<i class="fa-solid fa-circle-exclamation" style="color:#ffd700;"></i>', 'ALREADY CLAIMED!', 'You have already claimed reward for this mission today.');
+                    } else {
+                        console.error("Task claim transaction failed:", e);
+                        showError('<i class="fa-solid fa-triangle-exclamation" style="color:#ff1744;"></i>', 'VERIFICATION ERROR', 'Verification failed due to database load. Please try again!');
+                    }
+                    return;
+                }
+            } else {
+                showError('<i class="fa-solid fa-triangle-exclamation" style="color:#ff1744;"></i>', 'DATABASE OFFLINE', 'Database service is currently offline. Please try again later.');
+                return;
             }
 
             // Step indicator - both done
@@ -848,7 +862,7 @@
             if (selectedUrl) {
                 try {
                     // Open Ad Smartlink in new tab (allowed 100% by mobile browsers on direct click gesture)
-                    window.open(selectedUrl, '_blank');
+                    window.open(selectedUrl, '_blank', 'noopener,noreferrer');
                     // Navigate current tab back to dashboard cleanly (on the Missions tab)
                     window.location.href = window.location.origin + "/?tab=tasks";
                     return;
