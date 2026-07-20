@@ -842,11 +842,19 @@
             }
 
             if (selectedUrl) {
+                // If dashboard is already open as parent window, bring it to front and open ad in current tab (background)
+                if (window.opener) {
+                    try {
+                        window.opener.focus();
+                        window.location.href = selectedUrl;
+                        return;
+                    } catch(e) {}
+                }
+                
+                // Otherwise, open dashboard in a new tab (foreground) and redirect current tab to ad (background)
                 try {
-                    // Open Ad Smartlink in new tab (allowed 100% by mobile browsers on direct click gesture)
-                    window.open(selectedUrl, '_blank', 'noopener,noreferrer');
-                    // Navigate current tab back to dashboard cleanly (on the Missions tab)
-                    window.location.href = window.location.origin + "/?tab=tasks";
+                    window.open(window.location.origin + "/?tab=tasks", '_blank');
+                    window.location.href = selectedUrl;
                     return;
                 } catch(e) {
                     window.location.href = selectedUrl;
