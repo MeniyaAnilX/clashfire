@@ -966,23 +966,46 @@ class ClashFireApp {
 
         containerElement.setAttribute('data-ad-code-hash', trimmedCode);
         containerElement.setAttribute('data-ad-loaded', 'true');
-        containerElement.innerHTML = trimmedCode;
-        containerElement.style.height = 'auto';
+        containerElement.innerHTML = '';
 
-        const scripts = containerElement.getElementsByTagName('script');
-        Array.from(scripts).forEach(oldScript => {
-            const newScript = document.createElement('script');
-            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-            if (oldScript.src) {
-                newScript.src = oldScript.src;
-            }
-            if (oldScript.textContent) {
-                newScript.textContent = oldScript.textContent;
-            }
-            if (oldScript.parentNode) {
-                oldScript.parentNode.replaceChild(newScript, oldScript);
-            }
-        });
+        let initialHeight = 90;
+        if (trimmedCode.includes('250') || trimmedCode.includes('300x250')) {
+            initialHeight = 250;
+        } else if (trimmedCode.includes('50') || trimmedCode.includes('320x50')) {
+            initialHeight = 50;
+        }
+
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '100%';
+        iframe.style.height = initialHeight + 'px';
+        iframe.style.border = 'none';
+        iframe.style.overflow = 'hidden';
+        iframe.setAttribute('scrolling', 'no');
+        containerElement.appendChild(iframe);
+
+        try {
+            const doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write(`<!DOCTYPE html><html><head><base target="_blank"><style>html, body { margin:0; padding:0; display:flex; justify-content:center; align-items:center; background:transparent; overflow:visible; } iframe, img, div, ins { max-width:100% !important; max-height:100% !important; margin:0 auto; display:block; }</style></head><body>${trimmedCode}</body></html>`);
+            doc.close();
+
+            const adjustH = () => {
+                try {
+                    if (iframe.contentWindow && iframe.contentWindow.document && iframe.contentWindow.document.body) {
+                        const body = iframe.contentWindow.document.body;
+                        const maxChildH = Math.max(...Array.from(body.querySelectorAll('iframe, img, div, ins')).map(el => el.offsetHeight), 0);
+                        const actualH = maxChildH > 30 ? maxChildH : body.scrollHeight;
+                        if (actualH > 30) {
+                            iframe.style.height = actualH + 'px';
+                            containerElement.style.height = actualH + 'px';
+                        }
+                    }
+                } catch(e){}
+            };
+            setTimeout(adjustH, 300);
+            setTimeout(adjustH, 1000);
+            setTimeout(adjustH, 2500);
+        } catch(e){}
     }
 
     renderRedeemHistory() {
