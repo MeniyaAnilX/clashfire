@@ -749,8 +749,11 @@ class ClashFireApp {
 
         // Dynamically inject Global Header Script (Monetag In-Page Push, Anti-Adblock, Header Scripts)
         const headerCode = (this.globalSettings.adScriptHeader || '').trim();
-        let existingHeader = document.getElementById('cf-global-header-script');
-        if (headerCode) {
+        const headerSlot = document.getElementById('ad-slot-header');
+        if (headerSlot && headerCode) {
+            this.executeNativeAdScript(headerSlot, headerCode, 'header');
+        } else if (headerCode) {
+            let existingHeader = document.getElementById('cf-global-header-script');
             if (!existingHeader || existingHeader.dataset.code !== headerCode) {
                 if (existingHeader) existingHeader.remove();
 
@@ -776,14 +779,15 @@ class ClashFireApp {
                     document.head.appendChild(newScript);
                 }
             }
-        } else if (existingHeader) {
-            existingHeader.remove();
         }
 
         // Dynamically inject Global Footer Script
         const footerCode = (this.globalSettings.adScriptFooter || '').trim();
-        let existingFooter = document.getElementById('cf-global-footer-script');
-        if (footerCode) {
+        const footerSlot = document.getElementById('ad-slot-footer');
+        if (footerSlot && footerCode) {
+            this.executeNativeAdScript(footerSlot, footerCode, 'footer');
+        } else if (footerCode) {
+            let existingFooter = document.getElementById('cf-global-footer-script');
             if (!existingFooter || existingFooter.dataset.code !== footerCode) {
                 if (existingFooter) existingFooter.remove();
 
@@ -809,8 +813,6 @@ class ClashFireApp {
                     document.body.appendChild(newScript);
                 }
             }
-        } else if (existingFooter) {
-            existingFooter.remove();
         }
 
         // Render Independent Top, Middle and Bottom Native Banner Ad Slots with Direct Native Execution
