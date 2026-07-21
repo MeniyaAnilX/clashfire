@@ -36,7 +36,7 @@ class ClashFireApp {
         this.integrations = {
             gamezopUrl: "https://www.gamezop.com",
             gamezopReward: 5,
-            gamezopEnabled: false,
+            gamezopEnabled: true,
             bannerHtmlCode: '',
             bannerMiddleHtmlCode: '',
             bannerBottomHtmlCode: '',
@@ -48,11 +48,12 @@ class ClashFireApp {
             sponsorUrl: 'https://t.me',
             sponsorBtnText: 'JOIN NOW',
             sponsorIcon: 'telegram',
-            sponsorEnabled: false
+            sponsorEnabled: true
         };
         this.dailyVisit = {
-            enabled: false,
-            items: []
+            items: [
+                { id: 0, taskId: 1, title: "Daily Visit Task #1", url: "https://www.freediamond.in", duration: 15, reward: 10 }
+            ]
         };
         this.db = null;
         this.firestoreActive = false;
@@ -747,75 +748,7 @@ class ClashFireApp {
             }
         }
 
-        // Dynamically inject Global Header Script (Monetag In-Page Push, Anti-Adblock, Header Scripts)
-        const headerCode = (this.globalSettings.adScriptHeader || '').trim();
-        const headerSlot = document.getElementById('ad-slot-header');
-        if (headerSlot && headerCode) {
-            this.executeNativeAdScript(headerSlot, headerCode, 'header');
-        } else if (headerCode) {
-            let existingHeader = document.getElementById('cf-global-header-script');
-            if (!existingHeader || existingHeader.dataset.code !== headerCode) {
-                if (existingHeader) existingHeader.remove();
-
-                const holder = document.createElement('div');
-                holder.id = 'cf-global-header-script';
-                holder.dataset.code = headerCode;
-                holder.style.display = 'none';
-                holder.innerHTML = headerCode;
-                document.head.appendChild(holder);
-
-                const scripts = holder.getElementsByTagName('script');
-                if (scripts.length > 0) {
-                    Array.from(scripts).forEach(oldScript => {
-                        const newScript = document.createElement('script');
-                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                        if (oldScript.src) newScript.src = oldScript.src;
-                        if (oldScript.textContent) newScript.textContent = oldScript.textContent;
-                        document.head.appendChild(newScript);
-                    });
-                } else {
-                    const newScript = document.createElement('script');
-                    newScript.textContent = headerCode;
-                    document.head.appendChild(newScript);
-                }
-            }
-        }
-
-        // Dynamically inject Global Footer Script
-        const footerCode = (this.globalSettings.adScriptFooter || '').trim();
-        const footerSlot = document.getElementById('ad-slot-footer');
-        if (footerSlot && footerCode) {
-            this.executeNativeAdScript(footerSlot, footerCode, 'footer');
-        } else if (footerCode) {
-            let existingFooter = document.getElementById('cf-global-footer-script');
-            if (!existingFooter || existingFooter.dataset.code !== footerCode) {
-                if (existingFooter) existingFooter.remove();
-
-                const holder = document.createElement('div');
-                holder.id = 'cf-global-footer-script';
-                holder.dataset.code = footerCode;
-                holder.style.display = 'none';
-                holder.innerHTML = footerCode;
-                document.body.appendChild(holder);
-
-                const scripts = holder.getElementsByTagName('script');
-                if (scripts.length > 0) {
-                    Array.from(scripts).forEach(oldScript => {
-                        const newScript = document.createElement('script');
-                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                        if (oldScript.src) newScript.src = oldScript.src;
-                        if (oldScript.textContent) newScript.textContent = oldScript.textContent;
-                        document.body.appendChild(newScript);
-                    });
-                } else {
-                    const newScript = document.createElement('script');
-                    newScript.textContent = footerCode;
-                    document.body.appendChild(newScript);
-                }
-            }
-        }
-
-        // Render Independent Top, Middle and Bottom Native Banner Ad Slots with Direct Native Execution
+        // Render Independent Top, Middle and Bottom Native Banner Ad Slots with Dynamic Zero-Space Auto-Height
         const topSlot = document.getElementById('banner-ad-top');
         const midHomeSlot = document.getElementById('banner-ad-middle');
         const midRedeemSlot = document.getElementById('banner-ad-redeem-middle');
@@ -825,7 +758,7 @@ class ClashFireApp {
         if (isBannerOn) {
             if (topSlot && this.integrations.bannerHtmlCode) {
                 topSlot.classList.remove('hidden');
-                this.executeNativeAdScript(topSlot, this.integrations.bannerHtmlCode, 'top');
+                this.executeIsolatedAdScript(topSlot, this.integrations.bannerHtmlCode, 'top');
             } else if (topSlot) {
                 topSlot.classList.add('hidden'); topSlot.innerHTML = '';
             }
@@ -833,14 +766,14 @@ class ClashFireApp {
             const midCode = this.integrations.bannerMiddleHtmlCode;
             if (midHomeSlot && midCode) {
                 midHomeSlot.classList.remove('hidden');
-                this.executeNativeAdScript(midHomeSlot, midCode, 'mid-home');
+                this.executeIsolatedAdScript(midHomeSlot, midCode, 'mid-home');
             } else if (midHomeSlot) {
                 midHomeSlot.classList.add('hidden'); midHomeSlot.innerHTML = '';
             }
 
             if (midRedeemSlot && midCode) {
                 midRedeemSlot.classList.remove('hidden');
-                this.executeNativeAdScript(midRedeemSlot, midCode, 'mid-redeem');
+                this.executeIsolatedAdScript(midRedeemSlot, midCode, 'mid-redeem');
             } else if (midRedeemSlot) {
                 midRedeemSlot.classList.add('hidden'); midRedeemSlot.innerHTML = '';
             }
@@ -848,7 +781,7 @@ class ClashFireApp {
             const botCode = this.integrations.bannerBottomHtmlCode;
             if (botSlot && botCode) {
                 botSlot.classList.remove('hidden');
-                this.executeNativeAdScript(botSlot, botCode, 'bottom');
+                this.executeIsolatedAdScript(botSlot, botCode, 'bottom');
             } else if (botSlot) {
                 botSlot.classList.add('hidden'); botSlot.innerHTML = '';
             }
@@ -868,46 +801,36 @@ class ClashFireApp {
             }
         }
 
-        // Dynamically inject Global Popunder script if enabled
-        const popunderEnabled = (this.globalSettings.adScriptPopunderEnabled !== false && this.globalSettings.adScriptPopunderEnabled !== 'false');
+        // Dynamically inject Global Popunder if enabled
+        const popunderEnabled = this.globalSettings.adScriptPopunderEnabled === true || this.globalSettings.adScriptPopunderEnabled === 'true';
         const popScriptCode = (this.globalSettings.adScriptPopunder || '').trim();
         let existingPop = document.getElementById('cf-global-popunder-script');
 
         if (popunderEnabled && popScriptCode) {
-            if (!existingPop || existingPop.dataset.code !== popScriptCode) {
+            if (!existingPop || existingPop.getAttribute('data-pop-code') !== popScriptCode) {
                 if (existingPop) existingPop.remove();
 
                 const holder = document.createElement('div');
                 holder.id = 'cf-global-popunder-script';
-                holder.dataset.code = popScriptCode;
+                holder.setAttribute('data-pop-code', popScriptCode);
                 holder.style.display = 'none';
                 holder.innerHTML = popScriptCode;
                 document.body.appendChild(holder);
 
                 const scripts = holder.getElementsByTagName('script');
-                if (scripts.length > 0) {
-                    Array.from(scripts).forEach(oldScript => {
-                        const newScript = document.createElement('script');
-                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                        if (oldScript.src) newScript.src = oldScript.src;
-                        if (oldScript.textContent) newScript.textContent = oldScript.textContent;
-                        document.head.appendChild(newScript);
-                    });
-                } else {
+                Array.from(scripts).forEach(oldScript => {
                     const newScript = document.createElement('script');
-                    newScript.textContent = popScriptCode;
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    }
+                    if (oldScript.textContent) {
+                        newScript.textContent = oldScript.textContent;
+                    }
                     document.head.appendChild(newScript);
-                }
-
-                // Dispatch synthetic load event so async loaded Popunder script binds click listeners!
-                if (document.readyState === 'complete' || document.readyState === 'interactive') {
-                    try {
-                        window.dispatchEvent(new Event('DOMContentLoaded'));
-                        window.dispatchEvent(new Event('load'));
-                    } catch(e){}
-                }
+                });
             }
-        } else if (!popunderEnabled && existingPop) {
+        } else if (existingPop) {
             existingPop.remove();
         }
 
@@ -956,56 +879,43 @@ class ClashFireApp {
         window.open(url, '_blank', 'noopener,noreferrer');
         this.showToast('COMMUNITY LAUNCHED', 'Welcome to our official community!', 'success');
     }
-    executeNativeAdScript(containerElement, rawHtmlCode, slotTag = 'slot') {
-        if (!containerElement || !rawHtmlCode || !rawHtmlCode.trim()) return;
+    executeIsolatedAdScript(containerElement, rawHtmlCode, slotTag = 'slot') {
+        if (!containerElement || !rawHtmlCode) return;
         
-        const trimmedCode = rawHtmlCode.trim();
-        if (containerElement.getAttribute('data-ad-code-hash') === trimmedCode) {
+        // Cache Check: If this slot is already running this exact HTML content, skip refreshing
+        const cacheKey = `CF_LAST_AD_CODE_${slotTag}`;
+        if (containerElement.getAttribute('data-ad-loaded') === 'true' && localStorage.getItem(cacheKey) === rawHtmlCode) {
             return;
         }
-
-        containerElement.setAttribute('data-ad-code-hash', trimmedCode);
+        
+        localStorage.setItem(cacheKey, rawHtmlCode);
         containerElement.setAttribute('data-ad-loaded', 'true');
+        containerElement.style.height = 'auto';
         containerElement.innerHTML = '';
 
-        let initialHeight = 90;
-        if (trimmedCode.includes('250') || trimmedCode.includes('300x250') || trimmedCode.includes("'height' : 250") || trimmedCode.includes("'height': 250")) {
-            initialHeight = 250;
-        } else if (trimmedCode.includes('50') || trimmedCode.includes('320x50') || trimmedCode.includes("'height' : 50") || trimmedCode.includes("'height': 50")) {
-            initialHeight = 50;
-        }
+        const wrapper = document.createElement('div');
+        wrapper.className = 'ad-slot-wrapper';
+        wrapper.style.display = 'flex';
+        wrapper.style.justifyContent = 'center';
+        wrapper.style.alignItems = 'center';
+        wrapper.style.width = '100%';
+        wrapper.style.margin = '10px 0';
+        wrapper.innerHTML = rawHtmlCode;
+        containerElement.appendChild(wrapper);
 
-        const iframe = document.createElement('iframe');
-        iframe.style.width = '100%';
-        iframe.style.height = initialHeight + 'px';
-        iframe.style.border = 'none';
-        iframe.style.overflow = 'hidden';
-        iframe.setAttribute('scrolling', 'no');
-        containerElement.appendChild(iframe);
-
-        try {
-            const doc = iframe.contentWindow.document;
-            doc.open();
-            doc.write(`<!DOCTYPE html><html><head><base target="_blank"><style>html, body { margin:0; padding:0; display:flex; justify-content:center; align-items:center; background:transparent; overflow:visible; } iframe, img, div, ins { max-width:100% !important; max-height:100% !important; margin:0 auto; display:block; }</style></head><body>${trimmedCode}</body></html>`);
-            doc.close();
-
-            const adjustH = () => {
-                try {
-                    if (iframe.contentWindow && iframe.contentWindow.document && iframe.contentWindow.document.body) {
-                        const body = iframe.contentWindow.document.body;
-                        const maxChildH = Math.max(...Array.from(body.querySelectorAll('iframe, img, div, ins')).map(el => el.offsetHeight), 0);
-                        const actualH = maxChildH > 30 ? maxChildH : body.scrollHeight;
-                        if (actualH > 30) {
-                            iframe.style.height = actualH + 'px';
-                            containerElement.style.height = actualH + 'px';
-                        }
-                    }
-                } catch(e){}
-            };
-            setTimeout(adjustH, 300);
-            setTimeout(adjustH, 1000);
-            setTimeout(adjustH, 2500);
-        } catch(e){}
+        // Re-execute all script tags directly in main document DOM for 100% Monetag / Adsterra / Google AdSense compatibility
+        const scripts = wrapper.getElementsByTagName('script');
+        Array.from(scripts).forEach(oldScript => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+            if (oldScript.src) {
+                newScript.src = oldScript.src;
+            }
+            if (oldScript.textContent) {
+                newScript.textContent = oldScript.textContent;
+            }
+            wrapper.appendChild(newScript);
+        });
     }
 
     renderRedeemHistory() {
