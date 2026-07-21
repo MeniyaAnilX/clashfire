@@ -60,8 +60,14 @@ class ClashFireApp {
         this.dvHasReturned = false;
         this.userListenerUnsubscribe = null;
 
-        // Dynamic Mission Tasks Array (1-indexed task IDs, loaded live from Firestore)
-        this.dailyLinks = [];
+        // Dynamic Mission Tasks Array (1-indexed task IDs with default fallback)
+        this.dailyLinks = [
+            { id: 0, taskId: 1, title: "Daily Mission #1", url: "https://www.freediamond.in/verify.html?task=1" },
+            { id: 1, taskId: 2, title: "Daily Mission #2", url: "https://www.freediamond.in/verify.html?task=2" },
+            { id: 2, taskId: 3, title: "Daily Mission #3", url: "https://www.freediamond.in/verify.html?task=3" },
+            { id: 3, taskId: 4, title: "Daily Mission #4", url: "https://www.freediamond.in/verify.html?task=4" },
+            { id: 4, taskId: 5, title: "Daily Mission #5", url: "https://www.freediamond.in/verify.html?task=5" }
+        ];
 
         this.init();
     }
@@ -226,9 +232,17 @@ class ClashFireApp {
                                 title: `Daily Mission #${i+1}`,
                                 url: u
                             }));
+                        } else {
+                            this.dailyLinks = [
+                                { id: 0, taskId: 1, title: "Daily Mission #1", url: "https://www.freediamond.in/verify.html?task=1" },
+                                { id: 1, taskId: 2, title: "Daily Mission #2", url: "https://www.freediamond.in/verify.html?task=2" },
+                                { id: 2, taskId: 3, title: "Daily Mission #3", url: "https://www.freediamond.in/verify.html?task=3" },
+                                { id: 3, taskId: 4, title: "Daily Mission #4", url: "https://www.freediamond.in/verify.html?task=4" },
+                                { id: 4, taskId: 5, title: "Daily Mission #5", url: "https://www.freediamond.in/verify.html?task=5" }
+                            ];
                         }
-                        this.renderDashboard();
                     }
+                    this.renderDashboard();
                 });
 
                 this.db.collection("settings").doc("integrations").onSnapshot(doc => {
@@ -620,10 +634,11 @@ class ClashFireApp {
 
     renderDashboard() {
         document.getElementById('user-coins').innerText = this.formatCoins(this.user.coins);
-        const totalLinks = this.dailyLinks ? this.dailyLinks.length : 0;
+        const totalLinks = (this.dailyLinks && this.dailyLinks.length > 0) ? this.dailyLinks.length : 5;
         const bannerPointsElem = document.getElementById('banner-points');
         if (bannerPointsElem) {
-            bannerPointsElem.innerText = `${this.user.dailyLinkCompletedCount}/${totalLinks} DONE`;
+            const completedCount = this.user.completedLinks ? Object.keys(this.user.completedLinks).length : (this.user.dailyLinkCompletedCount || 0);
+            bannerPointsElem.innerText = `${completedCount}/${totalLinks} DONE`;
         }
 
         // Render Dynamic Unlimited Daily Visit Tasks
