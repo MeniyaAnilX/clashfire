@@ -969,9 +969,9 @@ class ClashFireApp {
         containerElement.innerHTML = '';
 
         let initialHeight = 90;
-        if (trimmedCode.includes('250') || trimmedCode.includes('300x250')) {
+        if (trimmedCode.includes('250') || trimmedCode.includes('300x250') || trimmedCode.includes("'height' : 250") || trimmedCode.includes("'height': 250")) {
             initialHeight = 250;
-        } else if (trimmedCode.includes('50') || trimmedCode.includes('320x50')) {
+        } else if (trimmedCode.includes('50') || trimmedCode.includes('320x50') || trimmedCode.includes("'height' : 50") || trimmedCode.includes("'height': 50")) {
             initialHeight = 50;
         }
 
