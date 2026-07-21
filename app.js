@@ -60,14 +60,8 @@ class ClashFireApp {
         this.dvHasReturned = false;
         this.userListenerUnsubscribe = null;
 
-        // Dynamic Mission Tasks Array (1-indexed task IDs)
-        this.dailyLinks = [
-            { id: 0, taskId: 1, title: "Daily Mission Supply #1", url: "https://www.freediamond.in/verify?task=1" },
-            { id: 1, taskId: 2, title: "Daily Mission Elite #2", url: "https://www.freediamond.in/verify?task=2" },
-            { id: 2, taskId: 3, title: "Daily Mission Vault #3", url: "https://www.freediamond.in/verify?task=3" },
-            { id: 3, taskId: 4, title: "Daily Mission Armor #4", url: "https://www.freediamond.in/verify?task=4" },
-            { id: 4, taskId: 5, title: "Daily Mission Heroic #5", url: "https://www.freediamond.in/verify?task=5" }
-        ];
+        // Dynamic Mission Tasks Array (1-indexed task IDs, loaded live from Firestore)
+        this.dailyLinks = [];
 
         this.init();
     }
@@ -218,18 +212,18 @@ class ClashFireApp {
                 this.db.collection("settings").doc("links").onSnapshot(doc => {
                     if (doc.exists) {
                         const linksData = doc.data();
-                        if (linksData.items && Array.isArray(linksData.items)) {
+                        if (linksData.items && Array.isArray(linksData.items) && linksData.items.length > 0) {
                             this.dailyLinks = linksData.items.map((item, i) => ({
                                 id: i,
                                 taskId: item.taskId || (i + 1),
                                 title: item.title || (`Daily Mission #${i+1}`),
-                                url: item.url
+                                url: item.url || `https://freediamond.in/verify.html?task=${i+1}`
                             }));
-                        } else if (linksData.urls && Array.isArray(linksData.urls)) {
+                        } else if (linksData.urls && Array.isArray(linksData.urls) && linksData.urls.length > 0) {
                             this.dailyLinks = linksData.urls.map((u, i) => ({
                                 id: i,
                                 taskId: i + 1,
-                                title: `Daily Mission Supply #${i+1}`,
+                                title: `Daily Mission #${i+1}`,
                                 url: u
                             }));
                         }
@@ -697,55 +691,6 @@ class ClashFireApp {
                 const liveCount = snap.size;
                 if (countElem) countElem.innerText = liveCount;
             }).catch(()=>{});
-        }
-
-        const gzLabel = document.getElementById('gamezop-reward-label');
-        if (gzLabel) gzLabel.innerText = `Play 3 Mins = +${this.integrations.gamezopReward || 5} Diamonds`;
-
-        const gzStation = document.getElementById('gamezop-station');
-        if (gzStation) {
-            const isGzOn = (this.integrations.gamezopEnabled === true || this.integrations.gamezopEnabled === 'true');
-            gzStation.style.display = isGzOn ? 'block' : 'none';
-        }
-
-        const commStation = document.getElementById('community-station');
-        if (commStation) {
-            const isCommOn = (this.integrations.sponsorEnabled === true || this.integrations.sponsorEnabled === 'true');
-            commStation.style.display = isCommOn ? 'block' : 'none';
-            
-            const titleElem = document.getElementById('sponsor-task-title');
-            if (titleElem) titleElem.innerText = this.integrations.sponsorTitle || 'Join Our Channel';
-            
-            const descElem = document.getElementById('sponsor-task-desc');
-            if (descElem) descElem.innerText = `Join to claim +${this.integrations.sponsorReward || 10} Diamonds`;
-
-            const btnElem = document.getElementById('sponsor-btn-action');
-            if (btnElem) btnElem.innerText = this.integrations.sponsorBtnText || 'JOIN NOW';
-
-            // Dynamic Platform Icon Rendering (YouTube 🔴 / Telegram ✈️ / Web 🌐)
-            const iconBox = document.getElementById('sponsor-icon-box');
-            const iconElem = document.getElementById('sponsor-icon-elem');
-            const platform = this.integrations.sponsorIcon || 'telegram';
-
-            if (iconBox && iconElem) {
-                if (platform === 'youtube') {
-                    iconBox.style.background = 'rgba(255, 0, 0, 0.15)';
-                    iconBox.style.color = '#ff0000';
-                    iconElem.className = 'fa-brands fa-youtube';
-                } else if (platform === 'telegram') {
-                    iconBox.style.background = 'rgba(0, 136, 204, 0.15)';
-                    iconBox.style.color = '#0088cc';
-                    iconElem.className = 'fa-solid fa-paper-plane';
-                } else if (platform === 'globe') {
-                    iconBox.style.background = 'rgba(0, 242, 254, 0.15)';
-                    iconBox.style.color = 'var(--accent-cyan)';
-                    iconElem.className = 'fa-solid fa-globe';
-                } else {
-                    iconBox.style.background = 'rgba(255, 69, 0, 0.15)';
-                    iconBox.style.color = 'var(--primary-fire)';
-                    iconElem.className = 'fa-solid fa-star';
-                }
-            }
         }
 
         // Render Independent Top, Middle and Bottom Native Banner Ad Slots with Dynamic Zero-Space Auto-Height
