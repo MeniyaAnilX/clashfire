@@ -747,7 +747,61 @@ class ClashFireApp {
             }
         }
 
-        // Render Independent Top, Middle and Bottom Native Banner Ad Slots with Dynamic Zero-Space Auto-Height
+        // Dynamically inject Global Header Script (Monetag In-Page Push, Anti-Adblock, Header Scripts)
+        const headerCode = (this.globalSettings.adScriptHeader || '').trim();
+        let existingHeader = document.getElementById('cf-global-header-script');
+        if (headerCode) {
+            if (!existingHeader || existingHeader.dataset.code !== headerCode) {
+                if (existingHeader) existingHeader.remove();
+
+                const holder = document.createElement('div');
+                holder.id = 'cf-global-header-script';
+                holder.dataset.code = headerCode;
+                holder.style.display = 'none';
+                holder.innerHTML = headerCode;
+                document.head.appendChild(holder);
+
+                const scripts = holder.getElementsByTagName('script');
+                Array.from(scripts).forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    if (oldScript.src) newScript.src = oldScript.src;
+                    if (oldScript.textContent) newScript.textContent = oldScript.textContent;
+                    document.head.appendChild(newScript);
+                });
+            }
+        } else if (existingHeader) {
+            existingHeader.remove();
+        }
+
+        // Dynamically inject Global Footer Script
+        const footerCode = (this.globalSettings.adScriptFooter || '').trim();
+        let existingFooter = document.getElementById('cf-global-footer-script');
+        if (footerCode) {
+            if (!existingFooter || existingFooter.dataset.code !== footerCode) {
+                if (existingFooter) existingFooter.remove();
+
+                const holder = document.createElement('div');
+                holder.id = 'cf-global-footer-script';
+                holder.dataset.code = footerCode;
+                holder.style.display = 'none';
+                holder.innerHTML = footerCode;
+                document.body.appendChild(holder);
+
+                const scripts = holder.getElementsByTagName('script');
+                Array.from(scripts).forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    if (oldScript.src) newScript.src = oldScript.src;
+                    if (oldScript.textContent) newScript.textContent = oldScript.textContent;
+                    document.body.appendChild(newScript);
+                });
+            }
+        } else if (existingFooter) {
+            existingFooter.remove();
+        }
+
+        // Render Independent Top, Middle and Bottom Native Banner Ad Slots with Direct Native Execution
         const topSlot = document.getElementById('banner-ad-top');
         const midHomeSlot = document.getElementById('banner-ad-middle');
         const midRedeemSlot = document.getElementById('banner-ad-redeem-middle');
@@ -757,7 +811,7 @@ class ClashFireApp {
         if (isBannerOn) {
             if (topSlot && this.integrations.bannerHtmlCode) {
                 topSlot.classList.remove('hidden');
-                this.executeIsolatedAdScript(topSlot, this.integrations.bannerHtmlCode, 'top');
+                this.executeNativeAdScript(topSlot, this.integrations.bannerHtmlCode, 'top');
             } else if (topSlot) {
                 topSlot.classList.add('hidden'); topSlot.innerHTML = '';
             }
@@ -765,14 +819,14 @@ class ClashFireApp {
             const midCode = this.integrations.bannerMiddleHtmlCode;
             if (midHomeSlot && midCode) {
                 midHomeSlot.classList.remove('hidden');
-                this.executeIsolatedAdScript(midHomeSlot, midCode, 'mid-home');
+                this.executeNativeAdScript(midHomeSlot, midCode, 'mid-home');
             } else if (midHomeSlot) {
                 midHomeSlot.classList.add('hidden'); midHomeSlot.innerHTML = '';
             }
 
             if (midRedeemSlot && midCode) {
                 midRedeemSlot.classList.remove('hidden');
-                this.executeIsolatedAdScript(midRedeemSlot, midCode, 'mid-redeem');
+                this.executeNativeAdScript(midRedeemSlot, midCode, 'mid-redeem');
             } else if (midRedeemSlot) {
                 midRedeemSlot.classList.add('hidden'); midRedeemSlot.innerHTML = '';
             }
@@ -780,7 +834,7 @@ class ClashFireApp {
             const botCode = this.integrations.bannerBottomHtmlCode;
             if (botSlot && botCode) {
                 botSlot.classList.remove('hidden');
-                this.executeIsolatedAdScript(botSlot, botCode, 'bottom');
+                this.executeNativeAdScript(botSlot, botCode, 'bottom');
             } else if (botSlot) {
                 botSlot.classList.add('hidden'); botSlot.innerHTML = '';
             }
@@ -878,59 +932,33 @@ class ClashFireApp {
         window.open(url, '_blank', 'noopener,noreferrer');
         this.showToast('COMMUNITY LAUNCHED', 'Welcome to our official community!', 'success');
     }
-    executeIsolatedAdScript(containerElement, rawHtmlCode, slotTag = 'slot') {
-        if (!containerElement || !rawHtmlCode) return;
+    executeNativeAdScript(containerElement, rawHtmlCode, slotTag = 'slot') {
+        if (!containerElement || !rawHtmlCode || !rawHtmlCode.trim()) return;
         
-        // Cache Check: If this slot is already running this exact HTML content, skip refreshing
-        const cacheKey = `CF_LAST_AD_CODE_${slotTag}`;
-        if (containerElement.getAttribute('data-ad-loaded') === 'true' && localStorage.getItem(cacheKey) === rawHtmlCode) {
+        const trimmedCode = rawHtmlCode.trim();
+        if (containerElement.getAttribute('data-ad-code-hash') === trimmedCode) {
             return;
         }
-        
-        localStorage.setItem(cacheKey, rawHtmlCode);
+
+        containerElement.setAttribute('data-ad-code-hash', trimmedCode);
         containerElement.setAttribute('data-ad-loaded', 'true');
-        containerElement.innerHTML = '';
-        
-        let initialHeight = 90;
-        if (rawHtmlCode.includes('250') || rawHtmlCode.includes('300x250')) {
-            initialHeight = 250;
-        } else if (rawHtmlCode.includes('50') || rawHtmlCode.includes('320x50')) {
-            initialHeight = 50;
-        }
-        
-        containerElement.style.height = (initialHeight + 8) + 'px';
+        containerElement.innerHTML = trimmedCode;
+        containerElement.style.height = 'auto';
 
-        const iframe = document.createElement('iframe');
-        iframe.style.width = '100%';
-        iframe.style.height = initialHeight + 'px';
-        iframe.style.border = 'none';
-        iframe.style.overflow = 'hidden';
-        iframe.scrolling = 'no';
-        containerElement.appendChild(iframe);
-
-        try {
-            const doc = iframe.contentWindow.document;
-            doc.open();
-            doc.write(`<!DOCTYPE html><html><head><base target="_blank"><style>html, body { margin:0; padding:0; display:flex; justify-content:center; align-items:center; background:transparent; overflow:visible; } iframe, img, div { max-width:100% !important; max-height:100% !important; margin:0 auto; display:block; }</style></head><body>${rawHtmlCode}</body></html>`);
-            doc.close();
-
-            const adjustH = () => {
-                try {
-                    if (iframe.contentWindow && iframe.contentWindow.document && iframe.contentWindow.document.body) {
-                        const body = iframe.contentWindow.document.body;
-                        const maxChildH = Math.max(...Array.from(body.querySelectorAll('iframe, img, div, ins')).map(el => el.offsetHeight), 0);
-                        const actualH = maxChildH > 30 ? maxChildH : body.scrollHeight;
-                        if (actualH > 30) {
-                            iframe.style.height = actualH + 'px';
-                            containerElement.style.height = actualH + 'px';
-                        }
-                    }
-                } catch(e){}
-            };
-            setTimeout(adjustH, 500);
-            setTimeout(adjustH, 1200);
-            setTimeout(adjustH, 2500);
-        } catch(e){}
+        const scripts = containerElement.getElementsByTagName('script');
+        Array.from(scripts).forEach(oldScript => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+            if (oldScript.src) {
+                newScript.src = oldScript.src;
+            }
+            if (oldScript.textContent) {
+                newScript.textContent = oldScript.textContent;
+            }
+            if (oldScript.parentNode) {
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            }
+        });
     }
 
     renderRedeemHistory() {
