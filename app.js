@@ -64,9 +64,7 @@ class ClashFireApp {
         this.dailyLinks = [
             { id: 0, taskId: 1, title: "Daily Mission #1", url: "https://www.freediamond.in/verify.html?task=1" },
             { id: 1, taskId: 2, title: "Daily Mission #2", url: "https://www.freediamond.in/verify.html?task=2" },
-            { id: 2, taskId: 3, title: "Daily Mission #3", url: "https://www.freediamond.in/verify.html?task=3" },
-            { id: 3, taskId: 4, title: "Daily Mission #4", url: "https://www.freediamond.in/verify.html?task=4" },
-            { id: 4, taskId: 5, title: "Daily Mission #5", url: "https://www.freediamond.in/verify.html?task=5" }
+            { id: 2, taskId: 3, title: "Daily Mission #3", url: "https://www.freediamond.in/verify.html?task=3" }
         ];
 
         this.init();
@@ -236,9 +234,7 @@ class ClashFireApp {
                             this.dailyLinks = [
                                 { id: 0, taskId: 1, title: "Daily Mission #1", url: "https://www.freediamond.in/verify.html?task=1" },
                                 { id: 1, taskId: 2, title: "Daily Mission #2", url: "https://www.freediamond.in/verify.html?task=2" },
-                                { id: 2, taskId: 3, title: "Daily Mission #3", url: "https://www.freediamond.in/verify.html?task=3" },
-                                { id: 3, taskId: 4, title: "Daily Mission #4", url: "https://www.freediamond.in/verify.html?task=4" },
-                                { id: 4, taskId: 5, title: "Daily Mission #5", url: "https://www.freediamond.in/verify.html?task=5" }
+                                { id: 2, taskId: 3, title: "Daily Mission #3", url: "https://www.freediamond.in/verify.html?task=3" }
                             ];
                         }
                     }
