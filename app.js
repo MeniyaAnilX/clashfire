@@ -198,6 +198,7 @@ class ClashFireApp {
                 this.auth = firebase.auth();
                 this.functions = firebase.functions();
                 this.firestoreActive = true;
+                this.loadGlobalSettings();
             }
         } catch (e) { console.warn("Firebase Init Error: ", e.message); this.firestoreActive = false; }
     }
