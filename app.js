@@ -216,15 +216,33 @@ class ClashFireApp {
                 this.db.collection("settings").doc("links").onSnapshot(doc => {
                     if (doc.exists) {
                         const linksData = doc.data();
-                        if (linksData.items && Array.isArray(linksData.items) && linksData.items.length > 0) {
-                            this.dailyLinks = linksData.items.map((item, i) => ({
+                        let itemsArr = null;
+                        if (linksData.items) {
+                            if (Array.isArray(linksData.items)) {
+                                itemsArr = linksData.items;
+                            } else if (typeof linksData.items === 'object') {
+                                itemsArr = Object.values(linksData.items);
+                            }
+                        }
+
+                        let urlsArr = null;
+                        if (linksData.urls) {
+                            if (Array.isArray(linksData.urls)) {
+                                urlsArr = linksData.urls;
+                            } else if (typeof linksData.urls === 'object') {
+                                urlsArr = Object.values(linksData.urls);
+                            }
+                        }
+
+                        if (itemsArr && itemsArr.length > 0) {
+                            this.dailyLinks = itemsArr.map((item, i) => ({
                                 id: i,
                                 taskId: item.taskId || (i + 1),
                                 title: item.title || (`Daily Mission #${i+1}`),
                                 url: item.url || `https://freediamond.in/verify.html?task=${i+1}`
                             }));
-                        } else if (linksData.urls && Array.isArray(linksData.urls) && linksData.urls.length > 0) {
-                            this.dailyLinks = linksData.urls.map((u, i) => ({
+                        } else if (urlsArr && urlsArr.length > 0) {
+                            this.dailyLinks = urlsArr.map((u, i) => ({
                                 id: i,
                                 taskId: i + 1,
                                 title: `Daily Mission #${i+1}`,
@@ -239,7 +257,7 @@ class ClashFireApp {
                         }
                     }
                     this.renderDashboard();
-                });
+                }, err => console.error("Links snapshot error:", err));
 
                 this.db.collection("settings").doc("integrations").onSnapshot(doc => {
                     if (doc.exists) {
