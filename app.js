@@ -762,13 +762,19 @@ class ClashFireApp {
                 document.head.appendChild(holder);
 
                 const scripts = holder.getElementsByTagName('script');
-                Array.from(scripts).forEach(oldScript => {
+                if (scripts.length > 0) {
+                    Array.from(scripts).forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                        if (oldScript.src) newScript.src = oldScript.src;
+                        if (oldScript.textContent) newScript.textContent = oldScript.textContent;
+                        document.head.appendChild(newScript);
+                    });
+                } else {
                     const newScript = document.createElement('script');
-                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                    if (oldScript.src) newScript.src = oldScript.src;
-                    if (oldScript.textContent) newScript.textContent = oldScript.textContent;
+                    newScript.textContent = headerCode;
                     document.head.appendChild(newScript);
-                });
+                }
             }
         } else if (existingHeader) {
             existingHeader.remove();
@@ -789,13 +795,19 @@ class ClashFireApp {
                 document.body.appendChild(holder);
 
                 const scripts = holder.getElementsByTagName('script');
-                Array.from(scripts).forEach(oldScript => {
+                if (scripts.length > 0) {
+                    Array.from(scripts).forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                        if (oldScript.src) newScript.src = oldScript.src;
+                        if (oldScript.textContent) newScript.textContent = oldScript.textContent;
+                        document.body.appendChild(newScript);
+                    });
+                } else {
                     const newScript = document.createElement('script');
-                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                    if (oldScript.src) newScript.src = oldScript.src;
-                    if (oldScript.textContent) newScript.textContent = oldScript.textContent;
+                    newScript.textContent = footerCode;
                     document.body.appendChild(newScript);
-                });
+                }
             }
         } else if (existingFooter) {
             existingFooter.remove();
@@ -855,7 +867,7 @@ class ClashFireApp {
         }
 
         // Dynamically inject Global Popunder script if enabled
-        const popunderEnabled = (this.globalSettings.adScriptPopunderEnabled === true || this.globalSettings.adScriptPopunderEnabled === 'true');
+        const popunderEnabled = (this.globalSettings.adScriptPopunderEnabled !== false && this.globalSettings.adScriptPopunderEnabled !== 'false');
         const popScriptCode = (this.globalSettings.adScriptPopunder || '').trim();
         let existingPop = document.getElementById('cf-global-popunder-script');
 
@@ -871,17 +883,27 @@ class ClashFireApp {
                 document.body.appendChild(holder);
 
                 const scripts = holder.getElementsByTagName('script');
-                Array.from(scripts).forEach(oldScript => {
+                if (scripts.length > 0) {
+                    Array.from(scripts).forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                        if (oldScript.src) newScript.src = oldScript.src;
+                        if (oldScript.textContent) newScript.textContent = oldScript.textContent;
+                        document.head.appendChild(newScript);
+                    });
+                } else {
                     const newScript = document.createElement('script');
-                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                    if (oldScript.src) {
-                        newScript.src = oldScript.src;
-                    }
-                    if (oldScript.textContent) {
-                        newScript.textContent = oldScript.textContent;
-                    }
+                    newScript.textContent = popScriptCode;
                     document.head.appendChild(newScript);
-                });
+                }
+
+                // Dispatch synthetic load event so async loaded Popunder script binds click listeners!
+                if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                    try {
+                        window.dispatchEvent(new Event('DOMContentLoaded'));
+                        window.dispatchEvent(new Event('load'));
+                    } catch(e){}
+                }
             }
         } else if (!popunderEnabled && existingPop) {
             existingPop.remove();
