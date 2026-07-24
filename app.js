@@ -661,47 +661,17 @@ class ClashFireApp {
         }
 
         // Render Independent Top, Middle and Bottom Native Banner Ad Slots with Dynamic Zero-Space Auto-Height
-        const topSlot = document.getElementById('banner-ad-top');
-        const midHomeSlot = document.getElementById('banner-ad-middle');
-        const midRedeemSlot = document.getElementById('banner-ad-redeem-middle');
-        const botSlot = document.getElementById('banner-ad-bottom');
-        const isBannerOn = (this.integrations.bannerEnabled === true || this.integrations.bannerEnabled === 'true');
+        // 1. AD 1: Mission Page Ad Code (Only between RESET IN & DAILY MISSIONS on Missions Tab)
+        const missionSlot = document.getElementById('mission-ad-slot');
+        const isMissionAdOn = (this.integrations.missionAdEnabled === true || this.integrations.missionAdEnabled === 'true');
+        const missionCode = (this.integrations.missionAdCode || '').trim();
 
-        if (isBannerOn) {
-            if (topSlot && this.integrations.bannerHtmlCode) {
-                topSlot.classList.remove('hidden');
-                this.executeIsolatedAdScript(topSlot, this.integrations.bannerHtmlCode, 'top');
-            } else if (topSlot) {
-                topSlot.classList.add('hidden'); topSlot.innerHTML = '';
-            }
-
-            const midCode = this.integrations.bannerMiddleHtmlCode;
-            if (midHomeSlot && midCode) {
-                midHomeSlot.classList.remove('hidden');
-                this.executeIsolatedAdScript(midHomeSlot, midCode, 'mid-home');
-            } else if (midHomeSlot) {
-                midHomeSlot.classList.add('hidden'); midHomeSlot.innerHTML = '';
-            }
-
-            if (midRedeemSlot && midCode) {
-                midRedeemSlot.classList.remove('hidden');
-                this.executeIsolatedAdScript(midRedeemSlot, midCode, 'mid-redeem');
-            } else if (midRedeemSlot) {
-                midRedeemSlot.classList.add('hidden'); midRedeemSlot.innerHTML = '';
-            }
-
-            const botCode = this.integrations.bannerBottomHtmlCode;
-            if (botSlot && botCode) {
-                botSlot.classList.remove('hidden');
-                this.executeIsolatedAdScript(botSlot, botCode, 'bottom');
-            } else if (botSlot) {
-                botSlot.classList.add('hidden'); botSlot.innerHTML = '';
-            }
-        } else {
-            if (topSlot) { topSlot.classList.add('hidden'); topSlot.innerHTML = ''; }
-            if (midHomeSlot) { midHomeSlot.classList.add('hidden'); midHomeSlot.innerHTML = ''; }
-            if (midRedeemSlot) { midRedeemSlot.classList.add('hidden'); midRedeemSlot.innerHTML = ''; }
-            if (botSlot) { botSlot.classList.add('hidden'); botSlot.innerHTML = ''; }
+        if (missionSlot && isMissionAdOn && missionCode) {
+            missionSlot.classList.remove('hidden');
+            this.executeIsolatedAdScript(missionSlot, missionCode, 'mission-slot');
+        } else if (missionSlot) {
+            missionSlot.classList.add('hidden');
+            missionSlot.innerHTML = '';
         }
 
         if (this.user.ffUid) {
@@ -713,37 +683,62 @@ class ClashFireApp {
             }
         }
 
-        // Dynamically inject Global Popunder if enabled
-        const popunderEnabled = this.globalSettings.adScriptPopunderEnabled === true || this.globalSettings.adScriptPopunderEnabled === 'true';
-        const popScriptCode = (this.globalSettings.adScriptPopunder || '').trim();
-        let existingPop = document.getElementById('cf-global-popunder-script');
+        // 2. AD 2: Global Site Ad Code (Popunder / Social Bar / Banner / Any Script)
+        const isGlobalAdOn = (this.integrations.globalAdEnabled === true || this.integrations.globalAdEnabled === 'true');
+        const globalAdCode = (this.integrations.globalAdCode || '').trim();
+        let existingGlobalAd = document.getElementById('cf-global-site-ad-script');
 
-        if (popunderEnabled && popScriptCode) {
-            if (!existingPop || existingPop.getAttribute('data-pop-code') !== popScriptCode) {
-                if (existingPop) existingPop.remove();
+        if (isGlobalAdOn && globalAdCode) {
+            if (!existingGlobalAd || existingGlobalAd.getAttribute('data-ad-code') !== globalAdCode) {
+                if (existingGlobalAd) existingGlobalAd.remove();
 
                 const holder = document.createElement('div');
-                holder.id = 'cf-global-popunder-script';
-                holder.setAttribute('data-pop-code', popScriptCode);
+                holder.id = 'cf-global-site-ad-script';
+                holder.setAttribute('data-ad-code', globalAdCode);
                 holder.style.display = 'none';
-                holder.innerHTML = popScriptCode;
+                holder.innerHTML = globalAdCode;
                 document.body.appendChild(holder);
 
                 const scripts = holder.getElementsByTagName('script');
                 Array.from(scripts).forEach(oldScript => {
                     const newScript = document.createElement('script');
                     Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                    if (oldScript.src) {
-                        newScript.src = oldScript.src;
-                    }
-                    if (oldScript.textContent) {
-                        newScript.textContent = oldScript.textContent;
-                    }
+                    if (oldScript.src) newScript.src = oldScript.src;
+                    if (oldScript.textContent) newScript.textContent = oldScript.textContent;
                     document.head.appendChild(newScript);
                 });
             }
-        } else if (existingPop) {
-            existingPop.remove();
+        } else if (existingGlobalAd) {
+            existingGlobalAd.remove();
+        }
+
+        // 3. AD 3: Global Site Push Ad Code
+        const isPushAdOn = (this.integrations.pushAdEnabled === true || this.integrations.pushAdEnabled === 'true');
+        const pushAdCode = (this.integrations.pushAdCode || '').trim();
+        let existingPushAd = document.getElementById('cf-global-push-ad-script');
+
+        if (isPushAdOn && pushAdCode) {
+            if (!existingPushAd || existingPushAd.getAttribute('data-push-code') !== pushAdCode) {
+                if (existingPushAd) existingPushAd.remove();
+
+                const holder = document.createElement('div');
+                holder.id = 'cf-global-push-ad-script';
+                holder.setAttribute('data-push-code', pushAdCode);
+                holder.style.display = 'none';
+                holder.innerHTML = pushAdCode;
+                document.body.appendChild(holder);
+
+                const scripts = holder.getElementsByTagName('script');
+                Array.from(scripts).forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    if (oldScript.src) newScript.src = oldScript.src;
+                    if (oldScript.textContent) newScript.textContent = oldScript.textContent;
+                    document.head.appendChild(newScript);
+                });
+            }
+        } else if (existingPushAd) {
+            existingPushAd.remove();
         }
 
         const refInput = document.getElementById('referral-link-input');

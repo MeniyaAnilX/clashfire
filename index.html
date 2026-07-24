@@ -73,9 +73,6 @@
     <!-- Main Container -->
     <div id="app-container">
 
-        <!-- Top Dynamic Native Banner Ad Slot -->
-        <div id="banner-ad-top" class="native-banner-slot hidden"></div>
-
         <!-- Top Header Navigation -->
         <header class="app-header">
             <div class="header-left">
@@ -174,9 +171,6 @@
                 </div>
             </section>
 
-            <!-- Middle Dynamic Native Banner Ad Slot (Between Missions and Refer) -->
-            <div id="banner-ad-middle" class="native-banner-slot hidden" style="margin-bottom: 25px;"></div>
-
             <!-- Refer & Earn Section -->
             <section class="dashboard-section">
                 <div class="section-title">
@@ -221,6 +215,9 @@
                     <span class="banner-points-badge" id="banner-points">0/6 DONE</span>
                 </div>
             </div>
+
+            <!-- Mission Page Dynamic Ad Slot (Between RESET IN box and DAILY MISSIONS) -->
+            <div id="mission-ad-slot" class="native-banner-slot hidden" style="margin: 15px 0;"></div>
 
             <!-- Daily Shortener Missions Section -->
             <section class="dashboard-section">
@@ -318,19 +315,6 @@
                         <button class="btn-redeem" aria-label="Redeem 5600 Diamonds Package">REDEEM</button>
                     </div>
                 </div>
-            <!-- Middle Dynamic Native Banner Ad Slot (Above Redemption History) -->
-            <div id="banner-ad-redeem-middle" class="native-banner-slot hidden" style="margin-bottom: 25px;"></div>
-
-            <!-- Redemption History List Section -->
-            <section class="dashboard-section" style="margin-bottom: 25px;">
-                <div class="section-title">
-                    <h2><i class="fa-solid fa-clock-rotate-left"></i> REDEMPTION HISTORY</h2>
-                </div>
-                <div class="history-list" id="history-container">
-                    <div style="text-align: center; color: var(--text-muted); padding: 15px; font-size: 0.85rem;">No redemption history found. Redeem diamonds above!</div>
-                </div>
-            </section>
-
             <!-- Live Auto-Generating Payout Proofs Section -->
             <section class="dashboard-section" id="live-proofs-section" style="margin-bottom: 15px;">
                 <div class="section-title">
@@ -342,9 +326,6 @@
                 </div>
             </section>
         </div>
-
-        <!-- Bottom Dynamic Native Banner Ad Slot -->
-        <div id="banner-ad-bottom" class="native-banner-slot hidden"></div>
 
 
         </main>
