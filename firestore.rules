@@ -65,8 +65,8 @@ service cloud.firestore {
     // FF UID Bindings (Lookup map)
     match /ffUidBindings/{hashedFFUid} {
       allow read: if true;
-      allow create, update: if request.auth != null;
-      allow delete: if isAdmin();
+      allow create: if request.auth != null;
+      allow update, delete: if isAdmin();
     }
 
     // Redemptions collection
@@ -81,9 +81,9 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
-    // Legacy users collection (For migration lookup)
+    // Legacy users collection (Restricted for security)
     match /users/{deviceId} {
-      allow read, write: if true;
+      allow read, write: if isAdmin();
     }
 
     // Settings (Missions, Daily Visits, Global variables)

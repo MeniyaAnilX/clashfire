@@ -62,9 +62,9 @@ class ClashFireApp {
 
         // Dynamic Mission Tasks Array (1-indexed task IDs with default fallback)
         this.dailyLinks = [
-            { id: 0, taskId: 1, title: "Daily Mission #1", url: "https://www.freediamond.in/verify.html?task=1" },
-            { id: 1, taskId: 2, title: "Daily Mission #2", url: "https://www.freediamond.in/verify.html?task=2" },
-            { id: 2, taskId: 3, title: "Daily Mission #3", url: "https://www.freediamond.in/verify.html?task=3" }
+            { id: 0, taskId: 1, title: "Daily Mission #1", url: "https://www.freediamond.in" },
+            { id: 1, taskId: 2, title: "Daily Mission #2", url: "https://www.freediamond.in" },
+            { id: 2, taskId: 3, title: "Daily Mission #3", url: "https://www.freediamond.in" }
         ];
 
         this.init();
@@ -240,7 +240,7 @@ class ClashFireApp {
                                 id: i,
                                 taskId: item.taskId || (i + 1),
                                 title: item.title || (`Daily Mission #${i+1}`),
-                                url: item.url || `https://freediamond.in/verify.html?task=${i+1}`
+                                url: item.url || `https://freediamond.in`
                             }));
                         } else if (urlsArr && urlsArr.length > 0) {
                             this.dailyLinks = urlsArr.map((u, i) => ({
@@ -251,9 +251,9 @@ class ClashFireApp {
                             }));
                         } else {
                             this.dailyLinks = [
-                                { id: 0, taskId: 1, title: "Daily Mission #1", url: "https://www.freediamond.in/verify.html?task=1" },
-                                { id: 1, taskId: 2, title: "Daily Mission #2", url: "https://www.freediamond.in/verify.html?task=2" },
-                                { id: 2, taskId: 3, title: "Daily Mission #3", url: "https://www.freediamond.in/verify.html?task=3" }
+                                { id: 0, taskId: 1, title: "Daily Mission #1", url: "https://www.freediamond.in" },
+                                { id: 1, taskId: 2, title: "Daily Mission #2", url: "https://www.freediamond.in" },
+                                { id: 2, taskId: 3, title: "Daily Mission #3", url: "https://www.freediamond.in" }
                             ];
                         }
                     }
@@ -1043,7 +1043,14 @@ class ClashFireApp {
         document.getElementById('global-loader').classList.add('hidden');
     }
 
-    executeLinkTask(idx) {
+    async executeLinkTask(idx) {
+        if (!this.deviceId) {
+            this.showToast('AUTHENTICATION REQUIRED', 'Please login to your account on the homepage first!', 'error');
+            const authSection = document.getElementById('auth-section');
+            if (authSection) authSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
         const link = this.dailyLinks[idx];
         if (!link) return;
 
@@ -1054,20 +1061,75 @@ class ClashFireApp {
             return;
         }
 
-        // Write dynamic verification token
-        const token = {
-            time: Date.now(),
-            authorized: true
-        };
-        localStorage.setItem("CF_ACTIVE_TOKEN_TASK_" + taskId, JSON.stringify(token));
-
-        // Open the admin-configured sponsor shortener URL directly in a new tab.
-        let targetUrl = link.url || (window.location.origin + "/verify?task=" + taskId);
+        let targetUrl = link.url || "https://www.freediamond.in";
         if (targetUrl && !/^https?:\/\//i.test(targetUrl)) {
             targetUrl = "https://" + targetUrl;
         }
+
+        // Open direct ad link in a new tab
         window.open(targetUrl, '_blank');
-        this.showToast('MISSION STARTED', 'Please complete the shortener link to verify and claim diamonds!', 'info');
+
+        // Show 5-second countdown overlay on main app
+        const overlay = document.getElementById('daily-visit-timer-overlay');
+        const overlayTitle = document.getElementById('dv-overlay-title');
+        const countdownElem = document.getElementById('daily-visit-countdown');
+        const actionBox = document.getElementById('daily-visit-action-box');
+        const resumeBox = document.getElementById('daily-visit-resume-box');
+
+        if (overlayTitle) overlayTitle.innerText = "VERIFYING VISIT...";
+        if (actionBox) actionBox.style.display = 'none';
+        if (resumeBox) resumeBox.style.display = 'none';
+        if (overlay) overlay.style.display = 'flex';
+
+        let secondsLeft = 5;
+        if (countdownElem) countdownElem.innerText = secondsLeft + "s";
+
+        const timerInterval = setInterval(async () => {
+            secondsLeft--;
+            if (countdownElem) countdownElem.innerText = secondsLeft + "s";
+
+            if (secondsLeft <= 0) {
+                clearInterval(timerInterval);
+
+                // Auto-claim task reward via Cloud Function or atomic transaction
+                try {
+                    const today = await this.getSecureServerDate();
+                    const rewardAmt = this.globalSettings.linkReward || 5;
+
+                    if (this.firestoreActive) {
+                        const claimTaskFunc = this.functions.httpsCallable('claimTaskReward');
+                        await claimTaskFunc({ taskId: taskId.toString(), rewardAmt: rewardAmt, today: today });
+                    }
+
+                    // Update local state
+                    if (!this.user.completedLinks) this.user.completedLinks = {};
+                    this.user.completedLinks[taskId] = true;
+                    this.user.coins = parseFloat(((this.user.coins || 0) + rewardAmt).toFixed(2));
+                    this.user.dailyLinkCompletedCount = (this.user.dailyLinkCompletedCount || 0) + 1;
+
+                    await this.saveUserProfile();
+                    this.renderDashboard();
+
+                    this.showToast('MISSION COMPLETED!', `+${rewardAmt} Diamonds credited to your account!`, 'success');
+                } catch (e) {
+                    console.error("Task claim error:", e);
+                    if (e.message && (e.message.includes("already-claimed") || e.message.includes("already-exists"))) {
+                        this.showToast('ALREADY CLAIMED', 'You have already claimed this mission today!', 'info');
+                    } else {
+                        // Local fallback reward
+                        const rewardAmt = this.globalSettings.linkReward || 5;
+                        if (!this.user.completedLinks) this.user.completedLinks = {};
+                        this.user.completedLinks[taskId] = true;
+                        this.user.coins = parseFloat(((this.user.coins || 0) + rewardAmt).toFixed(2));
+                        await this.saveUserProfile();
+                        this.renderDashboard();
+                        this.showToast('MISSION COMPLETED!', `+${rewardAmt} Diamonds credited!`, 'success');
+                    }
+                } finally {
+                    if (overlay) overlay.style.display = 'none';
+                }
+            }
+        }, 1000);
     }
 
     startLiveProofsTicker() {
