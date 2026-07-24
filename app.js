@@ -1076,7 +1076,9 @@ class ClashFireApp {
         const actionBox = document.getElementById('daily-visit-action-box');
         const resumeBox = document.getElementById('daily-visit-resume-box');
 
-        if (overlayTitle) overlayTitle.innerText = "VERIFYING VISIT...";
+        if (overlayTitle) overlayTitle.innerText = "VERIFYING AD VISIT...";
+        const overlayDesc = overlay ? overlay.querySelector('p') : null;
+        if (overlayDesc) overlayDesc.innerText = "Please view the opened ad page for 5 seconds. Your diamonds will credit automatically in:";
         if (actionBox) actionBox.style.display = 'none';
         if (resumeBox) resumeBox.style.display = 'none';
         if (overlay) overlay.style.display = 'flex';
