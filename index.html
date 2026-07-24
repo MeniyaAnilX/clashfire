@@ -16,14 +16,37 @@
     <link rel="icon" type="image/png" href="/favicon.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-    <!-- Google WebSite Schema for Search Results Brand Name -->
+    <!-- Google WebSite & Organization Schema Graph for Search Results Brand Name -->
     <script type="application/ld+json">
     {
-      "@context" : "https://schema.org",
-      "@type" : "WebSite",
-      "name" : "Free Diamond",
-      "alternateName" : ["Free Diamond App", "FreeDiamond"],
-      "url" : "https://www.freediamond.in/"
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://www.freediamond.in/#website",
+          "url": "https://www.freediamond.in/",
+          "name": "Free Diamond",
+          "alternateName": [
+            "Free Diamond App",
+            "FreeDiamond"
+          ],
+          "description": "Free Diamond provides gaming tools, rewards, and Free Fire related features for gamers.",
+          "publisher": {
+            "@id": "https://www.freediamond.in/#organization"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://www.freediamond.in/#organization",
+          "name": "Free Diamond",
+          "url": "https://www.freediamond.in/",
+          "description": "Free Diamond is a gaming platform providing Free Fire related tools, rewards, and gaming features.",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://www.freediamond.in/ffire_logo.png"
+          }
+        }
+      ]
     }
     </script>
 
@@ -330,10 +353,24 @@
 
         </main>
 
-        <!-- Footer -->
-        <footer class="app-footer">
+        <!-- Footer with Complete Internal Linking for Googlebot Indexing -->
+        <footer class="app-footer" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+            
+            <!-- Featured Blog & Guides Internal Links -->
+            <div style="margin-bottom: 15px; font-size: 0.75rem; text-align: center;">
+                <span style="color: var(--accent-gold); font-weight: 800; display: block; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-newspaper"></i> Featured Blog Guides</span>
+                <div style="display: flex; justify-content: center; gap: 10px 14px; flex-wrap: wrap; line-height: 1.6;">
+                    <a href="/free-fire-diamond-uid-top-up" style="color: #fff; text-decoration: none; font-weight: 600;"><i class="fa-solid fa-gem" style="color: var(--accent-cyan);"></i> UID Top Up Guide</a>
+                    <span style="color: rgba(255,255,255,0.15);">•</span>
+                    <a href="/free-fire-free-diamonds-2026" style="color: #fff; text-decoration: none; font-weight: 600;"><i class="fa-solid fa-fire" style="color: #ff9100;"></i> Free Diamond Kaise Le</a>
+                    <span style="color: rgba(255,255,255,0.15);">•</span>
+                    <a href="/free-fire-redeem-code-2026" style="color: #fff; text-decoration: none; font-weight: 600;"><i class="fa-solid fa-code" style="color: #00e676;"></i> Redeem Codes Today</a>
+                </div>
+            </div>
+
+            <!-- General Pages Links -->
             <div class="footer-links" style="display: flex; justify-content: center; gap: 12px; margin-bottom: 12px; font-size: 0.72rem; font-weight: 700; flex-wrap: wrap; line-height: 1.6;">
-                <a href="/blog" style="color: var(--accent-cyan); text-decoration: none;"><i class="fa-solid fa-newspaper"></i> BLOG</a>
+                <a href="/blog" style="color: var(--accent-cyan); text-decoration: none;"><i class="fa-solid fa-newspaper"></i> ALL BLOGS</a>
                 <span style="color: rgba(255,255,255,0.15);">|</span>
                 <a href="/faq" style="color: var(--accent-cyan); text-decoration: none;"><i class="fa-solid fa-circle-question"></i> FAQ</a>
                 <span style="color: rgba(255,255,255,0.15);">|</span>
@@ -345,7 +382,7 @@
                 <span style="color: rgba(255,255,255,0.15);">|</span>
                 <a href="/contact-us" style="color: var(--accent-cyan); text-decoration: none;"><i class="fa-solid fa-envelope"></i> CONTACT US</a>
             </div>
-            <p>&copy; 2026 FreeDiamond.in. All Rights Reserved.</p>
+            <p>&copy; 2026 Free Diamond (freediamond.in). All Rights Reserved.</p>
         </footer>
 
     </div>
