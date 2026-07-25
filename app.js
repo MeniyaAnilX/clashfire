@@ -412,7 +412,13 @@ class ClashFireApp {
             try {
                 this.user = { ...this.user, ...JSON.parse(savedCache) };
                 if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
-                if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
+                if (!this.user.completedLinks) {
+                    this.user.completedLinks = {};
+                } else if (Array.isArray(this.user.completedLinks)) {
+                    const parsedMap = {};
+                    this.user.completedLinks.forEach((val, i) => { if (val) parsedMap[`task_${i}`] = true; });
+                    this.user.completedLinks = parsedMap;
+                }
                 if (!this.user.referredDevices) this.user.referredDevices = [];
                 if (!this.user.completedDailyVisits || Array.isArray(this.user.completedDailyVisits)) this.user.completedDailyVisits = {};
                 this.renderDashboard();
@@ -444,7 +450,13 @@ class ClashFireApp {
                         if (devElem) devElem.innerText = "UID: " + (this.displayUserId || '');
 
                         if (!this.user.redemptionHistory) this.user.redemptionHistory = [];
-                        if (!this.user.completedLinks || Array.isArray(this.user.completedLinks)) this.user.completedLinks = {};
+                        if (!this.user.completedLinks) {
+                            this.user.completedLinks = {};
+                        } else if (Array.isArray(this.user.completedLinks)) {
+                            const parsedMap = {};
+                            this.user.completedLinks.forEach((val, i) => { if (val) parsedMap[`task_${i}`] = true; });
+                            this.user.completedLinks = parsedMap;
+                        }
                         if (!this.user.referredDevices) this.user.referredDevices = [];
                         // Auto-populate missing state location for old existing users on next visit
                         if (!data.state || data.state === 'Unknown') {
@@ -755,7 +767,12 @@ class ClashFireApp {
         if (this.dailyLinks && this.dailyLinks.length > 0) {
             this.dailyLinks.forEach((link, idx) => {
                 const taskId = link.taskId || (idx + 1);
-                const isDone = this.user.completedLinks && this.user.completedLinks[taskId];
+                const taskKey = `task_${taskId}`;
+                const isDone = Boolean(this.user.completedLinks && (
+                    this.user.completedLinks[taskKey] || 
+                    this.user.completedLinks[taskId] || 
+                    this.user.completedLinks[taskId.toString()]
+                ));
                 const card = document.createElement('div');
                 card.className = `link-card ${isDone ? 'completed' : ''}`;
                 card.innerHTML = `
@@ -1050,7 +1067,12 @@ class ClashFireApp {
         if (!link) return;
 
         const taskId = link.taskId || (idx + 1);
-        const isDone = this.user.completedLinks && this.user.completedLinks[taskId];
+        const taskKey = `task_${taskId}`;
+        const isDone = Boolean(this.user.completedLinks && (
+            this.user.completedLinks[taskKey] || 
+            this.user.completedLinks[taskId] || 
+            this.user.completedLinks[taskId.toString()]
+        ));
         if (isDone) {
             this.showToast('ALREADY COMPLETED', 'You have already completed this mission today!', 'info');
             return;
@@ -1095,14 +1117,14 @@ class ClashFireApp {
 
                     if (this.firestoreActive) {
                         const claimTaskFunc = this.functions.httpsCallable('claimTaskReward');
-                        await claimTaskFunc({ taskId: taskId.toString(), rewardAmt: rewardAmt, today: today });
+                        await claimTaskFunc({ taskId: taskKey, rewardAmt: rewardAmt, today: today });
                     }
 
-                    // Update local state
+                    // Update local state cleanly
                     if (!this.user.completedLinks) this.user.completedLinks = {};
+                    this.user.completedLinks[taskKey] = true;
                     this.user.completedLinks[taskId] = true;
-                    this.user.coins = parseFloat(((this.user.coins || 0) + rewardAmt).toFixed(2));
-                    this.user.dailyLinkCompletedCount = (this.user.dailyLinkCompletedCount || 0) + 1;
+                    this.user.dailyLinkCompletedCount = Object.keys(this.user.completedLinks).length;
 
                     await this.saveUserProfile();
                     this.renderDashboard();
@@ -1116,8 +1138,10 @@ class ClashFireApp {
                         // Local fallback reward
                         const rewardAmt = this.globalSettings.linkReward || 5;
                         if (!this.user.completedLinks) this.user.completedLinks = {};
+                        this.user.completedLinks[taskKey] = true;
                         this.user.completedLinks[taskId] = true;
                         this.user.coins = parseFloat(((this.user.coins || 0) + rewardAmt).toFixed(2));
+                        this.user.dailyLinkCompletedCount = Object.keys(this.user.completedLinks).length;
                         await this.saveUserProfile();
                         this.renderDashboard();
                         this.showToast('MISSION COMPLETED!', `+${rewardAmt} Diamonds credited!`, 'success');

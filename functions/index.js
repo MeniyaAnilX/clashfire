@@ -313,14 +313,17 @@ exports.claimTaskReward = functions.https.onCall(async (data, context) => {
       const accData = snap.data();
       const completedLinks = accData.completedLinks || {};
 
-      if (completedLinks[taskId]) {
+      const rawIdStr = taskId.toString();
+      const taskKeyStr = rawIdStr.startsWith('task_') ? rawIdStr : `task_${rawIdStr}`;
+
+      if (completedLinks[taskKeyStr] || completedLinks[rawIdStr]) {
         throw new Error("ALREADY_CLAIMED");
       }
 
       const currentCoins = parseFloat(accData.coins || 0);
       const currentCount = parseInt(accData.dailyLinkCompletedCount || 0);
 
-      const updatedLinks = { ...completedLinks, [taskId]: true };
+      const updatedLinks = { ...completedLinks, [taskKeyStr]: true, [rawIdStr]: true };
       const updatedCoins = parseFloat((currentCoins + rewardAmt).toFixed(2));
       const updatedCount = currentCount + 1;
 
