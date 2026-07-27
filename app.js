@@ -78,54 +78,33 @@ class ClashFireApp {
             }
         } catch(e){}
 
-        // Listen for Firebase Auth state changes
-        if (this.firestoreActive) {
-            this.auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    this.deviceId = user.uid;
-                    localStorage.setItem('CLASH_LOGGED_IN', 'true');
-                    
-                    // Show logout button in header
-                    const logoutBtn = document.getElementById('btn-logout');
-                    if (logoutBtn) logoutBtn.classList.remove('hidden');
 
-                    // Hide auth form section on homepage
-                    const authSection = document.getElementById('auth-section');
-                    if (authSection) authSection.classList.add('hidden');
+        // Restore session from localStorage (no Firebase Auth needed)
+        const savedUid = localStorage.getItem('CLASH_DEVICE_ID');
+        if (savedUid && this.firestoreActive) {
+            this.deviceId = savedUid;
+            this.displayUserId = savedUid;
 
-                    // Load user data securely
-                    await this.loadUserProfile();
-                    await this.checkReferralBonus();
-                } else {
-                    this.deviceId = null;
-                    this.user = { coins: 0, completedLinks: {}, dailyLinkCompletedCount: 0 };
-                    localStorage.removeItem('CLASH_LOGGED_IN');
-                    localStorage.removeItem('CLASH_LAST_FF_UID');
-                    localStorage.removeItem('CLASH_LAST_COINS');
-                    
-                    // Hide logout button in header
-                    const logoutBtn = document.getElementById('btn-logout');
-                    if (logoutBtn) logoutBtn.classList.add('hidden');
+            const logoutBtn = document.getElementById('btn-logout');
+            if (logoutBtn) logoutBtn.classList.remove('hidden');
 
-                    // Show auth form section on homepage
-                    const authSection = document.getElementById('auth-section');
-                    if (authSection) authSection.classList.remove('hidden');
+            const authSection = document.getElementById('auth-section');
+            if (authSection) authSection.classList.add('hidden');
 
-                    const devElem = document.getElementById('display-device-id');
-                    if (devElem) devElem.innerText = "UID: Not Logged In";
-
-                    this.renderDashboard();
-                }
-
-                // Execute delayed tab switching now that auth status is finalized
-                if (this.pendingTab) {
-                    this.switchAppTab(this.pendingTab);
-                    this.pendingTab = null;
-                }
-            });
+            await this.loadUserProfile();
+            await this.checkReferralBonus();
+        } else if (!savedUid) {
+            const devElem = document.getElementById('display-device-id');
+            if (devElem) devElem.innerText = 'UID: Not Logged In';
         } else {
             const devElem = document.getElementById('display-device-id');
-            if (devElem) devElem.innerText = "UID: Database Offline";
+            if (devElem) devElem.innerText = 'UID: Database Offline';
+        }
+
+        // Execute pending tab switch after session restore
+        if (this.pendingTab) {
+            this.switchAppTab(this.pendingTab);
+            this.pendingTab = null;
         }
 
         this.renderDashboard(); // Render static constructor links immediately (no spinner lag)
@@ -152,7 +131,7 @@ class ClashFireApp {
     switchAppTab(tabId, btnElem) {
         // Logged-out user tab redirection block with scroll-to-focus on login card
         if (!this.deviceId && (tabId === 'tab-tasks' || tabId === 'tab-redeem')) {
-            this.showToast('AUTHENTICATION REQUIRED', 'Enter your Free Fire UID and PIN to continue.', 'error');
+            this.showToast('LOGIN REQUIRED', 'Enter your Free Fire UID to continue.', 'error');
             const authSection = document.getElementById('auth-section');
             if (authSection) {
                 authSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -192,7 +171,6 @@ class ClashFireApp {
             if (typeof firebase !== 'undefined' && firebase.initializeApp) {
                 firebase.initializeApp(firebaseConfig);
                 this.db = firebase.firestore();
-                this.auth = firebase.auth();
                 this.functions = firebase.functions();
                 this.firestoreActive = true;
                 this.loadGlobalSettings();
@@ -1284,123 +1262,59 @@ class ClashFireApp {
         if (overlay) overlay.style.display = 'flex';
     }
 
-    // PIN Recovery handlers
-    showPinRecovery(event) {
-        if (event) event.preventDefault();
-        this.showToast('FORGOT PIN?', 'If you forgot your PIN, please contact support through the "Contact Us" form at the bottom of the page.', 'info');
-    }
-
-    // Login/Signup handlers
+    // Login / Signup - UID only, direct Firestore (no Firebase Auth, no PIN)
     async handleAuthSubmit(event) {
         if (event) event.preventDefault();
 
         const ffUid = document.getElementById('auth-ff-uid').value.trim();
-        const pin = document.getElementById('auth-pin').value.trim();
 
         if (!/^\d{7,13}$/.test(ffUid)) {
             this.showToast('INVALID UID', 'UID must be a number between 7 and 13 digits.', 'error');
             return;
         }
-        if (!/^\d{6}$/.test(pin)) {
-            this.showToast('INVALID PIN', 'PIN must be exactly 6 digits.', 'error');
-            return;
-        }
-
-        // Brute force check (client-side lock)
-        const attemptsKey = 'CF_FAILED_ATTEMPTS_' + ffUid;
-        const lockKey = 'CF_LOCKED_UNTIL_' + ffUid;
-        const now = Date.now();
-        const lockedUntil = parseInt(localStorage.getItem(lockKey) || '0');
-        if (lockedUntil > now) {
-            const minsLeft = Math.ceil((lockedUntil - now) / 60000);
-            this.showToast('TOO MANY ATTEMPTS', `Account locked. Try again in ${minsLeft} minutes.`, 'error');
-            return;
-        }
 
         const submitBtn = document.getElementById('auth-submit-btn');
         if (submitBtn) submitBtn.disabled = true;
-        this.showLoader("AUTHENTICATING...");
+        this.showLoader('LOADING ACCOUNT...');
 
         try {
-            const hashedUid = await this.sha256(ffUid);
-            const bindingRef = this.db.collection("ffUidBindings").doc(hashedUid);
-            const bindingDoc = await bindingRef.get();
+            const docRef = this.db.collection('accounts').doc(ffUid);
+            const docSnap = await docRef.get();
 
-            if (bindingDoc.exists) {
-                // === LOGIN EXISTING ===
-                const virtualEmail = `${ffUid}@clashfire.in`;
-                const virtualPassword = `clash_pin_${pin}`;
+            if (docSnap.exists) {
+                // === LOGIN EXISTING ACCOUNT ===
+                this.deviceId = ffUid;
+                this.displayUserId = ffUid;
+                localStorage.setItem('CLASH_DEVICE_ID', ffUid);
+                localStorage.setItem('CLASH_LOGGED_IN', 'true');
+                localStorage.setItem('CLASH_LAST_FF_UID', ffUid);
 
-                try {
-                    await this.auth.signInWithEmailAndPassword(virtualEmail, virtualPassword);
+                const logoutBtn = document.getElementById('btn-logout');
+                if (logoutBtn) logoutBtn.classList.remove('hidden');
+                const authSection = document.getElementById('auth-section');
+                if (authSection) authSection.classList.add('hidden');
 
-                    // Success: Clear failed attempts
-                    localStorage.removeItem(attemptsKey);
-                    localStorage.removeItem(lockKey);
-                    
-                    this.showToast('WELCOME BACK!', `Logged in successfully as UID ${ffUid}`, 'success');
-                } catch (signInErr) {
-                    let failed = parseInt(localStorage.getItem(attemptsKey) || '0') + 1;
-                    localStorage.setItem(attemptsKey, failed);
-                    if (failed >= 5) {
-                        localStorage.setItem(lockKey, Date.now() + 15 * 60000);
-                        this.showToast('ACCOUNT LOCKED', 'Too many failed attempts. Locked for 15 minutes.', 'error');
-                    } else {
-                        this.showToast('AUTH FAILED', 'UID or PIN is incorrect.', 'error');
-                    }
-                    this.hideLoader();
-                    if (submitBtn) submitBtn.disabled = false;
-                    return;
-                }
+                await this.loadUserProfile();
+                this.showToast('WELCOME BACK!', `Logged in as UID ${ffUid}`, 'success');
             } else {
-                // === SIGNUP NEW ===
-                const virtualEmail = `${ffUid}@clashfire.in`;
-                const virtualPassword = `clash_pin_${pin}`;
-
-                let userCredential;
-                let isAlreadyInUse = false;
-
-                try {
-                    userCredential = await this.auth.createUserWithEmailAndPassword(virtualEmail, virtualPassword);
-                } catch (signUpErr) {
-                    if (signUpErr.code === 'auth/email-already-in-use') {
-                        try {
-                            userCredential = await this.auth.signInWithEmailAndPassword(virtualEmail, virtualPassword);
-                            isAlreadyInUse = true;
-                        } catch (signInErr) {
-                            throw new Error("UID or PIN is incorrect.");
-                        }
-                    } else {
-                        throw signUpErr;
-                    }
-                }
-
-                const uid = userCredential.user.uid;
-                const accountDoc = await this.db.collection("accounts").doc(uid).get();
-
-                const pinHash = dcodeIO.bcrypt.hashSync(pin, 10);
-
+                // === CREATE NEW ACCOUNT ===
                 const today = await this.getSecureServerDate();
                 const userState = await this.getUserStateLocation();
 
-                // Capture pending referral code from URL or sessionStorage
+                // Validate referral code
                 let validatedRefCode = null;
                 try {
                     const urlParams = new URLSearchParams(window.location.search);
                     let targetRef = urlParams.get('ref') || sessionStorage.getItem('CF_PENDING_REF');
                     if (targetRef && targetRef.trim() !== ffUid) {
                         targetRef = targetRef.trim();
-                        const refSnap = await this.db.collection("accounts").where("ffUid", "==", targetRef).limit(1).get();
-                        if (!refSnap.empty) {
-                            validatedRefCode = targetRef;
-                        }
+                        const refSnap = await this.db.collection('accounts').where('ffUid', '==', targetRef).limit(1).get();
+                        if (!refSnap.empty) validatedRefCode = targetRef;
                     }
-                } catch(e){}
+                } catch(e) {}
 
                 const newAccount = {
                     ffUid: ffUid,
-                    email: virtualEmail,
-                    pinHash: pinHash,
                     state: userState,
                     coins: 0,
                     completedLinks: {},
@@ -1412,56 +1326,29 @@ class ClashFireApp {
                     completedDailyVisits: {},
                     lastResetDate: today,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    ...(accountDoc.exists ? accountDoc.data() : {})
+                    lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
-                if (accountDoc.exists) {
-                    newAccount.state = userState;
-                }
 
-                // Check and perform 1-time migration of legacy profile if available
-                if (!accountDoc.exists) {
-                    const legacyId = this.getLegacyFingerprintID();
-                    const legacyRef = this.db.collection("users").doc(legacyId);
-                    const legacySnap = await legacyRef.get();
-                    if (legacySnap.exists) {
-                        const legacyData = legacySnap.data();
-                        if (!legacyData.migrated) {
-                            newAccount.coins = parseFloat(legacyData.coins || 0);
-                            newAccount.completedLinks = legacyData.completedLinks || {};
-                            newAccount.dailyLinkCompletedCount = parseInt(legacyData.dailyLinkCompletedCount || 0);
-                            newAccount.redemptionHistory = legacyData.redemptionHistory || [];
-                            newAccount.referredBy = legacyData.referredBy || null;
-                            newAccount.referredDevices = legacyData.referredDevices || [];
-                            newAccount.completedDailyVisits = legacyData.completedDailyVisits || {};
-                            newAccount.lastResetDate = legacyData.lastResetDate || null;
-                            
-                            await legacyRef.update({
-                                migrated: true,
-                                status: "disabled",
-                                migratedTo: uid
-                            });
-                        }
-                    }
-                }
+                await docRef.set(newAccount);
 
-                // Write new account and binding
-                const batch = this.db.batch();
-                batch.set(this.db.collection("accounts").doc(uid), newAccount);
-                if (!bindingDoc.exists) {
-                    batch.set(bindingRef, { accountId: uid });
-                }
-                await batch.commit();
+                this.deviceId = ffUid;
+                this.displayUserId = ffUid;
+                localStorage.setItem('CLASH_DEVICE_ID', ffUid);
+                localStorage.setItem('CLASH_LOGGED_IN', 'true');
+                localStorage.setItem('CLASH_LAST_FF_UID', ffUid);
 
-                if (isAlreadyInUse && accountDoc.exists) {
-                    this.showToast('WELCOME BACK!', `Logged in successfully as UID ${ffUid}`, 'success');
-                } else {
-                    this.showToast('ACCOUNT CREATED!', 'Your account has been created successfully!', 'success');
-                }
+                const logoutBtn = document.getElementById('btn-logout');
+                if (logoutBtn) logoutBtn.classList.remove('hidden');
+                const authSection = document.getElementById('auth-section');
+                if (authSection) authSection.classList.add('hidden');
+
+                await this.loadUserProfile();
+                await this.checkReferralBonus();
+                this.showToast('ACCOUNT CREATED!', 'Welcome to FreeDiamond.in!', 'success');
             }
         } catch (err) {
-            console.error("Auth failed:", err);
-            this.showToast('AUTH FAILED', err.message || 'UID or PIN is incorrect.', 'error');
+            console.error('Auth failed:', err);
+            this.showToast('ERROR', err.message || 'Something went wrong. Try again.', 'error');
         }
 
         this.hideLoader();
@@ -1469,44 +1356,35 @@ class ClashFireApp {
     }
 
     async handleLogout() {
-        try {
-            this.showLoader("LOGGING OUT...");
-            await this.auth.signOut();
+        this.showLoader('LOGGING OUT...');
+
+        if (this.userListenerUnsubscribe) {
+            this.userListenerUnsubscribe();
+            this.userListenerUnsubscribe = null;
+        }
+
+        if (this.deviceId) {
             localStorage.removeItem('CLASH_USER_DATA_' + this.deviceId);
-            this.showToast('LOGGED OUT', 'You have been logged out successfully.', 'info');
-        } catch(e) {
-            console.error("Logout error:", e);
         }
+        localStorage.removeItem('CLASH_DEVICE_ID');
+        localStorage.removeItem('CLASH_LOGGED_IN');
+        localStorage.removeItem('CLASH_LAST_FF_UID');
+        localStorage.removeItem('CLASH_LAST_COINS');
+
+        this.deviceId = null;
+        this.displayUserId = null;
+        this.user = { coins: 0, completedLinks: {}, dailyLinkCompletedCount: 0, redemptionHistory: [], referredDevices: [] };
+
+        const logoutBtn = document.getElementById('btn-logout');
+        if (logoutBtn) logoutBtn.classList.add('hidden');
+        const authSection = document.getElementById('auth-section');
+        if (authSection) authSection.classList.remove('hidden');
+        const devElem = document.getElementById('display-device-id');
+        if (devElem) devElem.innerText = 'UID: Not Logged In';
+
+        this.renderDashboard();
         this.hideLoader();
-    }
-
-    getLegacyFingerprintID() {
-        let savedId = this.getCookie('CLASH_PERMANENT_HW_ID') || localStorage.getItem('CLASH_FIRE_HW_ID');
-        if (savedId && savedId.startsWith('CLASH_HW_') && savedId.length < 25) {
-            return savedId;
-        }
-        
-        let hardwareTokens = [];
-        const ratio = window.devicePixelRatio || 1;
-        const physW = Math.round((window.screen.width || 360) * ratio);
-        const physH = Math.round((window.screen.height || 640) * ratio);
-        hardwareTokens.push(`PHYS_DISP:${physW}x${physH}x${ratio}`);
-
-        const cpus = navigator.hardwareConcurrency || 4;
-        hardwareTokens.push(`CPU_CORES:${cpus}`);
-
-        const tz = new Date().getTimezoneOffset();
-        const depth = window.screen.colorDepth || 24;
-        hardwareTokens.push(`TZ:${tz}_DEPTH:${depth}`);
-
-        const rawString = hardwareTokens.join('||');
-        let hash = 0;
-        for (let i = 0; i < rawString.length; i++) {
-            const char = rawString.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash |= 0;
-        }
-        return `CLASH_HW_${Math.abs(hash)}`;
+        this.showToast('LOGGED OUT', 'You have been logged out successfully.', 'info');
     }
 }
 

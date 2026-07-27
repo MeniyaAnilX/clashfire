@@ -176,23 +176,15 @@
                 <div class="section-title" style="display: flex; justify-content: flex-start; align-items: center; gap: 10px;">
                     <h2 style="color: var(--accent-gold);"><i class="fa-solid fa-user-shield"></i> LOGIN / SIGNUP</h2>
                 </div>
-                <p class="section-desc" id="auth-desc-message" style="margin-bottom: 15px;">Enter Your Free Fire UID And Create Pin To Access Mission & Redeem Diamond</p>
+                <p class="section-desc" id="auth-desc-message" style="margin-bottom: 15px;">Enter your Free Fire UID to login or create your account instantly</p>
 
                 <!-- Logged Out Auth Form -->
                 <div id="auth-form-container">
-                    <form id="auth-form" onsubmit="app.handleAuthSubmit(event)" style="display: flex; flex-direction: column; gap: 15px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 16px; margin: 0;">
+                	<form id="auth-form" onsubmit="app.handleAuthSubmit(event)" style="display: flex; flex-direction: column; gap: 15px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 16px; margin: 0;">
                         
                         <div class="form-group" style="display: flex; flex-direction: column; gap: 6px; text-align: left;">
                             <label for="auth-ff-uid" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;"><i class="fa-solid fa-gamepad"></i> FREE FIRE PLAYER UID</label>
                             <input type="number" id="auth-ff-uid" placeholder="Enter numeric UID e.g. 123456789" required autocomplete="off" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width: 100%; padding: 12px; border-radius: 8px; border: 1.5px solid rgba(255, 255, 255, 0.1); background: rgba(0, 0, 0, 0.3); color: #fff; font-family: inherit; box-sizing: border-box;">
-                        </div>
-
-                        <div class="form-group" style="display: flex; flex-direction: column; gap: 6px; text-align: left;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                <label for="auth-pin" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin: 0;"><i class="fa-solid fa-key"></i> 6-DIGIT PIN</label>
-                                <a href="#" onclick="app.showPinRecovery(event)" style="font-size: 0.75rem; color: var(--accent-cyan); text-decoration: none; font-weight: 600;">Forgot PIN?</a>
-                            </div>
-                            <input type="password" id="auth-pin" maxlength="6" placeholder="Enter 6-digit PIN" required autocomplete="off" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width: 100%; padding: 12px; border-radius: 8px; border: 1.5px solid rgba(255, 255, 255, 0.1); background: rgba(0, 0, 0, 0.3); color: #fff; font-family: inherit; letter-spacing: 2px; text-align: center; font-size: 1.1rem; box-sizing: border-box;">
                         </div>
 
                         <button type="submit" id="auth-submit-btn" class="btn-primary" style="background: linear-gradient(135deg, var(--accent-gold), #ff9100); color: #020617; font-weight: 800; padding: 14px; width: 100%; border-radius: 8px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin: 5px 0 0 0;">
@@ -440,10 +432,8 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-functions-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check-compat.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
-    <script src="app.js?v=2.2.0"></script>
+    <script src="app.js?v=3.0.0"></script>
 </body>
 </html>
