@@ -204,7 +204,7 @@
                 <div class="referral-box">
                     <label for="referral-link-input" class="sr-only" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">Your Referral Link</label>
                     <div class="referral-input-wrap">
-                        <input type="text" id="referral-link-input" readonly value="https://www.freediamond.in/?ref=Active">
+                        <input type="text" id="referral-link-input" readonly placeholder="Login to generate your referral link" value="">
                         <button class="btn-primary" onclick="app.copyReferralLink()"><i class="fa-solid fa-copy"></i> COPY</button>
                     </div>
                     <button class="btn-share" onclick="app.shareNative()"><i class="fa-solid fa-share-nodes"></i> SHARE</button>
@@ -232,10 +232,10 @@
             <div class="banner-card">
                 <div class="banner-left">
                     <span class="banner-label"><i class="fa-solid fa-clock"></i> RESET IN</span>
-                    <span class="banner-title" id="daily-timer-title">24h Daily Reset</span>
+                    <span class="countdown-timer" id="daily-timer-title">24h Daily Reset</span>
                 </div>
                 <div class="banner-right">
-                    <span class="banner-points-badge" id="banner-points">0/6 DONE</span>
+                    <span class="banner-badge" id="banner-points">0/6 DONE</span>
                 </div>
             </div>
 
@@ -338,6 +338,16 @@
                         <button class="btn-redeem" aria-label="Redeem 5600 Diamonds Package">REDEEM</button>
                     </div>
                 </div>
+
+                <!-- Redemption History Section -->
+                <div style="margin-top: 14px;">
+                    <div class="section-title" style="margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
+                        <h2><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-gold);"></i> REDEMPTION HISTORY</h2>
+                    </div>
+                    <div class="history-list" id="history-container"></div>
+                </div>
+            </section>
+
             <!-- Live Auto-Generating Payout Proofs Section -->
             <section class="dashboard-section" id="live-proofs-section" style="margin-bottom: 15px;">
                 <div class="section-title">

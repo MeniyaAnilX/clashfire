@@ -50,14 +50,10 @@ class ClashFireApp {
             sponsorIcon: 'telegram',
             sponsorEnabled: true
         };
-        this.dailyVisit = {
-            items: [
-                { id: 0, taskId: 1, title: "Daily Visit Task #1", url: "https://www.freediamond.in", duration: 15, reward: 10 }
-            ]
-        };
         this.db = null;
         this.firestoreActive = false;
         this.dvHasReturned = false;
+        this.dvTimerActive = false; // Guard: prevents visibilitychange race condition during active visit timer
         this.userListenerUnsubscribe = null;
 
         // Dynamic Mission Tasks Array (1-indexed task IDs with default fallback)
@@ -145,7 +141,8 @@ class ClashFireApp {
         }
 
         document.addEventListener('visibilitychange', async () => {
-            if (document.visibilityState === 'visible' && this.deviceId) {
+            // Skip reload if a daily visit timer is actively running (prevents race condition)
+            if (document.visibilityState === 'visible' && this.deviceId && !this.dvTimerActive) {
                 await this.loadUserProfile();
                 this.renderDashboard();
             }
@@ -440,7 +437,12 @@ class ClashFireApp {
                 this.userListenerUnsubscribe = docRef.onSnapshot(async doc => {
                     if (doc.exists) {
                         const data = doc.data();
+                        // Preserve locally-set completedLinks if visit timer is active (race condition guard)
+                        const localCompletedLinks = { ...(this.user.completedLinks || {}) };
                         this.user = { ...this.user, ...data };
+                        if (this.dvTimerActive) {
+                            this.user.completedLinks = { ...(data.completedLinks || {}), ...localCompletedLinks };
+                        }
                         
                         this.displayUserId = data.ffUid;
                         if (this.displayUserId) {
@@ -472,6 +474,14 @@ class ClashFireApp {
                             this.user.dailyLinkCompletedCount = 0;
                             this.user.completedLinks = {};
                             this.user.completedDailyVisits = {};
+                            this.user.lastResetDate = today;
+                            // Persist the reset to Firestore so refreshes don't keep triggering reset
+                            docRef.update({
+                                dailyLinkCompletedCount: 0,
+                                completedLinks: {},
+                                completedDailyVisits: {},
+                                lastResetDate: today
+                            }).catch(() => {});
                         }
                         
                         const formattedCoins = this.formatCoins(this.user.coins);
@@ -798,11 +808,7 @@ class ClashFireApp {
         this.renderRedeemHistory();
     }
 
-    openSponsorChannel() {
-        const url = this.integrations.sponsorUrl || "https://t.me";
-        window.open(url, '_blank', 'noopener,noreferrer');
-        this.showToast('COMMUNITY LAUNCHED', 'Welcome to our official community!', 'success');
-    }
+    
     executeIsolatedAdScript(containerElement, rawHtmlCode, slotTag = 'slot') {
         if (!containerElement || !rawHtmlCode) return;
         
@@ -867,11 +873,7 @@ class ClashFireApp {
         });
     }
 
-    launchGamezop() {
-        const url = this.integrations.gamezopUrl || "https://www.gamezop.com";
-        window.open(url, '_blank', 'noopener,noreferrer');
-        this.showToast('GAMEZOP LAUNCHED', 'Play games for active entertainment!', 'success');
-    }
+    
 
     async selectPackage(cardElem, diamondAmount, costPoints) {
         if (!this.deviceId) {
@@ -1046,14 +1048,6 @@ class ClashFireApp {
         }, 3500);
     }
 
-    showLoader(msg) {
-        document.getElementById('loader-message').innerText = msg;
-        document.getElementById('global-loader').classList.remove('hidden');
-    }
-
-    hideLoader() {
-        document.getElementById('global-loader').classList.add('hidden');
-    }
 
     async executeLinkTask(idx) {
         if (!this.deviceId) {
@@ -1085,6 +1079,7 @@ class ClashFireApp {
 
         // Open direct ad link in a new tab
         window.open(targetUrl, '_blank');
+        this.dvTimerActive = true; // Prevent visibilitychange from overwriting local state
 
         // Show 5-second countdown overlay on main app
         const overlay = document.getElementById('daily-visit-timer-overlay');
@@ -1120,10 +1115,9 @@ class ClashFireApp {
                         await claimTaskFunc({ taskId: taskKey, rewardAmt: rewardAmt, today: today });
                     }
 
-                    // Update local state cleanly
+                    // Update local state cleanly (single key format: task_N only)
                     if (!this.user.completedLinks) this.user.completedLinks = {};
                     this.user.completedLinks[taskKey] = true;
-                    this.user.completedLinks[taskId] = true;
                     this.user.dailyLinkCompletedCount = Object.keys(this.user.completedLinks).length;
 
                     await this.saveUserProfile();
@@ -1139,7 +1133,6 @@ class ClashFireApp {
                         const rewardAmt = this.globalSettings.linkReward || 5;
                         if (!this.user.completedLinks) this.user.completedLinks = {};
                         this.user.completedLinks[taskKey] = true;
-                        this.user.completedLinks[taskId] = true;
                         this.user.coins = parseFloat(((this.user.coins || 0) + rewardAmt).toFixed(2));
                         this.user.dailyLinkCompletedCount = Object.keys(this.user.completedLinks).length;
                         await this.saveUserProfile();
@@ -1148,6 +1141,7 @@ class ClashFireApp {
                     }
                 } finally {
                     if (overlay) overlay.style.display = 'none';
+                    this.dvTimerActive = false; // Release race condition guard
                 }
             }
         }, 1000);
@@ -1275,6 +1269,19 @@ class ClashFireApp {
     hideLoader() {
         const loader = document.getElementById('global-loader');
         if (loader) loader.classList.add('hidden');
+    }
+
+    // Called by "CLAIM DIAMONDS" button in the visit overlay after timer ends
+    claimActiveVisitReward() {
+        const overlay = document.getElementById('daily-visit-timer-overlay');
+        if (overlay) overlay.style.display = 'none';
+        this.dvTimerActive = false;
+    }
+
+    // Called by "CONTINUE VISIT" button - re-shows overlay if user dismissed it prematurely
+    resumeDailyVisit() {
+        const overlay = document.getElementById('daily-visit-timer-overlay');
+        if (overlay) overlay.style.display = 'flex';
     }
 
     // PIN Recovery handlers

@@ -72,6 +72,23 @@ body {
 .loader-diamond-img { width: 48px; height: 48px; object-fit: contain; z-index: 2; animation: floatGem 2s infinite ease-in-out; }
 @keyframes floatGem { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 
+/* Pulse Ring: Animated glow ring around gem in visit overlay */
+.pulse-ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-cyan);
+    animation: pulseRingAnim 1.6s ease-out infinite;
+    z-index: 1;
+}
+@keyframes pulseRingAnim {
+    0%   { transform: translate(-50%, -50%) scale(0.85); opacity: 0.9; }
+    70%  { transform: translate(-50%, -50%) scale(1.6);  opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1.6);  opacity: 0; }
+}
+
 /* Main Navigation Bar Tabs */
 .main-nav-tabs {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
