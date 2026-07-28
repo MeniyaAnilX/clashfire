@@ -430,6 +430,43 @@
         </div>
     </noscript>
 
+    <!-- Welcome Guide Modal - First Time New Users Only -->
+    <div id="welcome-modal" class="modal-overlay hidden" style="display:none; z-index: 99999;">
+        <div class="modal-card" style="max-width: 340px; text-align: center; padding: 28px 22px;">
+            <div style="font-size: 2.8rem; margin-bottom: 6px;">🎉</div>
+            <h3 style="color: var(--accent-gold); font-size: 1.15rem; font-weight: 800; margin-bottom: 6px; font-family: 'Outfit', sans-serif;">WELCOME TO FREEDIAMOND.IN!</h3>
+            <p style="color: var(--text-muted); font-size: 0.8rem; line-height: 1.5; margin-bottom: 18px;">Free diamonds earn karna sirf 3 steps mein hai:</p>
+
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; text-align: left;">
+                <div style="background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.25); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 1.4rem;">📋</span>
+                    <div>
+                        <div style="color: #fff; font-weight: 700; font-size: 0.82rem;">Step 1 - TASKS Tab Kholo</div>
+                        <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 2px;">Daily shortener links complete karo</div>
+                    </div>
+                </div>
+                <div style="background: rgba(0,242,254,0.08); border: 1px solid rgba(0,242,254,0.25); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 1.4rem;">💰</span>
+                    <div>
+                        <div style="color: #fff; font-weight: 700; font-size: 0.82rem;">Step 2 - Coins Earn Karo</div>
+                        <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 2px;">Har link complete = 5-10 diamonds coins</div>
+                    </div>
+                </div>
+                <div style="background: rgba(0,230,118,0.08); border: 1px solid rgba(0,230,118,0.25); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 1.4rem;">💎</span>
+                    <div>
+                        <div style="color: #fff; font-weight: 700; font-size: 0.82rem;">Step 3 - Diamonds Redeem Karo</div>
+                        <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 2px;">520 coins pe pehla diamond pack redeem karo</div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="welcome-start-btn" class="btn-primary" onclick="app.closeWelcomeModal()" style="width: 100%; background: linear-gradient(135deg, var(--accent-gold), #ff9100); color: #020617; font-weight: 800; padding: 14px; font-size: 0.95rem; border-radius: 10px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-bolt"></i> START EARNING NOW →
+            </button>
+        </div>
+    </div>
+
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-functions-compat.js"></script>

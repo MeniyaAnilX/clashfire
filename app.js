@@ -1345,6 +1345,13 @@ class ClashFireApp {
                 await this.loadUserProfile();
                 await this.checkReferralBonus();
                 this.showToast('ACCOUNT CREATED!', 'Welcome to FreeDiamond.in!', 'success');
+
+                // Show one-time welcome guide modal for new accounts
+                const welcomeKey = 'CLASH_WELCOMED_' + ffUid;
+                if (!localStorage.getItem(welcomeKey)) {
+                    localStorage.setItem(welcomeKey, 'true');
+                    setTimeout(() => this.showWelcomeModal(), 900);
+                }
             }
         } catch (err) {
             console.error('Auth failed:', err);
@@ -1385,6 +1392,24 @@ class ClashFireApp {
         this.renderDashboard();
         this.hideLoader();
         this.showToast('LOGGED OUT', 'You have been logged out successfully.', 'info');
+    }
+
+    showWelcomeModal() {
+        const modal = document.getElementById('welcome-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+        }
+    }
+
+    closeWelcomeModal() {
+        const modal = document.getElementById('welcome-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+        // Switch to Tasks tab so user lands directly on missions
+        setTimeout(() => this.switchAppTab('tab-tasks'), 200);
     }
 }
 
