@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
 
+# Block crawling of dynamic query params that waste crawl budget
+Disallow: /*?*
+
+# Sitemap location
 Sitemap: https://www.freediamond.in/sitemap.xml
