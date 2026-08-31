@@ -91,20 +91,27 @@ body {
 
 /* Main Navigation Bar Tabs */
 .main-nav-tabs {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
     background: var(--bg-card); border: 1px solid var(--border-glow);
     padding: 6px; border-radius: 16px; margin-bottom: 15px;
 }
 .tab-btn {
     background: transparent; color: var(--text-muted); border: none;
-    padding: 10px 6px; border-radius: 12px; font-weight: 800; font-size: 0.82rem;
-    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;
+    padding: 12px 6px; border-radius: 12px; font-weight: 800; font-size: 0.88rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
     transition: all 0.2s ease; white-space: nowrap;
 }
-.tab-btn i { font-size: 0.9rem; }
+.tab-btn i { font-size: 0.95rem; }
 .tab-btn.active {
     background: linear-gradient(135deg, var(--accent-cyan), #00a8ff);
     color: #000; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+}
+
+.pulse-anim { animation: walletPulse 0.5s ease-out; }
+@keyframes walletPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); filter: drop-shadow(0 0 10px var(--accent-cyan)); }
+    100% { transform: scale(1); }
 }
 
 .app-tab-pane { display: none; }

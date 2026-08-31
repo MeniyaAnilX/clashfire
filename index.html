@@ -92,7 +92,7 @@
               "name": "Free Fire mein free diamond kaise milte hain?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "FreeDiamond.in pe apna Free Fire UID enter karo, daily missions complete karo, coins earn karo aur REDEEM tab se apna diamond package seedha apne Free Fire account mein pao."
+                "text": "FreeDiamond.in pe daily missions complete karo, coins earn karo aur REDEEM tab se apna Free Fire UID enter karke seedha diamond package redeem karo."
               }
             },
             {
@@ -100,7 +100,7 @@
               "name": "Kya Free Diamond app safe hai?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Haan, FreeDiamond.in 100% safe hai. Koi password, koi hack, koi ban risk nahi. Sirf UID se login karo aur legitimate task-based earning karo."
+                "text": "Haan, FreeDiamond.in 100% safe hai. Koi password, koi hack, koi login required nahi. Sirf missions complete karo aur UID se diamond receive karo."
               }
             },
             {
@@ -108,7 +108,7 @@
               "name": "Free Diamond pe kitne diamonds mil sakte hain?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "FreeDiamond.in pe 520, 1060, 2180 aur 5600 diamond packages available hain jo aap daily missions complete karke earn kar sakte ho."
+                "text": "FreeDiamond.in pe 520, 1060, 2180 aur 5600 diamond packages available hain jo aap daily missions complete karke redeem kar sakte ho."
               }
             }
           ]
@@ -166,326 +166,201 @@
         <!-- Top Header Navigation -->
         <header class="app-header">
             <div class="header-left">
-                <!-- Icon on left, vertically centered to both text lines -->
                 <img src="ffire_logo.png" alt="Free Diamond - Free Fire Diamond UID Top Up App Logo" width="40" height="40" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; flex-shrink: 0; box-shadow: 0 2px 10px rgba(255,69,0,0.45);">
-                <!-- Text column: FREEDIAMOND.IN top, User ID bottom -->
-                <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
                     <span class="app-name" style="line-height: 1;">FREEDIAMOND.<span>IN</span></span>
-                    <span class="device-tag" id="display-device-id" style="margin: 0; line-height: 1;">UID: Loading...</span>
+                    <span class="device-tag" style="margin: 0; line-height: 1; color: var(--accent-cyan);">FREE DIAMOND APP</span>
                 </div>
             </div>
             <div class="header-right" style="display: flex; align-items: center; gap: 8px;">
-                <div class="wallet-badge" onclick="app.scrollToRedeem()">
+                <div class="wallet-badge" onclick="app.switchAppTab('tab-redeem')" title="Click to Redeem Diamonds">
                     <img src="diamond.png" alt="Free Fire Diamond Gem" width="22" height="22" class="wallet-gem-img">
                     <span id="user-coins">0</span>
                 </div>
-                <button id="btn-logout" class="hidden" onclick="app.handleLogout()" style="background: rgba(255,23,68,0.15); color: #ff1744; border: 1px solid rgba(255,23,68,0.3); border-radius: 8px; padding: 6px 10px; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; height: 32px; box-sizing: border-box; margin: 0;">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
             </div>
         </header>
 
-        <script>
-            if (localStorage.getItem('CLASH_LOGGED_IN') === 'true') {
-                const lastUid = localStorage.getItem('CLASH_LAST_FF_UID');
-                if (lastUid) {
-                    document.getElementById('display-device-id').innerText = "UID: " + lastUid;
-                }
-                const lastCoins = localStorage.getItem('CLASH_LAST_COINS');
-                if (lastCoins) {
-                    document.getElementById('user-coins').innerText = lastCoins;
-                }
-                const logoutBtn = document.getElementById('btn-logout');
-                if (logoutBtn) logoutBtn.classList.remove('hidden');
-            }
-        </script>
-
-        <!-- Main Navigation Bar Tabs -->
+        <!-- Main Navigation Bar Tabs (2 Clean Tabs: MISSIONS & REDEEM) -->
         <nav class="main-nav-tabs">
-            <button class="tab-btn active" onclick="app.switchAppTab('tab-home', this)">
-                <i class="fa-solid fa-house"></i> HOME
-            </button>
-            <button class="tab-btn" onclick="app.switchAppTab('tab-tasks', this)">
+            <button class="tab-btn active" id="btn-tab-missions" onclick="app.switchAppTab('tab-missions', this)">
                 <i class="fa-solid fa-list-check"></i> MISSIONS
             </button>
-            <button class="tab-btn" onclick="app.switchAppTab('tab-redeem', this)">
+            <button class="tab-btn" id="btn-tab-redeem" onclick="app.switchAppTab('tab-redeem', this)">
                 <i class="fa-solid fa-gem"></i> REDEEM
             </button>
         </nav>
 
-        <!-- Main Content Area landmark -->
+        <!-- Main Content Area -->
         <main id="main-content-landmark">
 
-            <!-- TAB 1: HOME PANE (REFER & EARN AND COMMUNITY) -->
-            <div id="tab-home" class="app-tab-pane active">
+            <!-- TAB 1: MISSIONS PANE (DIRECT HOMEPAGE) -->
+            <div id="tab-missions" class="app-tab-pane active">
                 
-                <!-- Visible Hero H1 - Exact keyword match for Google ranking -->
-                <div class="hero-brand-section" style="text-align: center; margin: 10px 0 20px 0; padding: 5px 0;">
-                    <h1 style="font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 6px; font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;">Free Diamond - Free Fire Diamonds Daily</h1>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.4;">Complete Daily Tasks, Earn Free Diamonds, Redeem to Your Free Fire UID</p>
+                <!-- Visible Hero H1 for Google ranking & user orientation -->
+                <div class="hero-brand-section" style="text-align: center; margin: 8px 0 16px 0; padding: 4px 0;">
+                    <h1 style="font-size: 1.45rem; font-weight: 800; color: #fff; margin-bottom: 6px; font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;">Free Diamond - Free Fire Diamonds Daily</h1>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.4;">Complete Daily Missions, Earn Free Diamonds & Redeem to Your UID</p>
                 </div>
 
-            <!-- Premium Auth System (UID + PIN login/signup) -->
-            <section class="dashboard-section" id="auth-section" style="margin-bottom: 25px;">
-                <script>
-                    if (localStorage.getItem('CLASH_LOGGED_IN') === 'true') {
-                        document.getElementById('auth-section').classList.add('hidden');
-                    }
-                </script>
-                <div class="section-title" style="display: flex; justify-content: flex-start; align-items: center; gap: 10px;">
-                    <h2 style="color: var(--accent-gold);"><i class="fa-solid fa-user-shield"></i> LOGIN / SIGNUP</h2>
-                </div>
-                <p class="section-desc" id="auth-desc-message" style="margin-bottom: 15px;">Enter your Free Fire UID to login or create your account instantly</p>
-
-                <!-- Logged Out Auth Form -->
-                <div id="auth-form-container">
-                	<form id="auth-form" onsubmit="app.handleAuthSubmit(event)" style="display: flex; flex-direction: column; gap: 15px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 16px; margin: 0;">
-                        
-                        <div class="form-group" style="display: flex; flex-direction: column; gap: 6px; text-align: left;">
-                            <label for="auth-ff-uid" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;"><i class="fa-solid fa-gamepad"></i> FREE FIRE PLAYER UID</label>
-                            <input type="number" id="auth-ff-uid" placeholder="Enter numeric UID e.g. 123456789" required autocomplete="off" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width: 100%; padding: 12px; border-radius: 8px; border: 1.5px solid rgba(255, 255, 255, 0.1); background: rgba(0, 0, 0, 0.3); color: #fff; font-family: inherit; box-sizing: border-box;">
-                        </div>
-
-                        <button type="submit" id="auth-submit-btn" class="btn-primary" style="background: linear-gradient(135deg, var(--accent-gold), #ff9100); color: #020617; font-weight: 800; padding: 14px; width: 100%; border-radius: 8px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin: 5px 0 0 0;">
-                            <i class="fa-solid fa-right-to-bracket"></i> CONTINUE TO ACCOUNT
-                        </button>
-                    </form>
-                </div>
-            </section>
-
-            <!-- Refer & Earn Section -->
-            <section class="dashboard-section">
-                <div class="section-title">
-                    <h2><i class="fa-solid fa-users"></i> REFER & EARN</h2>
-                </div>
-                <p class="section-desc">Share your link with friends and get daily commission on their completed missions (after completed all daily mission)!</p>
-                
-                <div class="referral-box">
-                    <label for="referral-link-input" class="sr-only" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">Your Referral Link</label>
-                    <div class="referral-input-wrap">
-                        <input type="text" id="referral-link-input" readonly placeholder="Login to generate your referral link" value="">
-                        <button class="btn-primary" onclick="app.copyReferralLink()"><i class="fa-solid fa-copy"></i> COPY</button>
+                <!-- Dynamic Daily Reset Banner -->
+                <div class="banner-card">
+                    <div class="banner-left">
+                        <span class="banner-label"><i class="fa-solid fa-clock"></i> RESET IN</span>
+                        <span class="countdown-timer" id="daily-timer-title">24h Daily Reset</span>
                     </div>
-                    <button class="btn-share" onclick="app.shareNative()"><i class="fa-solid fa-share-nodes"></i> SHARE</button>
-                    
-                    <!-- Referral Stats Grid Dashboard -->
-                    <div class="referral-stats-dashboard" style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div class="ref-stat-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 10px; border-radius: 8px; text-align: center;">
-                            <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Successful Invites</span>
-                            <span id="ref-stat-count" style="font-size: 1.2rem; font-weight: bold; color: var(--accent-cyan);">0</span>
-                        </div>
-                        <div class="ref-stat-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 10px; border-radius: 8px; text-align: center;">
-                            <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Commission Rate</span>
-                            <span id="ref-stat-reward" style="font-size: 1.2rem; font-weight: bold; color: var(--accent-gold);">10% Rate</span>
-                        </div>
+                    <div class="banner-right">
+                        <span class="banner-badge" id="banner-points">0/6 DONE</span>
                     </div>
                 </div>
-            </section>
-        </div>
 
-        <!-- TAB 2: TASKS, OFFERWALLS & COMMUNITY PANE -->
-        <!-- TAB 2: MISSIONS PANE (DAILY VISITS & OFFERWALLS) -->
-        <div id="tab-tasks" class="app-tab-pane">
-
-            <!-- Dynamic Daily Reset Banner -->
-            <div class="banner-card">
-                <div class="banner-left">
-                    <span class="banner-label"><i class="fa-solid fa-clock"></i> RESET IN</span>
-                    <span class="countdown-timer" id="daily-timer-title">24h Daily Reset</span>
-                </div>
-                <div class="banner-right">
-                    <span class="banner-badge" id="banner-points">0/6 DONE</span>
-                </div>
+                <!-- Daily Shortener Missions Section -->
+                <section class="dashboard-section">
+                    <div class="section-title">
+                        <h2><i class="fa-solid fa-bolt" style="color: var(--accent-gold);"></i> DAILY MISSIONS</h2>
+                    </div>
+                    <p class="section-desc">Click 'VISIT LINK' to complete task. Stay for 15 seconds and your diamonds will be credited automatically!</p>
+                    <div class="links-list" id="links-container">
+                        <!-- Dynamic mission cards will be rendered here -->
+                    </div>
+                </section>
             </div>
 
-            <!-- Mission Page Dynamic Ad Slot (Between RESET IN box and DAILY MISSIONS) -->
-            <div id="mission-ad-slot" class="native-banner-slot hidden" style="margin: 15px 0;"></div>
+            <!-- TAB 2: REDEEM VAULT PANE -->
+            <div id="tab-redeem" class="app-tab-pane">
+                <section class="dashboard-section">
+                    <div class="section-title">
+                        <h2><img src="diamond.png" alt="Gem" width="22" height="22" loading="lazy" class="section-title-img"> FREE FIRE REDEEM VAULT</h2>
+                    </div>
+                    <p class="section-desc">Enter your Free Fire Player UID and choose your diamond package to redeem!</p>
 
-            <!-- Daily Shortener Missions Section -->
-            <section class="dashboard-section">
-                <div class="section-title">
-                    <h2><i class="fa-solid fa-link"></i> DAILY MISSIONS</h2>
-                </div>
-                <p class="section-desc">Click 'VISIT LINK' to view ad page. Stay for 5 seconds and your diamonds will be credited automatically!</p>
-                <div class="links-list" id="links-container">
-                    <!-- Pre-rendered static card shells for SEO and CLS optimization -->
-                    <div class="link-card">
-                        <div class="link-info">
-                            <div class="link-icon-box">
-                                <img src="diamond.png" alt="Diamond Icon" width="22" height="22" loading="lazy" style="width: 22px; height: 22px;">
+                    <div class="ff-uid-input-group">
+                        <label for="ff-uid"><i class="fa-solid fa-id-card"></i> FREE FIRE PLAYER UID</label>
+                        <input type="number" id="ff-uid" placeholder="Enter Free Fire UID e.g. 123456789" autocomplete="off" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    </div>
+
+                    <div class="packages-grid">
+                        <!-- Package 1: 520 Diamonds -->
+                        <div class="package-card" onclick="app.selectPackage(this, 520, 520)">
+                            <div class="diamond-img-box">
+                                <img src="diamond.png" alt="Gem" width="42" height="42" loading="lazy" class="pkg-gem-img">
                             </div>
-                            <div class="link-details">
-                                <h3>Daily Mission #1</h3>
-                                <p>Reward: +5 Diamonds</p>
+                            <div class="pkg-cost">520 💎</div>
+                            <button class="btn-redeem" aria-label="Redeem 520 Diamonds Package">REDEEM</button>
+                        </div>
+                        <!-- Package 2: 1060 Diamonds -->
+                        <div class="package-card" onclick="app.selectPackage(this, 1060, 1060)">
+                            <div class="diamond-img-box">
+                                <img src="diamond.png" alt="Gem" width="42" height="42" loading="lazy" class="pkg-gem-img">
                             </div>
+                            <div class="pkg-cost">1060 💎</div>
+                            <button class="btn-redeem" aria-label="Redeem 1060 Diamonds Package">REDEEM</button>
                         </div>
-                        <button class="btn-primary">VISIT LINK</button>
-                    </div>
-                    <div class="link-card">
-                        <div class="link-info">
-                            <div class="link-icon-box">
-                                <img src="diamond.png" alt="Diamond Icon" width="22" height="22" loading="lazy" style="width: 22px; height: 22px;">
+                        <!-- Package 3: 2180 Diamonds -->
+                        <div class="package-card" onclick="app.selectPackage(this, 2180, 2180)">
+                            <div class="diamond-img-box">
+                                <img src="diamond.png" alt="Gem" width="42" height="42" loading="lazy" class="pkg-gem-img">
                             </div>
-                            <div class="link-details">
-                                <h3>Daily Mission #2</h3>
-                                <p>Reward: +5 Diamonds</p>
+                            <div class="pkg-cost">2180 💎</div>
+                            <button class="btn-redeem" aria-label="Redeem 2180 Diamonds Package">REDEEM</button>
+                        </div>
+                        <!-- Package 4: 5600 Diamonds -->
+                        <div class="package-card" onclick="app.selectPackage(this, 5600, 5600)">
+                            <div class="diamond-img-box">
+                                <img src="diamond.png" alt="Gem" width="42" height="42" loading="lazy" class="pkg-gem-img">
                             </div>
+                            <div class="pkg-cost">5600 💎</div>
+                            <button class="btn-redeem" aria-label="Redeem 5600 Diamonds Package">REDEEM</button>
                         </div>
-                        <button class="btn-primary">VISIT LINK</button>
                     </div>
-                    <div class="link-card">
-                        <div class="link-info">
-                            <div class="link-icon-box">
-                                <img src="diamond.png" alt="Diamond Icon" width="22" height="22" loading="lazy" style="width: 22px; height: 22px;">
-                            </div>
-                            <div class="link-details">
-                                <h3>Daily Mission #3</h3>
-                                <p>Reward: +5 Diamonds</p>
-                            </div>
+
+                    <!-- Redemption History Section -->
+                    <div style="margin-top: 18px;">
+                        <div class="section-title" style="margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
+                            <h2><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-gold);"></i> MY REDEMPTIONS</h2>
                         </div>
-                        <button class="btn-primary">VISIT LINK</button>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <!-- TAB 3: REDEEM VAULT PANE -->
-        <div id="tab-redeem" class="app-tab-pane">
-            <!-- Free Fire Redeem Section -->
-            <section class="dashboard-section">
-                <div class="section-title">
-                    <h2><img src="diamond.png" alt="Gem" width="22" height="22" loading="lazy" class="section-title-img"> FREE FIRE REDEEM VAULT</h2>
-                </div>
-                <p class="section-desc">Enter your Free Fire Player UID and choose your diamond package!</p>
-
-                <div class="ff-uid-input-group">
-                    <label for="ff-uid"><i class="fa-solid fa-id-card"></i> FREE FIRE PLAYER UID</label>
-                    <input type="number" id="ff-uid" placeholder="e.g. 123456789" autocomplete="off" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                </div>
-
-                <div class="packages-grid">
-                    <!-- Package 1: 520 Diamonds -->
-                    <div class="package-card" onclick="app.selectPackage(this, 520, 520)">
-                        <div class="diamond-img-box">
-                            <img src="diamond.png" alt="Gem" width="42" height="42" loading="lazy" class="pkg-gem-img">
+                        <div class="history-list" id="history-container">
+                            <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 15px;">No redemptions yet. Complete missions to earn diamonds!</div>
                         </div>
-                        <div class="pkg-cost">520 💎</div>
-                        <button class="btn-redeem" aria-label="Redeem 520 Diamonds Package">REDEEM</button>
                     </div>
-                    <!-- Package 2: 1060 Diamonds -->
-                    <div class="package-card" onclick="app.selectPackage(this, 1060, 1060)">
-                        <div class="diamond-img-box">
-                            <img src="diamond.png" alt="Gem" width="42" height="42" loading="lazy" class="pkg-gem-img">
-                        </div>
-                        <div class="pkg-cost">1060 💎</div>
-                        <button class="btn-redeem" aria-label="Redeem 1060 Diamonds Package">REDEEM</button>
+                </section>
+
+                <!-- Live Auto-Generating Payout Proofs Section -->
+                <section class="dashboard-section" id="live-proofs-section" style="margin-bottom: 15px;">
+                    <div class="section-title">
+                        <h2><i class="fa-solid fa-circle-check" style="color: var(--accent-cyan);"></i> RECENT ACTIVITY</h2>
+                        <span class="sub-badge" style="background: rgba(0, 242, 254, 0.15); color: var(--accent-cyan); border: 1.5px solid rgba(0, 242, 254, 0.3);">SYSTEM STATUS</span>
                     </div>
-                    <!-- Package 3: 2180 Diamonds -->
-                    <div class="package-card" onclick="app.selectPackage(this, 2180, 2180)">
-                        <div class="diamond-img-box">
-                            <img src="diamond.png" alt="Gem" width="42" height="42" loading="lazy" class="pkg-gem-img">
-                        </div>
-                        <div class="pkg-cost">2180 💎</div>
-                        <button class="btn-redeem" aria-label="Redeem 2180 Diamonds Package">REDEEM</button>
+                    <div class="proofs-ticker-container" id="proofs-ticker" style="display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow: hidden; position: relative;">
                     </div>
-                    <!-- Package 4: 5600 Diamonds -->
-                    <div class="package-card" onclick="app.selectPackage(this, 5600, 5600)">
-                        <div class="diamond-img-box">
-                            <img src="diamond.png" alt="Gem" width="42" height="42" loading="lazy" class="pkg-gem-img">
-                        </div>
-                        <div class="pkg-cost">5600 💎</div>
-                        <button class="btn-redeem" aria-label="Redeem 5600 Diamonds Package">REDEEM</button>
-                    </div>
-                </div>
+                </section>
+            </div>
 
-                <!-- Redemption History Section -->
-                <div style="margin-top: 14px;">
-                    <div class="section-title" style="margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
-                        <h2><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-gold);"></i> REDEMPTION HISTORY</h2>
-                    </div>
-                    <div class="history-list" id="history-container"></div>
-                </div>
-            </section>
+            <!-- ===== STATIC SEO BLOCK - Always visible to Googlebot ===== -->
+            <section id="seo-about-section" aria-label="About Free Diamond" style="margin: 5px 0 10px 0; padding: 0 5px;">
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 18px 16px;">
 
-            <!-- Live Auto-Generating Payout Proofs Section -->
-            <section class="dashboard-section" id="live-proofs-section" style="margin-bottom: 15px;">
-                <div class="section-title">
-                    <h2><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-cyan);"></i> RECENT ACTIVITY</h2>
-                    <span class="sub-badge" style="background: rgba(0, 242, 254, 0.15); color: var(--accent-cyan); border: 1.5px solid rgba(0, 242, 254, 0.3);">SYSTEM STATUS</span>
-                </div>
-                <div class="proofs-ticker-container" id="proofs-ticker" style="display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow: hidden; position: relative;">
-                    <!-- Auto-generated payout items list will slide in here dynamically -->
-                </div>
-            </section>
-        </div>
+                    <h2 style="color: var(--accent-gold); font-size: 0.95rem; font-weight: 800; margin: 0 0 10px 0; font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 7px;">
+                        <span style="font-size:1.1rem;">💎</span> Free Diamond - Free Fire Ka Sabse Trusted Platform
+                    </h2>
 
-
-        <!-- ===== STATIC SEO BLOCK - Always visible to Googlebot, outside JS tab system ===== -->
-        <section id="seo-about-section" aria-label="About Free Diamond" style="margin: 5px 0 10px 0; padding: 0 5px;">
-            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 18px 16px;">
-
-                <h2 style="color: var(--accent-gold); font-size: 0.95rem; font-weight: 800; margin: 0 0 10px 0; font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 7px;">
-                    <span style="font-size:1.1rem;">💎</span> Free Diamond - Free Fire Ka Sabse Trusted Platform
-                </h2>
-
-                <p style="color: var(--text-muted); font-size: 0.78rem; line-height: 1.75; margin: 0 0 14px 0;">
-                    <strong style="color:#fff;">FreeDiamond.in</strong> India ka #1 <strong style="color:#fff;">free diamond</strong> earning platform hai jo specially <strong style="color:#fff;">Free Fire</strong> aur <strong style="color:#fff;">Free Fire Max</strong> players ke liye banaya gaya hai. Daily missions complete karo aur seedha apne <strong style="color:#fff;">Free Fire UID</strong> pe free diamonds pao - zero hack, zero ban risk.
-                </p>
-
-                <!-- How it works -->
-                <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px; margin-bottom: 16px;">
-                    <p style="color: var(--text-muted); font-size: 0.78rem; line-height: 1.75; margin: 0;">
-                        <strong style="color: var(--accent-cyan);">Free Diamond Kaise Milte Hain?</strong><br>
-                        Step 1 - Apna Free Fire UID enter karke account banao.<br>
-                        Step 2 - <strong style="color:#fff;">MISSIONS</strong> tab mein daily links visit karo (sirf 5 seconds).<br>
-                        Step 3 - Diamonds automatic credit ho jaate hain.<br>
-                        Step 4 - <strong style="color:#fff;">REDEEM</strong> tab mein apna package choose karo aur seedha Free Fire mein pao.
+                    <p style="color: var(--text-muted); font-size: 0.78rem; line-height: 1.75; margin: 0 0 14px 0;">
+                        <strong style="color:#fff;">FreeDiamond.in</strong> India ka #1 <strong style="color:#fff;">free diamond</strong> earning platform hai jo specially <strong style="color:#fff;">Free Fire</strong> aur <strong style="color:#fff;">Free Fire Max</strong> players ke liye banaya gaya hai. Daily missions complete karo aur seedha apne <strong style="color:#fff;">Free Fire UID</strong> pe free diamonds pao - zero hack, zero ban risk.
                     </p>
+
+                    <!-- How it works -->
+                    <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px; margin-bottom: 16px;">
+                        <p style="color: var(--text-muted); font-size: 0.78rem; line-height: 1.75; margin: 0;">
+                            <strong style="color: var(--accent-cyan);">Free Diamond Kaise Milte Hain?</strong><br>
+                            Step 1 - <strong style="color:#fff;">MISSIONS</strong> tab mein daily links visit karo (sirf 15 seconds).<br>
+                            Step 2 - Diamonds automatically aapke wallet mein credit ho jaate hain.<br>
+                            Step 3 - <strong style="color:#fff;">REDEEM</strong> tab mein apna Free Fire Player UID enter karo.<br>
+                            Step 4 - Apna diamond package choose karke redeem karo aur seedha Free Fire mein pao.
+                        </p>
+                    </div>
+
+                    <!-- 3 Article Cards directly on homepage -->
+                    <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 14px;">
+                        <p style="color: #fff; font-size: 0.8rem; font-weight: 800; margin: 0 0 10px 0; font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-newspaper" style="color: var(--accent-cyan);"></i> FREE FIRE GUIDES</p>
+
+                        <!-- Article 1 -->
+                        <a href="/free-fire-free-diamonds-2026" style="text-decoration: none; display: block; margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,215,0,0.04); border: 1px solid rgba(255,215,0,0.12); border-radius: 10px; padding: 10px; transition: border-color 0.2s;">
+                                <img src="/blog_img1.webp" alt="Free Fire Free Diamond Guide" width="54" height="54" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;">
+                                <div style="flex:1; min-width:0;">
+                                    <div style="color: var(--accent-gold); font-size: 0.65rem; font-weight: 700; margin-bottom: 3px;"><i class="fa-solid fa-fire"></i> TRENDING</div>
+                                    <div style="color: #fff; font-size: 0.78rem; font-weight: 700; line-height: 1.3; font-family: 'Outfit', sans-serif;">Free Fire Mein Free Diamond Kaise Le? (2026)</div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right" style="color: var(--accent-cyan); font-size: 0.75rem; flex-shrink:0;"></i>
+                            </div>
+                        </a>
+
+                        <!-- Article 2 -->
+                        <a href="/free-fire-diamond-uid-top-up" style="text-decoration: none; display: block; margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px; background: rgba(0,242,254,0.04); border: 1px solid rgba(0,242,254,0.12); border-radius: 10px; padding: 10px;">
+                                <img src="/blog_img2.webp" alt="Free Fire Diamond UID Top Up" width="54" height="54" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;">
+                                <div style="flex:1; min-width:0;">
+                                    <div style="color: var(--accent-cyan); font-size: 0.65rem; font-weight: 700; margin-bottom: 3px;"><i class="fa-solid fa-gem"></i> UID GUIDE</div>
+                                    <div style="color: #fff; font-size: 0.78rem; font-weight: 700; line-height: 1.3; font-family: 'Outfit', sans-serif;">Free Fire Diamond UID Top Up Free (2026)</div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right" style="color: var(--accent-cyan); font-size: 0.75rem; flex-shrink:0;"></i>
+                            </div>
+                        </a>
+
+                        <!-- Article 3 -->
+                        <a href="/free-fire-redeem-code-2026" style="text-decoration: none; display: block;">
+                            <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,69,0,0.04); border: 1px solid rgba(255,69,0,0.12); border-radius: 10px; padding: 10px;">
+                                <img src="/blog_img3.webp" alt="Free Fire Redeem Code 2026" width="54" height="54" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;">
+                                <div style="flex:1; min-width:0;">
+                                    <div style="color: var(--primary-fire); font-size: 0.65rem; font-weight: 700; margin-bottom: 3px;"><i class="fa-solid fa-key"></i> REDEEM CODES</div>
+                                    <div style="color: #fff; font-size: 0.78rem; font-weight: 700; line-height: 1.3; font-family: 'Outfit', sans-serif;">Free Fire Redeem Code Today 2026 (Active Codes)</div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right" style="color: var(--accent-cyan); font-size: 0.75rem; flex-shrink:0;"></i>
+                            </div>
+                        </a>
+                    </div>
                 </div>
-
-                <!-- 3 Article Cards directly on homepage -->
-                <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 14px;">
-                    <p style="color: #fff; font-size: 0.8rem; font-weight: 800; margin: 0 0 10px 0; font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-newspaper" style="color: var(--accent-cyan);"></i> FREE FIRE GUIDES</p>
-
-                    <!-- Article 1 -->
-                    <a href="/free-fire-free-diamonds-2026" style="text-decoration: none; display: block; margin-bottom: 8px;">
-                        <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,215,0,0.04); border: 1px solid rgba(255,215,0,0.12); border-radius: 10px; padding: 10px; transition: border-color 0.2s;">
-                            <img src="/blog_img1.webp" alt="Free Fire Free Diamond Guide" width="54" height="54" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;">
-                            <div style="flex:1; min-width:0;">
-                                <div style="color: var(--accent-gold); font-size: 0.65rem; font-weight: 700; margin-bottom: 3px;"><i class="fa-solid fa-fire"></i> TRENDING</div>
-                                <div style="color: #fff; font-size: 0.78rem; font-weight: 700; line-height: 1.3; font-family: 'Outfit', sans-serif;">Free Fire Mein Free Diamond Kaise Le? (2026)</div>
-                            </div>
-                            <i class="fa-solid fa-chevron-right" style="color: var(--accent-cyan); font-size: 0.75rem; flex-shrink:0;"></i>
-                        </div>
-                    </a>
-
-                    <!-- Article 2 -->
-                    <a href="/free-fire-diamond-uid-top-up" style="text-decoration: none; display: block; margin-bottom: 8px;">
-                        <div style="display: flex; align-items: center; gap: 10px; background: rgba(0,242,254,0.04); border: 1px solid rgba(0,242,254,0.12); border-radius: 10px; padding: 10px;">
-                            <img src="/blog_img2.webp" alt="Free Fire Diamond UID Top Up" width="54" height="54" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;">
-                            <div style="flex:1; min-width:0;">
-                                <div style="color: var(--accent-cyan); font-size: 0.65rem; font-weight: 700; margin-bottom: 3px;"><i class="fa-solid fa-gem"></i> UID GUIDE</div>
-                                <div style="color: #fff; font-size: 0.78rem; font-weight: 700; line-height: 1.3; font-family: 'Outfit', sans-serif;">Free Fire Diamond UID Top Up Free (2026)</div>
-                            </div>
-                            <i class="fa-solid fa-chevron-right" style="color: var(--accent-cyan); font-size: 0.75rem; flex-shrink:0;"></i>
-                        </div>
-                    </a>
-
-                    <!-- Article 3 -->
-                    <a href="/free-fire-redeem-code-2026" style="text-decoration: none; display: block;">
-                        <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,69,0,0.04); border: 1px solid rgba(255,69,0,0.12); border-radius: 10px; padding: 10px;">
-                            <img src="/blog_img3.webp" alt="Free Fire Redeem Code 2026" width="54" height="54" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;">
-                            <div style="flex:1; min-width:0;">
-                                <div style="color: var(--primary-fire); font-size: 0.65rem; font-weight: 700; margin-bottom: 3px;"><i class="fa-solid fa-key"></i> REDEEM CODES</div>
-                                <div style="color: #fff; font-size: 0.78rem; font-weight: 700; line-height: 1.3; font-family: 'Outfit', sans-serif;">Free Fire Redeem Code Today 2026 (Active Codes)</div>
-                            </div>
-                            <i class="fa-solid fa-chevron-right" style="color: var(--accent-cyan); font-size: 0.75rem; flex-shrink:0;"></i>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </section>
-        <!-- ===== END STATIC SEO BLOCK ===== -->
+            </section>
+            <!-- ===== END STATIC SEO BLOCK ===== -->
 
         </main>
 
@@ -512,7 +387,7 @@
         <div class="modal-card">
             <div class="modal-icon"><i class="fa-solid fa-circle-check"></i></div>
             <h3>REQUEST SENT!</h3>
-            <p>Your diamond payout request has been sent. Diamonds will be received within 7 - 30 working days.</p>
+            <p>Your diamond payout request has been submitted directly to the database.</p>
             <div class="modal-details-box">
                 <div><span class="modal-label">Amount:</span> <span class="modal-val" id="modal-amount">-</span></div>
                 <div><span class="modal-label">Player UID:</span> <span class="modal-val" id="modal-uid">123456789</span></div>
@@ -535,68 +410,26 @@
             </p>
             <div id="daily-visit-countdown" style="font-size: 2.2rem; font-weight: 800; color: var(--accent-cyan); margin: 15px 0;">15s</div>
             <div id="daily-visit-action-box" style="display: none; margin-top: 15px;">
-                <button class="btn-primary" style="width: 100%; background: linear-gradient(135deg, #00e676, #00c853); color: #000; font-weight: 800;" onclick="app.claimActiveVisitReward()">CLAIM DIAMONDS</button>
+                <button class="btn-primary" style="width: 100%; background: linear-gradient(135deg, #00e676, #00c853); color: #000; font-weight: 800;" onclick="app.claimActiveVisitReward()">CLAIM +5 DIAMONDS</button>
             </div>
             <div id="daily-visit-resume-box" style="display: none; margin-top: 15px;">
                 <button class="btn-primary" style="width: 100%; background: linear-gradient(135deg, var(--accent-cyan), #00d2ff); color: #000; font-weight: 800;" onclick="app.resumeDailyVisit()">CONTINUE VISIT</button>
             </div>
-            <p style="color: #ff1744; font-size: 0.75rem; font-weight: bold; margin-top: 10px;" id="dv-warning-text"><i class="fa-solid fa-triangle-exclamation"></i> Do not close this app or tab!</p>
+            <p style="color: #ff1744; font-size: 0.75rem; font-weight: bold; margin-top: 10px;" id="dv-warning-text"><i class="fa-solid fa-triangle-exclamation"></i> Do not close this page!</p>
         </div>
     </div>
 
-
-
-    <!-- Noscript Crawler Fallback - keyword rich for JS-disabled crawlers -->
+    <!-- Noscript Crawler Fallback -->
     <noscript>
         <div style="padding: 20px; color: #fff; text-align: center; background: #0a0a0f;">
             <h2>Free Diamond - Free Fire Mein Free Diamonds Pao</h2>
-            <p>FreeDiamond.in India ka #1 free diamond platform hai. Free Fire aur Free Fire Max players yahan se 520, 1060, 2180 aur 5600 free diamonds apne Player UID pe directly redeem kar sakte hain. Daily shortener missions complete karo, coins earn karo, aur free diamonds pao - koi hack nahi, koi ban risk nahi.</p>
-            <p><strong>Kaise kaam karta hai:</strong> Free Fire UID enter karo → Daily Missions complete karo → Diamonds earn karo → REDEEM tab se apna diamond package seedha apne Free Fire account mein receive karo.</p>
-            <p>Ab Free Fire mein character, skins, elite pass aur bundles free mein unlock karo sirf FreeDiamond.in ke through!</p>
+            <p>FreeDiamond.in India ka #1 free diamond platform hai. Daily missions complete karo, coins earn karo, aur 520, 1060, 2180 aur 5600 free diamonds apne Player UID pe directly redeem karo.</p>
         </div>
     </noscript>
 
-    <!-- Welcome Guide Modal - First Time New Users Only -->
-    <div id="welcome-modal" class="modal-overlay hidden" style="display:none; z-index: 99999;">
-        <div class="modal-card" style="max-width: 340px; text-align: center; padding: 28px 22px;">
-            <div style="font-size: 2.8rem; margin-bottom: 6px;">🎉</div>
-            <h3 style="color: var(--accent-gold); font-size: 1.15rem; font-weight: 800; margin-bottom: 6px; font-family: 'Outfit', sans-serif;">WELCOME TO FREEDIAMOND.IN!</h3>
-            <p style="color: var(--text-muted); font-size: 0.8rem; line-height: 1.5; margin-bottom: 18px;">Free diamonds earn karna sirf 3 steps mein hai:</p>
-
-            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; text-align: left;">
-                <div style="background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.25); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 1.4rem;">📋</span>
-                    <div>
-                        <div style="color: #fff; font-weight: 700; font-size: 0.82rem;">Step 1 - TASKS Tab Kholo</div>
-                        <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 2px;">Daily shortener links complete karo</div>
-                    </div>
-                </div>
-                <div style="background: rgba(0,242,254,0.08); border: 1px solid rgba(0,242,254,0.25); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 1.4rem;">💰</span>
-                    <div>
-                        <div style="color: #fff; font-weight: 700; font-size: 0.82rem;">Step 2 - Coins Earn Karo</div>
-                        <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 2px;">Har link complete = 5-10 diamonds coins</div>
-                    </div>
-                </div>
-                <div style="background: rgba(0,230,118,0.08); border: 1px solid rgba(0,230,118,0.25); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 1.4rem;">💎</span>
-                    <div>
-                        <div style="color: #fff; font-weight: 700; font-size: 0.82rem;">Step 3 - Diamonds Redeem Karo</div>
-                        <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 2px;">520 coins pe pehla diamond pack redeem karo</div>
-                    </div>
-                </div>
-            </div>
-
-            <button id="welcome-start-btn" class="btn-primary" onclick="app.closeWelcomeModal()" style="width: 100%; background: linear-gradient(135deg, var(--accent-gold), #ff9100); color: #020617; font-weight: 800; padding: 14px; font-size: 0.95rem; border-radius: 10px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-bolt"></i> START EARNING NOW →
-            </button>
-        </div>
-    </div>
-
+    <!-- Firebase App & Firestore -->
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-functions-compat.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check-compat.js"></script>
-    <script defer src="app.js?v=3.0.0"></script>
+    <script defer src="app.js?v=4.0.0"></script>
 </body>
 </html>
