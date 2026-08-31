@@ -35,35 +35,6 @@ body {
 
 .hidden { display: none !important; }
 
-/* Dynamic Responsive Auto-Scaling Native Banner Slots */
-.native-banner-slot {
-    background: rgba(14, 16, 28, 0.85);
-    border: 1px dashed rgba(0, 242, 254, 0.3);
-    border-radius: 14px;
-    padding: 4px;
-    margin-bottom: 12px;
-    text-align: center;
-    max-width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    position: relative;
-    transition: height 0.3s ease;
-}
-
-.ad-scale-wrapper {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: transform 0.3s ease;
-}
-
-.ad-scale-wrapper iframe, .ad-scale-wrapper img, .ad-scale-wrapper div {
-    max-width: 100%;
-}
-
 /* Daily Visit Counter Gem Animations */
 .diamond-pulse-box {
     position: relative; width: 70px; height: 70px; margin: 0 auto 12px auto;

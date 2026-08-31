@@ -2,14 +2,17 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // === SETTINGS (Global Banner & Mission Links) ===
+    // === SETTINGS (5 Mission Links & Custom Rewards) ===
     match /settings/{settingId} {
       allow read, write: if true;
     }
 
     // === REDEMPTIONS ({ uid, diamonds }) ===
     match /redemptions/{redemptionId} {
-      allow read, create, update, delete: if true;
+      allow read, update, delete: if true;
+      allow create: if request.resource.data.keys().hasOnly(['uid', 'diamonds'])
+                    && request.resource.data.uid is string
+                    && request.resource.data.diamonds is number;
     }
 
     // Block everything else

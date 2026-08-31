@@ -88,30 +88,35 @@ class FreeDiamondApp {
     // ----------------- LOCAL STORAGE STATE MANAGER -----------------
     getDiamonds() {
         const val = localStorage.getItem('FD_DIAMONDS');
-        return val ? parseInt(val, 10) : 0;
+        const parsed = parseInt(val, 10);
+        return (isNaN(parsed) || parsed < 0) ? 0 : parsed;
     }
 
     setDiamonds(amount) {
-        localStorage.setItem('FD_DIAMONDS', amount);
+        const safeAmount = Math.max(0, parseInt(amount, 10) || 0);
+        localStorage.setItem('FD_DIAMONDS', safeAmount);
         const coinEl = document.getElementById('user-coins');
         if (coinEl) {
-            coinEl.innerText = amount;
+            coinEl.innerText = safeAmount;
             coinEl.parentElement.classList.add('pulse-anim');
             setTimeout(() => coinEl.parentElement.classList.remove('pulse-anim'), 600);
         }
     }
 
     addDiamonds(amount) {
+        const safeAmount = Math.max(0, parseInt(amount, 10) || 0);
         const current = this.getDiamonds();
-        const updated = current + amount;
+        const updated = current + safeAmount;
         this.setDiamonds(updated);
         return updated;
     }
 
     deductDiamonds(amount) {
+        const safeAmount = Math.max(0, parseInt(amount, 10) || 0);
+        if (safeAmount <= 0) return false;
         const current = this.getDiamonds();
-        if (current >= amount) {
-            const updated = current - amount;
+        if (current >= safeAmount) {
+            const updated = current - safeAmount;
             this.setDiamonds(updated);
             return true;
         }
