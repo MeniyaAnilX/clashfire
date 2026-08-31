@@ -114,33 +114,71 @@ class FreeDiamondApp {
         slot.style.display = 'flex';
         slot.style.justifyContent = 'center';
         slot.style.alignItems = 'center';
-        slot.style.margin = '8px 0 14px 0';
+        slot.style.margin = '10px 0 16px 0';
         slot.style.width = '100%';
         slot.style.minHeight = '50px';
-        slot.style.overflow = 'hidden';
+        slot.innerHTML = '';
 
-        if (code.includes('<script') || code.includes('atOptions') || code.includes('invoke.js')) {
-            const iframe = document.createElement('iframe');
-            iframe.style.border = 'none';
-            iframe.style.width = '100%';
-            iframe.style.maxWidth = '320px';
-            iframe.style.height = '60px';
-            iframe.style.overflow = 'hidden';
-            iframe.scrolling = 'no';
-            slot.innerHTML = '';
-            slot.appendChild(iframe);
-
+        // Case 1: Adsterra atOptions banner tag
+        if (code.includes('atOptions') && code.includes('invoke.js')) {
             try {
-                const doc = iframe.contentWindow.document;
-                doc.open();
-                doc.write(`<!DOCTYPE html><html><head><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;}</style></head><body>${code}</body></html>`);
-                doc.close();
-            } catch (e) {
-                slot.innerHTML = code;
+                const keyMatch = code.match(/'key'\s*:\s*'([^']+)'/) || code.match(/"key"\s*:\s*"([^"]+)"/);
+                const widthMatch = code.match(/'width'\s*:\s*(\d+)/) || code.match(/"width"\s*:\s*(\d+)/);
+                const heightMatch = code.match(/'height'\s*:\s*(\d+)/) || code.match(/"height"\s*:\s*(\d+)/);
+                const srcMatch = code.match(/src=["']([^"']+)["']/);
+
+                const key = keyMatch ? keyMatch[1] : '2ef55ef75efbf9b7d2e506d60b2c417c';
+                const width = widthMatch ? parseInt(widthMatch[1], 10) : 320;
+                const height = heightMatch ? parseInt(heightMatch[1], 10) : 50;
+                const src = srcMatch ? srcMatch[1] : `https://www.highrevenueformat.com/${key}/invoke.js`;
+
+                window.atOptions = {
+                    'key': key,
+                    'format': 'iframe',
+                    'height': height,
+                    'width': width,
+                    'params': {}
+                };
+
+                const adContainer = document.createElement('div');
+                adContainer.id = 'adsterra-banner-wrapper';
+                adContainer.style.width = `${width}px`;
+                adContainer.style.height = `${height}px`;
+                adContainer.style.overflow = 'hidden';
+                adContainer.style.margin = '0 auto';
+                slot.appendChild(adContainer);
+
+                const script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = src;
+                adContainer.appendChild(script);
+                return;
+            } catch(e) {
+                console.error("Adsterra parse error:", e);
             }
-        } else {
-            slot.innerHTML = code;
         }
+
+        // Case 2: Standard HTML / Generic Script Tags
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = code;
+        const scripts = Array.from(tempDiv.querySelectorAll('script'));
+
+        Array.from(tempDiv.childNodes).forEach(node => {
+            if (node.tagName !== 'SCRIPT') {
+                slot.appendChild(node.cloneNode(true));
+            }
+        });
+
+        scripts.forEach(s => {
+            const newScript = document.createElement('script');
+            Array.from(s.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+            if (s.src) {
+                newScript.src = s.src;
+            } else {
+                newScript.textContent = s.textContent;
+            }
+            slot.appendChild(newScript);
+        });
     }
 
     // ----------------- LOCAL STORAGE STATE MANAGER -----------------
