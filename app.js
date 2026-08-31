@@ -27,10 +27,6 @@ class FreeDiamondApp {
             { id: 5, title: "Daily Mission #5", reward: 5, url: "https://www.freediamond.in/free-fire-free-diamonds-2026" }
         ];
 
-        this.adSettings = {
-            bannerCode: ''
-        };
-
         this.activeVisitTask = null;
         this.visitTimerInterval = null;
         this.countdownSeconds = 15;
@@ -46,8 +42,8 @@ class FreeDiamondApp {
         this.startDailyResetTimer();
         this.startLiveProofsTicker();
         
-        // Dynamic fetch from Firestore (5 links, custom diamond rewards & top banner ad tag)
-        await this.syncSettingsFromFirestore();
+        // Dynamic fetch from Firestore for 5 Daily Mission links & custom rewards
+        await this.syncMissionsFromFirestore();
     }
 
     // ----------------- FIREBASE INITIALIZATION -----------------
@@ -65,12 +61,11 @@ class FreeDiamondApp {
         }
     }
 
-    // ----------------- SYNC SETTINGS & BANNER FROM FIRESTORE -----------------
-    async syncSettingsFromFirestore() {
+    // ----------------- SYNC 5 DAILY MISSIONS FROM FIRESTORE -----------------
+    async syncMissionsFromFirestore() {
         if (!this.db) return;
 
         try {
-            // 1. Real-time Sync for 5 Daily Mission Links & Custom Rewards
             this.db.collection("settings").doc("links").onSnapshot(doc => {
                 if (doc.exists && doc.data().items && Array.isArray(doc.data().items)) {
                     const items = doc.data().items.slice(0, 5);
@@ -85,115 +80,9 @@ class FreeDiamondApp {
                     }
                 }
             }, err => console.warn("Links listener:", err));
-
-            // 2. Real-time Sync for Single Header Banner Ad
-            this.db.collection("settings").doc("global").onSnapshot(doc => {
-                if (doc.exists) {
-                    const gData = doc.data();
-                    this.adSettings.bannerCode = gData.adScriptBanner || '';
-                    this.injectBannerAd();
-                }
-            }, err => console.warn("Global settings listener:", err));
-
         } catch (err) {
             console.warn("Firestore sync warning (using defaults):", err);
         }
-    }
-
-    injectBannerAd() {
-        const slot = document.getElementById('header-banner-slot');
-        if (!slot) return;
-
-        const code = this.adSettings.bannerCode ? this.adSettings.bannerCode.trim() : '';
-        if (!code) {
-            slot.innerHTML = '';
-            slot.style.display = 'none';
-            return;
-        }
-
-        slot.style.display = 'flex';
-        slot.style.justifyContent = 'center';
-        slot.style.alignItems = 'center';
-        slot.style.margin = '10px 0 16px 0';
-        slot.style.width = '100%';
-        slot.style.minHeight = '50px';
-        slot.innerHTML = '';
-
-        // Case 1: Adsterra atOptions banner tag (parsed 100% dynamically from Admin Panel input)
-        if (code.includes('atOptions') && code.includes('invoke.js')) {
-            try {
-                const keyMatch = code.match(/'key'\s*:\s*'([^']+)'/) || code.match(/"key"\s*:\s*"([^"]+)"/);
-                const widthMatch = code.match(/'width'\s*:\s*(\d+)/) || code.match(/"width"\s*:\s*(\d+)/);
-                const heightMatch = code.match(/'height'\s*:\s*(\d+)/) || code.match(/"height"\s*:\s*(\d+)/);
-                const srcMatch = code.match(/src=["']([^"']+)["']/);
-
-                if (keyMatch && srcMatch) {
-                    const key = keyMatch[1];
-                    const width = widthMatch ? parseInt(widthMatch[1], 10) : 320;
-                    const height = heightMatch ? parseInt(heightMatch[1], 10) : 50;
-                    const src = srcMatch[1];
-
-                    const iframe = document.createElement('iframe');
-                    iframe.style.border = 'none';
-                    iframe.style.width = `${width}px`;
-                    iframe.style.height = `${height}px`;
-                    iframe.style.maxWidth = '100%';
-                    iframe.style.overflow = 'hidden';
-                    iframe.scrolling = 'no';
-                    iframe.setAttribute('frameborder', '0');
-
-                    iframe.srcdoc = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<base href="https://www.freediamond.in/">
-<style>
-body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; overflow: hidden; }
-</style>
-</head>
-<body>
-<script type="text/javascript">
-atOptions = {
-    'key' : '${key}',
-    'format' : 'iframe',
-    'height' : ${height},
-    'width' : ${width},
-    'params' : {}
-};
-<\/script>
-<script type="text/javascript" src="${src}"><\/script>
-</body>
-</html>`;
-
-                    slot.appendChild(iframe);
-                    return;
-                }
-            } catch(e) {
-                console.error("Dynamic banner parse error:", e);
-            }
-        }
-
-        // Case 2: Standard HTML / Generic Script Tags (Monetag / AdSense / HTML Links)
-        const iframe = document.createElement('iframe');
-        iframe.style.border = 'none';
-        iframe.style.width = '100%';
-        iframe.style.maxWidth = '320px';
-        iframe.style.height = '60px';
-        iframe.style.overflow = 'hidden';
-        iframe.scrolling = 'no';
-        iframe.setAttribute('frameborder', '0');
-
-        iframe.srcdoc = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<base href="https://www.freediamond.in/">
-<style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;}</style>
-</head>
-<body>${code}</body>
-</html>`;
-
-        slot.appendChild(iframe);
     }
 
     // ----------------- LOCAL STORAGE STATE MANAGER -----------------
