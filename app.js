@@ -133,26 +133,39 @@ class FreeDiamondApp {
                     const height = heightMatch ? parseInt(heightMatch[1], 10) : 50;
                     const src = srcMatch[1];
 
-                    window.atOptions = {
-                        'key': key,
-                        'format': 'iframe',
-                        'height': height,
-                        'width': width,
-                        'params': {}
-                    };
+                    const iframe = document.createElement('iframe');
+                    iframe.style.border = 'none';
+                    iframe.style.width = `${width}px`;
+                    iframe.style.height = `${height}px`;
+                    iframe.style.maxWidth = '100%';
+                    iframe.style.overflow = 'hidden';
+                    iframe.scrolling = 'no';
+                    iframe.setAttribute('frameborder', '0');
 
-                    const adContainer = document.createElement('div');
-                    adContainer.id = 'adsterra-banner-wrapper';
-                    adContainer.style.width = `${width}px`;
-                    adContainer.style.height = `${height}px`;
-                    adContainer.style.overflow = 'hidden';
-                    adContainer.style.margin = '0 auto';
-                    slot.appendChild(adContainer);
+                    iframe.srcdoc = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<base href="https://www.freediamond.in/">
+<style>
+body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; overflow: hidden; }
+</style>
+</head>
+<body>
+<script type="text/javascript">
+atOptions = {
+    'key' : '${key}',
+    'format' : 'iframe',
+    'height' : ${height},
+    'width' : ${width},
+    'params' : {}
+};
+<\/script>
+<script type="text/javascript" src="${src}"><\/script>
+</body>
+</html>`;
 
-                    const script = document.createElement('script');
-                    script.type = 'text/javascript';
-                    script.src = src;
-                    adContainer.appendChild(script);
+                    slot.appendChild(iframe);
                     return;
                 }
             } catch(e) {
@@ -160,27 +173,27 @@ class FreeDiamondApp {
             }
         }
 
-        // Case 2: Standard HTML / Generic Script Tags
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = code;
-        const scripts = Array.from(tempDiv.querySelectorAll('script'));
+        // Case 2: Standard HTML / Generic Script Tags (Monetag / AdSense / HTML Links)
+        const iframe = document.createElement('iframe');
+        iframe.style.border = 'none';
+        iframe.style.width = '100%';
+        iframe.style.maxWidth = '320px';
+        iframe.style.height = '60px';
+        iframe.style.overflow = 'hidden';
+        iframe.scrolling = 'no';
+        iframe.setAttribute('frameborder', '0');
 
-        Array.from(tempDiv.childNodes).forEach(node => {
-            if (node.tagName !== 'SCRIPT') {
-                slot.appendChild(node.cloneNode(true));
-            }
-        });
+        iframe.srcdoc = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<base href="https://www.freediamond.in/">
+<style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;}</style>
+</head>
+<body>${code}</body>
+</html>`;
 
-        scripts.forEach(s => {
-            const newScript = document.createElement('script');
-            Array.from(s.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-            if (s.src) {
-                newScript.src = s.src;
-            } else {
-                newScript.textContent = s.textContent;
-            }
-            slot.appendChild(newScript);
-        });
+        slot.appendChild(iframe);
     }
 
     // ----------------- LOCAL STORAGE STATE MANAGER -----------------
