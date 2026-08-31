@@ -70,28 +70,31 @@ class FreeDiamondApp {
         if (!this.db) return;
 
         try {
-            // 1. Sync 5 Daily Mission Links & Custom Rewards
-            const linksDoc = await this.db.collection("settings").doc("links").get();
-            if (linksDoc.exists && linksDoc.data().items && Array.isArray(linksDoc.data().items)) {
-                const items = linksDoc.data().items.slice(0, 5);
-                if (items.length > 0) {
-                    this.dailyMissions = items.map((m, idx) => ({
-                        id: m.id || (idx + 1),
-                        title: m.title || `Daily Mission #${idx + 1}`,
-                        reward: parseInt(m.reward, 10) || 5,
-                        url: m.url || "https://www.freediamond.in"
-                    }));
-                    this.renderMissions();
+            // 1. Real-time Sync for 5 Daily Mission Links & Custom Rewards
+            this.db.collection("settings").doc("links").onSnapshot(doc => {
+                if (doc.exists && doc.data().items && Array.isArray(doc.data().items)) {
+                    const items = doc.data().items.slice(0, 5);
+                    if (items.length > 0) {
+                        this.dailyMissions = items.map((m, idx) => ({
+                            id: m.id || (idx + 1),
+                            title: m.title || `Daily Mission #${idx + 1}`,
+                            reward: parseInt(m.reward, 10) || 5,
+                            url: m.url || "https://www.freediamond.in"
+                        }));
+                        this.renderMissions();
+                    }
                 }
-            }
+            }, err => console.warn("Links listener:", err));
 
-            // 2. Sync Single Header Banner Ad
-            const globalDoc = await this.db.collection("settings").doc("global").get();
-            if (globalDoc.exists) {
-                const gData = globalDoc.data();
-                this.adSettings.bannerCode = gData.adScriptBanner || '';
-                this.injectBannerAd();
-            }
+            // 2. Real-time Sync for Single Header Banner Ad
+            this.db.collection("settings").doc("global").onSnapshot(doc => {
+                if (doc.exists) {
+                    const gData = doc.data();
+                    this.adSettings.bannerCode = gData.adScriptBanner || '';
+                    this.injectBannerAd();
+                }
+            }, err => console.warn("Global settings listener:", err));
+
         } catch (err) {
             console.warn("Firestore sync warning (using defaults):", err);
         }
@@ -101,20 +104,42 @@ class FreeDiamondApp {
         const slot = document.getElementById('header-banner-slot');
         if (!slot) return;
 
-        if (this.adSettings.bannerCode && this.adSettings.bannerCode.trim()) {
-            slot.innerHTML = this.adSettings.bannerCode;
-            slot.classList.remove('hidden');
-            
-            // Execute any embedded scripts in banner code
-            Array.from(slot.querySelectorAll('script')).forEach(oldScript => {
-                const newScript = document.createElement('script');
-                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-                slot.appendChild(newScript);
-            });
-        } else {
+        const code = this.adSettings.bannerCode ? this.adSettings.bannerCode.trim() : '';
+        if (!code) {
             slot.innerHTML = '';
-            slot.classList.add('hidden');
+            slot.style.display = 'none';
+            return;
+        }
+
+        slot.style.display = 'flex';
+        slot.style.justifyContent = 'center';
+        slot.style.alignItems = 'center';
+        slot.style.margin = '8px 0 14px 0';
+        slot.style.width = '100%';
+        slot.style.minHeight = '50px';
+        slot.style.overflow = 'hidden';
+
+        if (code.includes('<script') || code.includes('atOptions') || code.includes('invoke.js')) {
+            const iframe = document.createElement('iframe');
+            iframe.style.border = 'none';
+            iframe.style.width = '100%';
+            iframe.style.maxWidth = '320px';
+            iframe.style.height = '60px';
+            iframe.style.overflow = 'hidden';
+            iframe.scrolling = 'no';
+            slot.innerHTML = '';
+            slot.appendChild(iframe);
+
+            try {
+                const doc = iframe.contentWindow.document;
+                doc.open();
+                doc.write(`<!DOCTYPE html><html><head><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;}</style></head><body>${code}</body></html>`);
+                doc.close();
+            } catch (e) {
+                slot.innerHTML = code;
+            }
+        } else {
+            slot.innerHTML = code;
         }
     }
 
