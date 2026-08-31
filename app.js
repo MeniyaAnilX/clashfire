@@ -222,28 +222,55 @@ class FreeDiamondApp {
 
             const card = document.createElement('div');
             card.className = `link-card ${isDone ? 'completed' : ''}`;
-            card.innerHTML = `
-                <div class="link-info">
-                    <div class="link-icon-box" style="${isDone ? 'border-color: #00e676;' : ''}">
-                        <img src="diamond.png" alt="Diamond" width="22" height="22" loading="lazy" style="width: 22px; height: 22px;">
-                    </div>
-                    <div class="link-details">
-                        <h3>${m.title}</h3>
-                        <p style="color: ${isDone ? '#00e676' : 'var(--accent-gold)'}; font-weight: 700;">
-                            ${isDone ? '<i class="fa-solid fa-circle-check"></i> Completed' : `Reward: +${rewardAmt} Diamonds`}
-                        </p>
-                    </div>
-                </div>
-                ${!isDone ? `
-                    <button class="btn-primary" onclick="app.startDailyMission(${m.id})">
-                        VISIT LINK
-                    </button>
-                ` : `
-                    <button class="btn-primary" style="background: rgba(0,230,118,0.15); color: #00e676; border: 1px solid rgba(0,230,118,0.3);" disabled>
-                        <i class="fa-solid fa-check"></i> DONE
-                    </button>
-                `}
-            `;
+
+            // Safe DOM construction — no innerHTML with Firestore data (XSS prevention)
+            const linkInfo = document.createElement('div');
+            linkInfo.className = 'link-info';
+
+            const iconBox = document.createElement('div');
+            iconBox.className = 'link-icon-box';
+            if (isDone) iconBox.style.borderColor = '#00e676';
+            const iconImg = document.createElement('img');
+            iconImg.src = 'diamond.png';
+            iconImg.alt = 'Diamond';
+            iconImg.width = 22; iconImg.height = 22;
+            iconImg.loading = 'lazy';
+            iconImg.style.cssText = 'width:22px;height:22px;';
+            iconBox.appendChild(iconImg);
+
+            const details = document.createElement('div');
+            details.className = 'link-details';
+
+            const titleEl = document.createElement('h3');
+            titleEl.textContent = m.title; // textContent — safe, no HTML injection
+
+            const rewardEl = document.createElement('p');
+            rewardEl.style.fontWeight = '700';
+            if (isDone) {
+                rewardEl.style.color = '#00e676';
+                rewardEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> Completed';
+            } else {
+                rewardEl.style.color = 'var(--accent-gold)';
+                rewardEl.textContent = `Reward: +${rewardAmt} Diamonds`;
+            }
+
+            details.appendChild(titleEl);
+            details.appendChild(rewardEl);
+            linkInfo.appendChild(iconBox);
+            linkInfo.appendChild(details);
+            card.appendChild(linkInfo);
+
+            const btn = document.createElement('button');
+            btn.className = 'btn-primary';
+            if (isDone) {
+                btn.style.cssText = 'background:rgba(0,230,118,0.15);color:#00e676;border:1px solid rgba(0,230,118,0.3);';
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> DONE';
+            } else {
+                btn.textContent = 'VISIT LINK';
+                btn.onclick = () => app.startDailyMission(m.id);
+            }
+            card.appendChild(btn);
             container.appendChild(card);
         });
     }
@@ -262,17 +289,38 @@ class FreeDiamondApp {
         history.forEach(h => {
             const item = document.createElement('div');
             item.className = 'history-item';
-            item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 10px 14px; border-radius: 10px; margin-bottom: 8px; font-size: 0.82rem;';
-            item.innerHTML = `
-                <div>
-                    <div style="font-weight: 700; color: #fff;">UID: ${h.uid}</div>
-                    <div style="font-size: 0.72rem; color: var(--text-muted);">${h.date}</div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-weight: 800; color: var(--accent-cyan);">${h.diamonds} 💎</div>
-                    <span style="font-size: 0.7rem; color: var(--accent-gold); font-weight: 700;">PENDING</span>
-                </div>
-            `;
+            item.style.cssText = 'display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:10px 14px;border-radius:10px;margin-bottom:8px;font-size:0.82rem;';
+
+            // Safe DOM construction — textContent prevents XSS from localStorage data
+            const leftDiv = document.createElement('div');
+
+            const uidDiv = document.createElement('div');
+            uidDiv.style.cssText = 'font-weight:700;color:#fff;';
+            uidDiv.textContent = `UID: ${h.uid}`;
+
+            const dateDiv = document.createElement('div');
+            dateDiv.style.cssText = 'font-size:0.72rem;color:var(--text-muted);';
+            dateDiv.textContent = h.date;
+
+            leftDiv.appendChild(uidDiv);
+            leftDiv.appendChild(dateDiv);
+
+            const rightDiv = document.createElement('div');
+            rightDiv.style.textAlign = 'right';
+
+            const diamondDiv = document.createElement('div');
+            diamondDiv.style.cssText = 'font-weight:800;color:var(--accent-cyan);';
+            diamondDiv.textContent = `${h.diamonds} 💎`;
+
+            const statusSpan = document.createElement('span');
+            statusSpan.style.cssText = 'font-size:0.7rem;color:var(--accent-gold);font-weight:700;';
+            statusSpan.textContent = 'PENDING';
+
+            rightDiv.appendChild(diamondDiv);
+            rightDiv.appendChild(statusSpan);
+
+            item.appendChild(leftDiv);
+            item.appendChild(rightDiv);
             container.appendChild(item);
         });
     }
