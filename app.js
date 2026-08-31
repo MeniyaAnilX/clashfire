@@ -119,7 +119,7 @@ class FreeDiamondApp {
         slot.style.minHeight = '50px';
         slot.innerHTML = '';
 
-        // Case 1: Adsterra atOptions banner tag
+        // Case 1: Adsterra atOptions banner tag (parsed 100% dynamically from Admin Panel input)
         if (code.includes('atOptions') && code.includes('invoke.js')) {
             try {
                 const keyMatch = code.match(/'key'\s*:\s*'([^']+)'/) || code.match(/"key"\s*:\s*"([^"]+)"/);
@@ -127,34 +127,36 @@ class FreeDiamondApp {
                 const heightMatch = code.match(/'height'\s*:\s*(\d+)/) || code.match(/"height"\s*:\s*(\d+)/);
                 const srcMatch = code.match(/src=["']([^"']+)["']/);
 
-                const key = keyMatch ? keyMatch[1] : '2ef55ef75efbf9b7d2e506d60b2c417c';
-                const width = widthMatch ? parseInt(widthMatch[1], 10) : 320;
-                const height = heightMatch ? parseInt(heightMatch[1], 10) : 50;
-                const src = srcMatch ? srcMatch[1] : `https://www.highrevenueformat.com/${key}/invoke.js`;
+                if (keyMatch && srcMatch) {
+                    const key = keyMatch[1];
+                    const width = widthMatch ? parseInt(widthMatch[1], 10) : 320;
+                    const height = heightMatch ? parseInt(heightMatch[1], 10) : 50;
+                    const src = srcMatch[1];
 
-                window.atOptions = {
-                    'key': key,
-                    'format': 'iframe',
-                    'height': height,
-                    'width': width,
-                    'params': {}
-                };
+                    window.atOptions = {
+                        'key': key,
+                        'format': 'iframe',
+                        'height': height,
+                        'width': width,
+                        'params': {}
+                    };
 
-                const adContainer = document.createElement('div');
-                adContainer.id = 'adsterra-banner-wrapper';
-                adContainer.style.width = `${width}px`;
-                adContainer.style.height = `${height}px`;
-                adContainer.style.overflow = 'hidden';
-                adContainer.style.margin = '0 auto';
-                slot.appendChild(adContainer);
+                    const adContainer = document.createElement('div');
+                    adContainer.id = 'adsterra-banner-wrapper';
+                    adContainer.style.width = `${width}px`;
+                    adContainer.style.height = `${height}px`;
+                    adContainer.style.overflow = 'hidden';
+                    adContainer.style.margin = '0 auto';
+                    slot.appendChild(adContainer);
 
-                const script = document.createElement('script');
-                script.type = 'text/javascript';
-                script.src = src;
-                adContainer.appendChild(script);
-                return;
+                    const script = document.createElement('script');
+                    script.type = 'text/javascript';
+                    script.src = src;
+                    adContainer.appendChild(script);
+                    return;
+                }
             } catch(e) {
-                console.error("Adsterra parse error:", e);
+                console.error("Dynamic banner parse error:", e);
             }
         }
 
