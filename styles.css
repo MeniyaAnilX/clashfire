@@ -13,8 +13,24 @@
 * {
     box-sizing: border-box;
     margin: 0; padding: 0;
-    user-select: none;
     -webkit-tap-highlight-color: transparent;
+}
+
+/* user-select: none only on interactive UI — NOT on content/text */
+.tab-btn,
+.btn-primary,
+.btn-share,
+.btn-redeem,
+.wallet-badge,
+.package-card,
+.banner-card,
+.banner-badge,
+.countdown-timer,
+#global-loader,
+.modal-overlay,
+.modal-card h3,
+#daily-visit-countdown {
+    user-select: none;
 }
 
 body {
