@@ -28,15 +28,12 @@ class FreeDiamondApp {
         ];
 
         this.adSettings = {
-            popunderEnabled: false,
-            popunderCode: '',
             bannerCode: ''
         };
 
         this.activeVisitTask = null;
         this.visitTimerInterval = null;
         this.countdownSeconds = 15;
-        this.popunderTriggered = false;
 
         this.init();
     }
@@ -49,7 +46,7 @@ class FreeDiamondApp {
         this.startDailyResetTimer();
         this.startLiveProofsTicker();
         
-        // Dynamic fetch from Firestore (links, custom diamond rewards & ad tags)
+        // Dynamic fetch from Firestore (5 links, custom diamond rewards & top banner ad tag)
         await this.syncSettingsFromFirestore();
     }
 
@@ -68,7 +65,7 @@ class FreeDiamondApp {
         }
     }
 
-    // ----------------- SYNC SETTINGS & ADS FROM FIRESTORE -----------------
+    // ----------------- SYNC SETTINGS & BANNER FROM FIRESTORE -----------------
     async syncSettingsFromFirestore() {
         if (!this.db) return;
 
@@ -88,52 +85,36 @@ class FreeDiamondApp {
                 }
             }
 
-            // 2. Sync Popunder & Banner Ads
+            // 2. Sync Single Header Banner Ad
             const globalDoc = await this.db.collection("settings").doc("global").get();
             if (globalDoc.exists) {
                 const gData = globalDoc.data();
-                this.adSettings.popunderEnabled = gData.adScriptPopunderEnabled === true;
-                this.adSettings.popunderCode = gData.adScriptPopunder || '';
                 this.adSettings.bannerCode = gData.adScriptBanner || '';
-
-                this.injectAds();
+                this.injectBannerAd();
             }
         } catch (err) {
             console.warn("Firestore sync warning (using defaults):", err);
         }
     }
 
-    injectAds() {
-        // Inject Dynamic Banner Slot if provided
-        if (this.adSettings.bannerCode) {
-            const slot = document.getElementById('mission-ad-slot');
-            if (slot) {
-                slot.innerHTML = this.adSettings.bannerCode;
-                slot.classList.remove('hidden');
-            }
-        }
+    injectBannerAd() {
+        const slot = document.getElementById('header-banner-slot');
+        if (!slot) return;
 
-        // Setup Popunder Trigger on first user click
-        if (this.adSettings.popunderEnabled && this.adSettings.popunderCode && !this.popunderTriggered) {
-            const triggerPopunder = () => {
-                if (this.popunderTriggered) return;
-                this.popunderTriggered = true;
-
-                try {
-                    const el = document.createElement('div');
-                    el.innerHTML = this.adSettings.popunderCode;
-                    Array.from(el.querySelectorAll('script')).forEach(oldScript => {
-                        const newScript = document.createElement('script');
-                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-                        document.body.appendChild(newScript);
-                    });
-                } catch(e) {}
-
-                document.removeEventListener('click', triggerPopunder);
-            };
-
-            document.addEventListener('click', triggerPopunder, { once: true });
+        if (this.adSettings.bannerCode && this.adSettings.bannerCode.trim()) {
+            slot.innerHTML = this.adSettings.bannerCode;
+            slot.classList.remove('hidden');
+            
+            // Execute any embedded scripts in banner code
+            Array.from(slot.querySelectorAll('script')).forEach(oldScript => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                slot.appendChild(newScript);
+            });
+        } else {
+            slot.innerHTML = '';
+            slot.classList.add('hidden');
         }
     }
 
