@@ -138,13 +138,23 @@ class FreeDiamondApp {
         localStorage.setItem('FD_COMPLETED_TASKS', JSON.stringify(tasks));
     }
 
+    getLocalTodayStr() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     checkDailyReset() {
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = this.getLocalTodayStr();
         const lastReset = localStorage.getItem('FD_LAST_RESET');
         if (lastReset !== todayStr) {
             localStorage.setItem('FD_COMPLETED_TASKS', JSON.stringify({}));
             localStorage.setItem('FD_LAST_RESET', todayStr);
+            return true;
         }
+        return false;
     }
 
     getSavedUid() {
@@ -485,6 +495,12 @@ class FreeDiamondApp {
             const now = new Date();
             const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
             const diff = tomorrow - now;
+
+            if (diff <= 0) {
+                if (this.checkDailyReset()) {
+                    this.renderMissions();
+                }
+            }
 
             const hours = Math.floor(diff / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
