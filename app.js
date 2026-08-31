@@ -1,6 +1,6 @@
 /**
- * FREEDIAMOND.IN - Core Application Script v4.0.0
- * Zero-Auth LocalStorage Engine + Direct Homepage Missions + Strict Firestore Redemption ({ uid, diamonds })
+ * FREEDIAMOND.IN - Core Application Script v4.1.0
+ * Zero-Auth LocalStorage Engine + 5 Dynamic Missions & Rewards from Firestore + Popunder & Banner Ad Engine + Strict Firestore Redemption
  */
 
 const firebaseConfig = {
@@ -18,19 +18,25 @@ class FreeDiamondApp {
         this.db = null;
         this.firestoreActive = false;
         
-        // 6 Daily Missions
+        // Exact 5 Daily Missions Default (Dynamically synced with Firestore settings/links)
         this.dailyMissions = [
-            { id: 1, title: "Daily Mission #1", reward: 5, url: "https://www.freediamond.in/free-fire-free-diamonds-2026" },
-            { id: 2, title: "Daily Mission #2", reward: 5, url: "https://www.freediamond.in/free-fire-diamond-uid-top-up" },
-            { id: 3, title: "Daily Mission #3", reward: 5, url: "https://www.freediamond.in/free-fire-redeem-code-2026" },
-            { id: 4, title: "Daily Mission #4", reward: 5, url: "https://www.freediamond.in/faq" },
-            { id: 5, title: "Daily Mission #5", reward: 5, url: "https://www.freediamond.in/privacy-policy" },
-            { id: 6, title: "Daily Mission #6", reward: 5, url: "https://www.freediamond.in/terms-conditions" }
+            { id: 1, title: "Daily Mission #1", reward: 5, url: "https://bzz.link.chaingpt.org/fec37781" },
+            { id: 2, title: "Daily Mission #2", reward: 5, url: "https://bzz.link.chaingpt.org/c90df4b8" },
+            { id: 3, title: "Daily Mission #3", reward: 5, url: "https://bzz.link.chaingpt.org/1f3fef79" },
+            { id: 4, title: "Daily Mission #4", reward: 5, url: "https://www.effectivecpmnetwork.com/afbz86v2q?key=cb48e93f61f76d5cde6c6d2d29ee2faa" },
+            { id: 5, title: "Daily Mission #5", reward: 5, url: "https://www.freediamond.in/free-fire-free-diamonds-2026" }
         ];
+
+        this.adSettings = {
+            popunderEnabled: false,
+            popunderCode: '',
+            bannerCode: ''
+        };
 
         this.activeVisitTask = null;
         this.visitTimerInterval = null;
         this.countdownSeconds = 15;
+        this.popunderTriggered = false;
 
         this.init();
     }
@@ -42,6 +48,9 @@ class FreeDiamondApp {
         this.renderUI();
         this.startDailyResetTimer();
         this.startLiveProofsTicker();
+        
+        // Dynamic fetch from Firestore (links, custom diamond rewards & ad tags)
+        await this.syncSettingsFromFirestore();
     }
 
     // ----------------- FIREBASE INITIALIZATION -----------------
@@ -56,6 +65,75 @@ class FreeDiamondApp {
             }
         } catch (e) {
             console.warn("Firestore initialization notice:", e);
+        }
+    }
+
+    // ----------------- SYNC SETTINGS & ADS FROM FIRESTORE -----------------
+    async syncSettingsFromFirestore() {
+        if (!this.db) return;
+
+        try {
+            // 1. Sync 5 Daily Mission Links & Custom Rewards
+            const linksDoc = await this.db.collection("settings").doc("links").get();
+            if (linksDoc.exists && linksDoc.data().items && Array.isArray(linksDoc.data().items)) {
+                const items = linksDoc.data().items.slice(0, 5);
+                if (items.length > 0) {
+                    this.dailyMissions = items.map((m, idx) => ({
+                        id: m.id || (idx + 1),
+                        title: m.title || `Daily Mission #${idx + 1}`,
+                        reward: parseInt(m.reward, 10) || 5,
+                        url: m.url || "https://www.freediamond.in"
+                    }));
+                    this.renderMissions();
+                }
+            }
+
+            // 2. Sync Popunder & Banner Ads
+            const globalDoc = await this.db.collection("settings").doc("global").get();
+            if (globalDoc.exists) {
+                const gData = globalDoc.data();
+                this.adSettings.popunderEnabled = gData.adScriptPopunderEnabled === true;
+                this.adSettings.popunderCode = gData.adScriptPopunder || '';
+                this.adSettings.bannerCode = gData.adScriptBanner || '';
+
+                this.injectAds();
+            }
+        } catch (err) {
+            console.warn("Firestore sync warning (using defaults):", err);
+        }
+    }
+
+    injectAds() {
+        // Inject Dynamic Banner Slot if provided
+        if (this.adSettings.bannerCode) {
+            const slot = document.getElementById('mission-ad-slot');
+            if (slot) {
+                slot.innerHTML = this.adSettings.bannerCode;
+                slot.classList.remove('hidden');
+            }
+        }
+
+        // Setup Popunder Trigger on first user click
+        if (this.adSettings.popunderEnabled && this.adSettings.popunderCode && !this.popunderTriggered) {
+            const triggerPopunder = () => {
+                if (this.popunderTriggered) return;
+                this.popunderTriggered = true;
+
+                try {
+                    const el = document.createElement('div');
+                    el.innerHTML = this.adSettings.popunderCode;
+                    Array.from(el.querySelectorAll('script')).forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                        document.body.appendChild(newScript);
+                    });
+                } catch(e) {}
+
+                document.removeEventListener('click', triggerPopunder);
+            };
+
+            document.addEventListener('click', triggerPopunder, { once: true });
         }
     }
 
@@ -169,7 +247,7 @@ class FreeDiamondApp {
         const completedCount = Object.keys(completedTasks).length;
         const totalCount = this.dailyMissions.length;
 
-        // Update banner badge
+        // Update banner badge (e.g. 0/5 DONE)
         const bannerPoints = document.getElementById('banner-points');
         if (bannerPoints) bannerPoints.innerText = `${completedCount}/${totalCount} DONE`;
 
@@ -177,6 +255,8 @@ class FreeDiamondApp {
 
         this.dailyMissions.forEach(m => {
             const isDone = !!completedTasks[m.id];
+            const rewardAmt = m.reward || 5;
+
             const card = document.createElement('div');
             card.className = `link-card ${isDone ? 'completed' : ''}`;
             card.innerHTML = `
@@ -186,8 +266,8 @@ class FreeDiamondApp {
                     </div>
                     <div class="link-details">
                         <h3>${m.title}</h3>
-                        <p style="color: ${isDone ? '#00e676' : 'var(--accent-gold)'};">
-                            ${isDone ? '<i class="fa-solid fa-circle-check"></i> Completed' : `Reward: +${m.reward} Diamonds`}
+                        <p style="color: ${isDone ? '#00e676' : 'var(--accent-gold)'}; font-weight: 700;">
+                            ${isDone ? '<i class="fa-solid fa-circle-check"></i> Completed' : `Reward: +${rewardAmt} Diamonds`}
                         </p>
                     </div>
                 </div>
@@ -266,7 +346,7 @@ class FreeDiamondApp {
         this.activeVisitTask = mission;
         this.countdownSeconds = 15;
 
-        // Open target link in new tab
+        // Open target direct ad URL in new tab
         try {
             window.open(mission.url, '_blank');
         } catch (e) {}
@@ -276,6 +356,11 @@ class FreeDiamondApp {
         const countdownEl = document.getElementById('daily-visit-countdown');
         const actionBox = document.getElementById('daily-visit-action-box');
         const resumeBox = document.getElementById('daily-visit-resume-box');
+        const claimBtn = document.getElementById('claim-reward-btn');
+
+        if (claimBtn) {
+            claimBtn.innerText = `CLAIM +${mission.reward || 5} DIAMONDS`;
+        }
 
         if (overlay) {
             overlay.style.display = 'flex';
@@ -303,8 +388,10 @@ class FreeDiamondApp {
 
         clearInterval(this.visitTimerInterval);
         const mission = this.activeVisitTask;
+        const reward = mission.reward || 5;
+
         this.setCompletedTask(mission.id);
-        this.addDiamonds(mission.reward);
+        this.addDiamonds(reward);
 
         // Close overlay
         const overlay = document.getElementById('daily-visit-timer-overlay');
@@ -313,7 +400,7 @@ class FreeDiamondApp {
             overlay.classList.add('hidden');
         }
 
-        this.showToast('DIAMONDS EARNED!', `+${mission.reward} Diamonds added to your wallet!`, 'success');
+        this.showToast('DIAMONDS EARNED!', `+${reward} Diamonds added to your wallet!`, 'success');
         this.activeVisitTask = null;
         this.renderMissions();
     }
@@ -354,10 +441,8 @@ class FreeDiamondApp {
             return;
         }
 
-        // Save UID for future visits
         this.setSavedUid(playerUid);
 
-        // Show global loader
         const loader = document.getElementById('global-loader');
         if (loader) loader.classList.remove('hidden');
 
@@ -380,7 +465,6 @@ class FreeDiamondApp {
                 date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
             });
 
-            // Update UI & Modal
             if (loader) loader.classList.add('hidden');
             this.renderHistory();
 
@@ -393,7 +477,6 @@ class FreeDiamondApp {
         } catch (error) {
             if (loader) loader.classList.add('hidden');
             console.error("Firestore redemption error:", error);
-            // Fallback for offline/client storage
             this.deductDiamonds(cost);
             this.saveLocalHistory({
                 uid: playerUid,

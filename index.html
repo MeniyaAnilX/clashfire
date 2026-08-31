@@ -209,9 +209,12 @@
                         <span class="countdown-timer" id="daily-timer-title">24h Daily Reset</span>
                     </div>
                     <div class="banner-right">
-                        <span class="banner-badge" id="banner-points">0/6 DONE</span>
+                        <span class="banner-badge" id="banner-points">0/5 DONE</span>
                     </div>
                 </div>
+
+                <!-- Dynamic Dynamic Mission Ad Slot (Controlled from FD Admin) -->
+                <div id="mission-ad-slot" class="native-banner-slot hidden" style="margin: 12px 0;"></div>
 
                 <!-- Daily Shortener Missions Section -->
                 <section class="dashboard-section">
@@ -410,7 +413,7 @@
             </p>
             <div id="daily-visit-countdown" style="font-size: 2.2rem; font-weight: 800; color: var(--accent-cyan); margin: 15px 0;">15s</div>
             <div id="daily-visit-action-box" style="display: none; margin-top: 15px;">
-                <button class="btn-primary" style="width: 100%; background: linear-gradient(135deg, #00e676, #00c853); color: #000; font-weight: 800;" onclick="app.claimActiveVisitReward()">CLAIM +5 DIAMONDS</button>
+                <button id="claim-reward-btn" class="btn-primary" style="width: 100%; background: linear-gradient(135deg, #00e676, #00c853); color: #000; font-weight: 800;" onclick="app.claimActiveVisitReward()">CLAIM DIAMONDS</button>
             </div>
             <div id="daily-visit-resume-box" style="display: none; margin-top: 15px;">
                 <button class="btn-primary" style="width: 100%; background: linear-gradient(135deg, var(--accent-cyan), #00d2ff); color: #000; font-weight: 800;" onclick="app.resumeDailyVisit()">CONTINUE VISIT</button>
@@ -430,6 +433,6 @@
     <!-- Firebase App & Firestore -->
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script defer src="app.js?v=4.0.0"></script>
+    <script defer src="app.js?v=4.1.0"></script>
 </body>
 </html>
