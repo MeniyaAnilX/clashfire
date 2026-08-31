@@ -2,33 +2,17 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // === ACCOUNTS ===
-    // Doc ID = Free Fire UID directly
-    // Anyone can read/write - redeem is manual so no strict validation needed
-    match /accounts/{ffUid} {
-      allow read: if true;
-      allow create: if true;
-      allow update: if true;
-      allow delete: if false; // Nobody can delete accounts from client
-    }
-
-    // === SETTINGS (Global Config) ===
-    // Read-only publicly - only update from Firebase Console
+    // === SETTINGS (Global Banner & Mission Links) ===
     match /settings/{settingId} {
-      allow read: if true;
-      allow write: if false;
+      allow read, write: if true;
     }
 
-    // === REDEMPTIONS ===
-    // Anyone can create and read redemption requests
-    // Updates/deletes only from Firebase Console (manual process)
+    // === REDEMPTIONS ({ uid, diamonds }) ===
     match /redemptions/{redemptionId} {
-      allow read: if true;
-      allow create: if true;
-      allow update, delete: if false;
+      allow read, create, update, delete: if true;
     }
 
-    // Block all other collections by default
+    // Block everything else
     match /{document=**} {
       allow read, write: if false;
     }
